@@ -462,7 +462,7 @@ kbd{font-family:inherit;font-size:11px;border:1px solid var(--line);border-botto
 .exbar .bars i.cur{outline:2px solid var(--hl);outline-offset:1px}.exbar .n{font-size:12px;color:var(--muted);white-space:nowrap}
 .spec{background:var(--soft);border-radius:12px;padding:2px 12px;margin-bottom:10px}.spec>div{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.spec>div:first-child{border-top:0}.spec span{width:84px;flex:none;color:var(--muted);font-size:13px}.spec b{font-weight:500}
 .savebtn{background:none;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--muted);cursor:pointer;margin-top:8px;font-family:inherit}.savebtn.on{background:#FAEEDA;border-color:#EF9F27;color:#854F0B}
-.ntrow{border-top:1px solid var(--line);padding:12px 0}.ntrow:first-child{border-top:0;padding-top:0}.ntwhy{font-size:15px;line-height:1.5;margin-bottom:6px}.ntex{display:flex;gap:8px;align-items:center;font-size:15px;margin:4px 0}.ntex i{font-style:normal;font-weight:700;width:14px}.ntex i.no{color:var(--bad)}.ntex i.ok{color:var(--ok)}.ntex span{flex:1}.ntft{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:6px}
+.ntrow{border-top:1px solid var(--line);padding:12px 0}.ntrow:first-child{border-top:0;padding-top:0}.ntwhy{font-size:14px;line-height:1.5;color:var(--muted);margin-top:2px}.ntex{display:flex;gap:8px;align-items:center;font-size:15px;margin:4px 0}.ntex i{font-style:normal;font-weight:700;width:14px}.ntex i.no{color:var(--bad)}.ntex i.ok{color:var(--ok)}.ntex span{flex:1}.ntft{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:6px}
 .wtitle{font-size:19px;font-weight:600;line-height:1.35;margin:2px 0 8px}.wtags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.wtag{font-size:12px;background:var(--soft);color:var(--muted);border-radius:999px;padding:3px 10px}
 .fb{border-radius:12px;padding:12px 14px;margin:10px 0;font-size:15px}.fb.ok{background:var(--ok-bg)}.fb.no{background:var(--bad-bg)}
 .fb .fbt,.fb .why,.fb .fbrow{color:var(--ink)}.fbh{font-weight:600;margin-bottom:6px}.fb.ok .fbh{color:var(--ok)}.fb.no .fbh{color:var(--bad)}
@@ -3614,16 +3614,14 @@ function svBtn(o){if(!o||!o.why)return "";const k=svKey(o);SVQ[k]=o;const on=not
   return `<button class="savebtn${on?" on":""}" data-sv="${k}">${on?"📌 Đã lưu":"📌 Lưu ghi chú"}</button>`}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-sv]");if(!b)return;e.preventDefault();e.stopPropagation();
   const k=b.dataset.sv,i=notes().findIndex(n=>n.k===k);
-  if(i>=0)S.notes.splice(i,1);else{const o=SVQ[k];if(!o)return;S.notes.unshift({k,w:o.w||"",r:o.r||"",why:o.why,src:o.src||"",d:today()})}
+  if(i>=0)S.notes.splice(i,1);else{const o=SVQ[k];if(!o)return;S.notes.unshift({k,r:o.r||"",why:o.why})}
   save();document.querySelectorAll(`[data-sv="${k}"]`).forEach(x=>{const on=i<0;x.classList.toggle("on",on);x.textContent=on?"📌 Đã lưu":"📌 Lưu ghi chú"})},true);
 function renderNotes(){
   const box=document.getElementById("nt-list"),L=notes();
   if(!L.length){box.innerHTML=`<div class="locked" style="margin-top:10px">Chưa có ghi chú. Khi gặp lời giải thích hay, bấm "📌 Lưu ghi chú" để lưu cả giải thích và câu ví dụ vào đây.</div>`;return}
-  box.innerHTML=L.map((n,i)=>{const [da,db]=n.w&&n.r?diffHTML(n.w,n.r):[esc(n.w),esc(n.r)];
-    return `<div class="ntrow"><div class="ntwhy">${esc(n.why)}</div>
-      ${n.w&&n.w!==n.r?`<div class="ntex"><i class="no">✗</i><span>${da}</span></div>`:""}
-      ${n.r?`<div class="ntex"><i class="ok">✓</i><span>${db}</span>${speakBtn(n.r,1)}</div>`:""}
-      <div class="ntft"><span>${esc(n.src)}${n.src?" · ":""}${esc(n.d.slice(8,10)+"/"+n.d.slice(5,7))}</span><button class="lnk small" data-ndel="${i}">Xóa</button></div></div>`}).join("");
+  box.innerHTML=L.map((n,i)=>`<div class="bmrow"><div style="flex:1;min-width:0">
+      ${n.r?`<div class="bt">${esc(n.r)}</div>`:""}<div class="ntwhy">${esc(n.why)}</div></div>
+    ${n.r?speakBtn(n.r):""}<button class="icon-btn" data-ndel="${i}" aria-label="Xóa" title="Xóa">✕</button></div>`).join("");
   box.querySelectorAll("[data-ndel]").forEach(x=>x.onclick=()=>{S.notes.splice(+x.dataset.ndel,1);save();renderNotes()});
 }
 
