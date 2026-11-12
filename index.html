@@ -809,21 +809,21 @@ const K="eng-gemini-key",M="eng-gemini-model";
 const get=k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}};
 window.__gkey=()=>get(K);
 const FALLBACK=["gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash","gemini-flash-lite-latest"];
-async function call(prompt,json,tier){
+async function call(prompt,json,tier,to){
   const first=get(M)||(tier==="fast"?"gemini-flash-lite-latest":FALLBACK[0]),list=[first,...FALLBACK.filter(x=>x!==first)];let last=null;
   for(let i=0;i<list.length;i++){
-    try{return await callOne(prompt,json,list[i],tier==="fast")}
+    try{return await callOne(prompt,json,list[i],tier==="fast",to)}
     catch(e){
-      if(e&&e.think){try{return await callOne(prompt,json,list[i],false)}catch(e2){e=e2}}
+      if(e&&e.think){try{return await callOne(prompt,json,list[i],false,to)}catch(e2){e=e2}}
       last=e;if(!(e&&e.retry))throw e}
     await new Promise(r=>setTimeout(r,i?0:1200));
   }
   throw last;
 }
-async function callOne(prompt,json,model,noThink){
+async function callOne(prompt,json,model,noThink,to){
   const key=get(K);if(!key)throw{code:"no_key"};
   let r;
-  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),(window.__gTimeout||60000));
+  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),(to||window.__gTimeout||60000));
   try{r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",signal:ac.signal,headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:Object.assign(json?{responseMimeType:"application/json"}:{},noThink?{thinkingConfig:{thinkingBudget:0}}:{})})})}
   catch(e){clearTimeout(tm);if(e&&e.name==="AbortError")throw{code:"error",msg:"Quá thời gian chờ, model "+model+" không trả lời",retry:true};throw{code:"error",msg:"Không nối được tới Google ("+(e&&e.message||"lỗi mạng")+")"}}
   clearTimeout(tm);
@@ -837,8 +837,8 @@ async function callOne(prompt,json,model,noThink){
   if(!text)throw{code:"error",msg:"Gemini trả về rỗng"};
   return text;
 }
-const sample=async(p,o)=>({text:await call(p,false,o&&o.modelTier)});
-sample.json=async(p,o)=>{const t=await call(p,true,o&&o.modelTier);try{return JSON.parse(t)}catch(e){const m=t.match(/\{[\s\S]*\}/);try{return JSON.parse(m[0])}catch(e2){throw{code:"bad"}}}};
+const sample=async(p,o)=>({text:await call(p,false,o&&o.modelTier,o&&o.timeout)});
+sample.json=async(p,o)=>{const t=await call(p,true,o&&o.modelTier,o&&o.timeout);try{return JSON.parse(t)}catch(e){const m=t.match(/\{[\s\S]*\}/);try{return JSON.parse(m[0])}catch(e2){throw{code:"bad"}}}};
 window.claude={use:async n=>n==="sample"?sample:null};
 })();
 </script>
@@ -1157,7 +1157,7 @@ async function askJSON(prompt,opt){
   if(!sample)throw{code:"no_sample"};
   const full=prompt+(opt&&opt.mono?"":"\n\nFor EVERY field whose name ends in _vi, also include the same field ending in _en: the same content in simple English (A2 level).")+"\n\nReturn ONLY valid JSON, no markdown fences, no extra text.";
   let v;
-  if(typeof sample.json==="function"){v=await sample.json(full,{modelTier:opt&&opt.mono?"fast":"default"})}
+  if(typeof sample.json==="function"){v=await sample.json(full,{modelTier:opt&&opt.mono?"fast":"default",timeout:opt&&opt.timeout})}
   else{const r=await sample(full,{modelTier:"default"});const m=(r.text||"").match(/\{[\s\S]*\}/);v=JSON.parse(m?m[0]:r.text)}
   return biMerge(v);
 }
@@ -2778,16 +2778,39 @@ function renderIpa(){
   else box.innerHTML=loadingHTML("Đang lấy phiên âm...");
   placeSel();
 }
+async function dictIpa(w){
+  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),4000);
+  try{
+    const r=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w.toLowerCase()),{signal:ac.signal});
+    if(!r.ok)return "";
+    const d=await r.json();let best="";
+    for(const e of d)for(const ph of (e.phonetics||[])){
+      if(!ph.text)continue;const t=ph.text.replace(/^\/|\/$/g,"");
+      if(/-us\./.test(ph.audio||""))return t;
+      if(!best)best=t;
+    }
+    return best||((d[0]&&d[0].phonetic)||"").replace(/^\/|\/$/g,"");
+  }catch(e){return ""}finally{clearTimeout(tm)}
+}
 async function showIpa(){
   const text=SEL.text,key=norm(text);
   if(text.split(/\s+/).length>6){SEL.ipaShow=3;renderIpa();return}
   SEL.ipaShow=1;
   if(ipaLocal(text)){renderIpa();return}
-  if(!sample||!navigator.onLine){SEL.ipaShow=2;renderIpa();return}
+  if(!navigator.onLine){SEL.ipaShow=2;renderIpa();return}
   renderIpa();
+  /* từ điển miễn phí trả IPA gần như tức thì; cụm thì ghép IPA từng từ */
+  const ws=text.split(/\s+/).map(w=>w.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g,"")).filter(Boolean);
+  const parts=await Promise.all(ws.map(dictIpa));
+  if(parts.length&&parts.every(Boolean)){
+    const ip=parts.join(" ");IPAC[key]=ip;
+    if(norm(SEL.text)===key){SEL.ipaShow=1;renderIpa()}
+    return;
+  }
+  if(!sample){if(norm(SEL.text)===key){SEL.ipaShow=2;renderIpa()}return}
   try{
     const v=await askJSON(`Give the General American (US) IPA pronunciation of this English word or short phrase: "${text}"
-Return JSON: {"ipa":"IPA only, no slashes, with stress marks"}`,{mono:true});
+Return JSON: {"ipa":"IPA only, no slashes, with stress marks"}`,{mono:true,timeout:12000});
     const ip=String(v.ipa||"").replace(/^\/|\/$/g,"").trim();
     if(ip)IPAC[key]=ip;
     if(norm(SEL.text)===key){SEL.ipaShow=ip?1:2;renderIpa()}
