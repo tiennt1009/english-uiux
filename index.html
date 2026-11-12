@@ -877,14 +877,14 @@ const setSkip=(m,ms)=>{try{localStorage.setItem("eng-skip-"+m,String(Date.now()+
 function aiNote(t){const b=document.getElementById("ai-banner");if(!b)return;
   if(t){b.dataset.q="1";b.style.display="block";b.textContent=t}else if(b.dataset.q){b.dataset.q="";b.style.display="none"}}
 async function call(prompt,json,tier,to){
-  const fast=tier==="fast",quick=tier==="quick",first=fast?get("eng-fast-ok"):get(M),base=fast?FAST:FALLBACK,all=first?[first,...base.filter(x=>x!==first)]:base;
+  const quick=tier==="quick",fast=tier==="fast"||quick,first=fast?get("eng-fast-ok"):get(M),base=fast?FAST:FALLBACK,all=first?[first,...base.filter(x=>x!==first)]:base;
   let list=all.filter(m=>skipT(m)<=Date.now());if(!list.length)list=all;
-  const tmo=to||(fast?7000:quick?20000:0);let last=null,nDaily=0;
+  const tmo0=to||(quick?10000:fast?7000:0);let last=null,nDaily=0;
   for(let i=0;i<list.length;i++){
     const m=list[i];
     try{
       let r;
-      try{r=await callOne(prompt,json,m,(fast||quick)&&!window.__noThinkBad,tmo)}
+      const tmo=quick&&/^gemma/.test(m)?30000:tmo0;try{r=await callOne(prompt,json,m,fast&&!window.__noThinkBad,tmo)}
       catch(e){
         if(e&&e.think){window.__noThinkBad=true;try{localStorage.setItem("eng-nothink-bad","1")}catch(_){}r=await callOne(prompt,json,m,false,tmo)}
         else throw e}
