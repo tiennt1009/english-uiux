@@ -3159,8 +3159,7 @@ function wrFirst(P){const cfg=wrCfg(P),x=wrGet();
   if(P===3&&!x.cfin&&x.cs.length<WMAX)return x.cs.length;
   return cfg.n}
 function wrGoPart(P){wrRetry=null;wrPart=P;wrI[P]=wrFirst(P);renderWrite()}
-function wrBrief(ct,k){const L=(ct.q||[]).map((q,i)=>`<div style="margin-top:4px"><b>Câu ${i+1}:</b> ${esc(q)}</div>`).join("");
-  const body=`<div class="small muted" style="margin-bottom:2px">Đề bài</div><div style="font-weight:600">${esc(ct.t)}</div><div class="small" style="margin-top:8px">${L}</div>`;
+function wrBrief(ct,k){const body=`<div class="small muted" style="margin-bottom:2px">Đề bài</div><div style="font-weight:600">${esc(ct.t)}</div>`;
   const bx="border:1px solid var(--line,#e5e2da);border-radius:12px;padding:12px;margin-bottom:12px";
   return k?`<details style="${bx}"><summary class="small muted" style="cursor:pointer">Xem lại đề bài</summary><div style="margin-top:8px">${body}</div></details>`:`<div style="${bx}">${body}</div>`}
 function renderWrite(){
