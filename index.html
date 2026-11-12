@@ -2228,11 +2228,20 @@ function weekWords(){const m=mon(),ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.v
 function vu8Get(){if(!S.vu8||S.vu8.ws!==mon())S.vu8={ws:mon(),words:[],res:{}};if(!Object.keys(S.vu8.res).length)S.vu8.words=weekWords();return S.vu8}
 function usedWords(text,words){const t=" "+norm(text)+" ";return words.filter(w=>{const b=norm(w),st=b.length>4?b.slice(0,-1):b;try{return new RegExp("\\b"+st.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\w{0,3}\\b").test(t)}catch(e){return false}})}
 /* từ của tuần dùng cho mọi phần: ngữ pháp, nghe & nói, viết, sản phẩm tuần */
-function wkWords(){return vu8Get().words}
-function vocabCtx(how){const ws=wkWords();if(!ws.length)return "";
-  return `\nTARGET WORDS the learner learned this week (weakest first): ${ws.map(w=>{const c=VOCAB.find(x=>x.w===w);return c?`${w} (${plain(c.vi)})`:w}).join(", ")}.\n${how} Keep each word's meaning exactly as given; use the simplest form of the word.\n`}
-function wordChips(text,lead){const ws=wkWords();if(!ws.length)return "";const u=usedWords(text||"",ws);
-  return `<div class="wchips"><span class="small muted">${lead||"Từ của tuần"} · ${u.length}/${ws.length}</span><div class="chips">${ws.map(w=>`<span class="chip ${u.includes(w)?"on":""}">${esc(w)}</span>`).join("")}</div></div>`}
+/* toàn bộ từ đã học tính tới hôm nay trong tuần (T2 6 từ, T3 12 từ...), ưu tiên từ mới học và từ còn yếu.
+   Đề được soạn lúc bạn mở buổi, nên luôn dùng đúng các từ đã học tới ngày đó, không dùng từ chưa học. */
+function wkWords(){const m=mon(),t=today();
+  const ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.vocab[c.w]&&c.cat!=="talk");
+  const sorted=pl=>pl.slice().sort((a,b)=>(S.vocab[a[0].w].box||0)-(S.vocab[b[0].w].box||0)||String(S.vocab[b[0].w].first||"").localeCompare(String(S.vocab[a[0].w].first||""))||b[1]-a[1]);
+  const th=sorted(ent.filter(([c])=>(S.vocab[c.w].first||"")>=m));
+  if(th.length>=6)return th.map(([c])=>c.w);
+  const old=sorted(ent.filter(([c])=>!((S.vocab[c.w].first||"")>=m))).slice(0,6-th.length);
+  return [...th,...old].map(([c])=>c.w)}
+function vocabCtx(how){const ws=wkWords().slice(0,30);if(!ws.length)return "";
+  return `\nTARGET WORDS = every word the learner has learned so far this week (${ws.length} words; newest and weakest first, so prefer the first ones, and spread across the list instead of reusing the same few): ${ws.map(w=>{const c=VOCAB.find(x=>x.w===w);return c?`${w} (${plain(c.vi)})`:w}).join(", ")}.\n${how} Keep each word's meaning exactly as given; use the simplest form of the word.\n`}
+function wordChips(text,lead){const ws=wkWords();if(!ws.length)return "";const u=usedWords(text||"",ws),MAX=12;
+  const show=[...ws.filter(w=>u.includes(w)),...ws.filter(w=>!u.includes(w))].slice(0,Math.max(MAX,u.length)),more=ws.length-show.length;
+  return `<div class="wchips"><span class="small muted">${lead||"Từ của tuần"} · đã dùng ${u.length}/${ws.length}</span><div class="chips">${show.map(w=>`<span class="chip ${u.includes(w)?"on":""}">${esc(w)}</span>`).join("")}${more>0?`<span class="small muted" style="align-self:center">+${more} từ khác</span>`:""}</div></div>`}
 function vstoryStat(){const x=S.vstory;if(!x||x.ws!==mon()||!x.v)return null;const r=x.v.results||[];return {n:r.length,ok:r.filter(y=>y.ok).length,used:(x.used||[]).length}}
 function dueCards(){const t=today();return vPool().filter(c=>{const s=S.vocab[c.w];return !s||!s.due||s.due<=t})}
 let fcQueue=[],fcMode="review",fcState="ask",fcLast=null,fcPractice=false,fcDoneMsg=false;
@@ -2488,7 +2497,8 @@ function shGet(){if(!S.sh||S.sh.k!==shKey())S.sh={k:shKey(),lines:null,d:{},p:{}
 const shLines=()=>shGet().lines||SH_BASE;
 let shBusy=false;
 async function shGen(force){
-  const x=shGet();if(shBusy||(!force&&x.lines)||!sample)return;
+  const x=shGet(),grew=x.lines&&!Object.keys(x.d).length&&!Object.keys(x.p).length&&wkWords().length-(x.nw||0)>=4;
+  if(shBusy||(!force&&x.lines&&!grew)||!sample)return;
   shBusy=true;document.getElementById("sh-sub").innerHTML=loadingHTML("Đang soạn đoạn hội thoại của tuần...");
   const sc=SCEN.find(s=>s.k===S.rp.scen),wk=WEEKS[Math.min(W().n,WEEKS.length)-1]||WEEKS[0];
   try{
@@ -2499,7 +2509,7 @@ This week's grammar: ${wk[0]}. Topic: ${wk[1]}.
 ${vocabCtx("Use 3-4 different target words naturally in the dialogue, at least 2 of them in the learner's (Bạn) lines.")}The learner is a Vietnamese UI/UX designer and speaks every second line (the "Bạn" lines); the colleague speaks the others. Lines must be natural spoken American English, short (4-12 words), at the learner's level, and useful to reuse in the roleplay afterwards.
 JSON: {"lines":[{"who":"name (role) or Bạn","en":"...","vi":"short Vietnamese meaning"}]}`);
     const L=(v.lines||[]).filter(l=>l&&l.en).slice(0,8).map(l=>({who:String(l.who||""),en:String(l.en).trim(),vi:String(l.vi||"")}));
-    if(L.length>=3){S.sh={k:shKey(),lines:L,d:{},p:{}};save()}
+    if(L.length>=3){S.sh={k:shKey(),lines:L,d:{},p:{},nw:wkWords().length};save()}
   }catch(e){document.getElementById("sh-err").textContent=aiErrMsg(e)+" Tạm dùng đoạn mẫu bên trên, vẫn luyện bình thường."}
   shBusy=false;renderShadow();
 }
