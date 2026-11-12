@@ -2409,6 +2409,9 @@ function recEnd(err){
   if(!REC.on)return;REC.on=false;const b=REC.btn;if(b)b.classList.remove("on");
   const cb=REC.cb;REC.cb=null;if(cb)cb(REC.fin.trim(),err||null);
 }
+/* gộp đoạn mới vào đoạn đã có: nếu đoạn mới đã chứa đoạn cũ (kết quả cộng dồn) thì thay, nếu trùng thì bỏ, còn lại thì nối */
+function srMerge(a,b){a=(a||"").trim();b=(b||"").trim();if(!b)return a;if(!a)return b;
+  const na=norm(a),nb=norm(b);if(nb.startsWith(na))return b;if(na.endsWith(nb)||na.includes(nb))return a;return a+" "+b}
 function recStop(){if(!REC.on)return;try{if(REC.sr)REC.sr.stop();else if(dict)dict.stop().catch(()=>{})}catch(e){recEnd()}}
 /* bắt đầu nghe; gọi trực tiếp từ cú bấm. short=true: tự dừng sau cụm đầu tiên (đọc 1 từ) */
 function recStart(btn,{live,done,short}){
@@ -2418,8 +2421,12 @@ function recStart(btn,{live,done,short}){
     if(SRC()&&!REC.sr){REC.noDict=c;REC.on=false;recStart(btn,{live,done,short});return}
     recEnd({code:c,src:"claude"})});return}
   const C=SRC();if(!C){recEnd({code:"unsupported"});return}
-  try{const r=new C();REC.sr=r;r.lang="en-US";r.interimResults=true;r.continuous=!short;r.maxAlternatives=1;
-    r.onresult=e=>{let f="",i="";for(const x of e.results){if(x.isFinal)f+=x[0].transcript+" ";else i+=x[0].transcript}REC.fin=f;if(REC.live)REC.live((f+i).trim())};
+  /* Chrome Android: chế độ continuous trả lại cả câu cộng dồn ở mỗi kết quả ("hi", "hi i", "hi i usually"...),
+     nối lại sẽ thành một tràng lặp. Trên Android chỉ nghe 1 lượt (tự dừng khi ngừng nói), và luôn gộp có khử lặp. */
+  const android=/Android/i.test(navigator.userAgent);
+  try{const r=new C();REC.sr=r;r.lang="en-US";r.interimResults=true;r.continuous=!short&&!android;r.maxAlternatives=1;
+    r.onresult=e=>{let f="",i="";for(const x of e.results){const t=x[0].transcript.trim();if(x.isFinal)f=srMerge(f,t);else i=srMerge(i,t)}
+      REC.fin=f;if(REC.live)REC.live(srMerge(f,i))};
     r.onerror=e=>recEnd({code:e.error==="not-allowed"||e.error==="service-not-allowed"?"not_granted":e.error,raw:e.error,src:"web"});
     r.onend=()=>recEnd();r.start();
   }catch(e){recEnd({code:"unsupported"})}
