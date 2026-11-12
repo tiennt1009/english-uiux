@@ -807,14 +807,14 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
 (function(){
 const K="eng-gemini-key",M="eng-gemini-model";
 const get=k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}};
-window.__gkey=()=>get(K);
+window.__gkey=()=>get(K);window.__noThinkBad=get("eng-nothink-bad")==="1";
 const FALLBACK=["gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash","gemini-flash-lite-latest"];
 async function call(prompt,json,tier,to){
   const first=get(M)||(tier==="fast"?"gemini-flash-lite-latest":FALLBACK[0]),list=[first,...FALLBACK.filter(x=>x!==first)];let last=null;
   for(let i=0;i<list.length;i++){
     try{return await callOne(prompt,json,list[i],tier==="fast"&&!window.__noThinkBad,to)}
     catch(e){
-      if(e&&e.think){window.__noThinkBad=true;try{return await callOne(prompt,json,list[i],false,to)}catch(e2){e=e2}}
+      if(e&&e.think){window.__noThinkBad=true;try{localStorage.setItem("eng-nothink-bad","1")}catch(_){}try{return await callOne(prompt,json,list[i],false,to)}catch(e2){e=e2}}
       last=e;if(!(e&&e.retry))throw e}
     await new Promise(r=>setTimeout(r,i?0:1200));
   }
@@ -2772,7 +2772,7 @@ function renderIpa(){
   const box=document.getElementById("sp-ipa");if(!box)return;
   if(!SEL.ipaShow){box.innerHTML="";return}
   const ip=ipaLocal(SEL.text);
-  if(ip)box.innerHTML=`<span class="ipa raw">/${esc(ip)}/</span>`;
+  if(ip)box.innerHTML=`<span class="ipa raw">/${esc(ip)}/</span>${SEL.ipaSrc?` <span class="nt raw">· ${esc(SEL.ipaSrc)}</span>`:""}`;
   else if(SEL.ipaShow===2)box.innerHTML=`<div class="nt">Chưa lấy được phiên âm.${SEL.ipaErr?` <span class="raw">(${esc(String(SEL.ipaErr).slice(0,200))})</span>`:""}</div>`;
   else if(SEL.ipaShow===3)box.innerHTML=`<div class="nt">Câu dài, chỉ phiên âm từ và cụm ngắn.</div>`;
   else box.innerHTML=loadingHTML("Đang lấy phiên âm...");
@@ -2780,7 +2780,7 @@ function renderIpa(){
 }
 let ipaWhy="";
 async function dictIpa(w){
-  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),4000);
+  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),2500);
   try{
     const r=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w.toLowerCase()),{signal:ac.signal});
     if(!r.ok){ipaWhy="từ điển: không có từ \""+w+"\" (HTTP "+r.status+")";return ""}
@@ -2791,12 +2791,12 @@ async function dictIpa(w){
       if(!best)best=t;
     }
     return best||((d[0]&&d[0].phonetic)||"").replace(/^\/|\/$/g,"");
-  }catch(e){ipaWhy="từ điển: "+(e&&e.name==="AbortError"?"quá 4 giây":"không nối được (có thể bị chặn)");return ""}finally{clearTimeout(tm)}
+  }catch(e){ipaWhy="từ điển: "+(e&&e.name==="AbortError"?"quá 2,5 giây":"không nối được (có thể bị chặn)");return ""}finally{clearTimeout(tm)}
 }
 async function showIpa(){
   const text=SEL.text,key=norm(text);
   if(text.split(/\s+/).length>6){SEL.ipaShow=3;renderIpa();return}
-  SEL.ipaShow=1;ipaWhy="";SEL.ipaErr="";
+  SEL.ipaShow=1;ipaWhy="";SEL.ipaErr="";SEL.ipaSrc="";const t0=performance.now(),sec=()=>((performance.now()-t0)/1000).toFixed(1).replace(".",",")+"s";
   if(ipaLocal(text)){renderIpa();return}
   if(!navigator.onLine){SEL.ipaShow=2;renderIpa();return}
   renderIpa();
@@ -2804,7 +2804,7 @@ async function showIpa(){
   const ws=text.split(/\s+/).map(w=>w.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g,"")).filter(Boolean);
   const parts=await Promise.all(ws.map(dictIpa));
   if(parts.length&&parts.every(Boolean)){
-    const ip=parts.join(" ");IPAC[key]=ip;
+    const ip=parts.join(" ");IPAC[key]=ip;SEL.ipaSrc="từ điển "+sec();
     if(norm(SEL.text)===key){SEL.ipaShow=1;renderIpa()}
     return;
   }
@@ -2813,7 +2813,7 @@ async function showIpa(){
     const v=await askJSON(`Give the General American (US) IPA pronunciation of this English word or short phrase: "${text}"
 Return JSON: {"ipa":"IPA only, no slashes, with stress marks"}`,{mono:true,timeout:12000});
     const ip=String(v.ipa||"").replace(/^\/|\/$/g,"").trim();
-    if(ip)IPAC[key]=ip;
+    if(ip){IPAC[key]=ip;SEL.ipaSrc="Gemini "+sec()+(ipaWhy?" ("+ipaWhy+")":"")}
     if(!ip)SEL.ipaErr=ipaWhy+" · Gemini: trả về rỗng";
     if(norm(SEL.text)===key){SEL.ipaShow=ip?1:2;renderIpa()}
   }catch(e){SEL.ipaErr=ipaWhy+" · Gemini: "+((e&&(e.msg||e.code))||"lỗi");if(norm(SEL.text)===key){SEL.ipaShow=2;renderIpa()}}
