@@ -809,16 +809,16 @@ const K="eng-gemini-key",M="eng-gemini-model";
 const get=k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}};
 window.__gkey=()=>get(K);window.__noThinkBad=get("eng-nothink-bad")==="1";
 const FALLBACK=["gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash","gemini-flash-lite-latest"];
-const FAST=["gemini-2.5-flash-lite","gemini-flash-lite-latest","gemini-2.5-flash","gemini-flash-latest"];
+const FAST=["gemini-flash-lite-latest","gemini-2.5-flash","gemini-flash-latest"];
 async function call(prompt,json,tier,to){
-  const fast=tier==="fast",first=get(M),base=fast?FAST:FALLBACK,list=first?[first,...base.filter(x=>x!==first)]:base;
+  const fast=tier==="fast",first=fast?get("eng-fast-ok"):get(M),base=fast?FAST:FALLBACK,list=first?[first,...base.filter(x=>x!==first)]:base;
   let last=null;const tr=[];window.__gTrace="";
   const T0=performance.now(),fmt=t=>((t)/1000).toFixed(1).replace(".",",")+"s",nm=m=>m.replace(/^gemini-/,"");
   for(let i=0;i<list.length;i++){
     const t1=performance.now();
     try{
       const r=await callOne(prompt,json,list[i],fast&&!window.__noThinkBad,to||(fast?7000:0));
-      tr.push(nm(list[i])+" ✓ "+fmt(performance.now()-t1));window.__gTrace=tr.join(" → ");return r;
+      tr.push(nm(list[i])+" ✓ "+fmt(performance.now()-t1));window.__gTrace=tr.join(" → ");if(fast)try{localStorage.setItem("eng-fast-ok",list[i])}catch(_){}return r;
     }catch(e){
       if(e&&e.think){window.__noThinkBad=true;try{localStorage.setItem("eng-nothink-bad","1")}catch(_){}
         tr.push(nm(list[i])+" ✗ từ chối lệnh không-suy-nghĩ "+fmt(performance.now()-t1));
@@ -2789,7 +2789,9 @@ function renderIpa(){
   placeSel();
 }
 let ipaWhy="";
+let dictBad=false;
 async function dictIpa(w){
+  if(dictBad){ipaWhy="";return ""}
   const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),2500);
   try{
     const r=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w.toLowerCase()),{signal:ac.signal});
@@ -2801,7 +2803,7 @@ async function dictIpa(w){
       if(!best)best=t;
     }
     const ph0=best||((d[0]&&d[0].phonetic)||"").replace(/^\/|\/$/g,"");if(!ph0)ipaWhy="từ điển có \""+w+"\" nhưng chưa có IPA";return ph0;
-  }catch(e){ipaWhy="từ điển: "+(e&&e.name==="AbortError"?"quá 2,5 giây":"không nối được (có thể bị chặn)");return ""}finally{clearTimeout(tm)}
+  }catch(e){dictBad=true;ipaWhy="";return ""}finally{clearTimeout(tm)}
 }
 async function showIpa(){
   const text=SEL.text,key=norm(text);
