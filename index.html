@@ -808,25 +808,34 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
 const K="eng-gemini-key",M="eng-gemini-model";
 const get=k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}};
 window.__gkey=()=>get(K);window.__noThinkBad=get("eng-nothink-bad")==="1";
-const FALLBACK=["gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash","gemini-flash-lite-latest"];
+const FALLBACK=["gemini-flash-latest","gemini-2.5-flash","gemini-flash-lite-latest"];
 const FAST=["gemini-flash-lite-latest","gemini-2.5-flash","gemini-flash-latest"];
+const skipT=m=>+(get("eng-skip-"+m)||0);
+const setSkip=(m,ms)=>{try{localStorage.setItem("eng-skip-"+m,String(Date.now()+ms))}catch(_){}};
+function aiNote(t){const b=document.getElementById("ai-banner");if(!b)return;
+  if(t){b.dataset.q="1";b.style.display="block";b.textContent=t}else if(b.dataset.q){b.dataset.q="";b.style.display="none"}}
 async function call(prompt,json,tier,to){
-  const fast=tier==="fast",first=fast?get("eng-fast-ok"):get(M),base=fast?FAST:FALLBACK,list=first?[first,...base.filter(x=>x!==first)]:base;
-  let last=null;const tr=[];window.__gTrace="";
-  const T0=performance.now(),fmt=t=>((t)/1000).toFixed(1).replace(".",",")+"s",nm=m=>m.replace(/^gemini-/,"");
+  const fast=tier==="fast",first=fast?get("eng-fast-ok"):get(M),base=fast?FAST:FALLBACK,all=first?[first,...base.filter(x=>x!==first)]:base;
+  let list=all.filter(m=>skipT(m)<=Date.now());if(!list.length)list=all;
+  const tmo=to||(fast?7000:0);let last=null;
   for(let i=0;i<list.length;i++){
-    const t1=performance.now();
+    const m=list[i];
     try{
-      const r=await callOne(prompt,json,list[i],fast&&!window.__noThinkBad,to||(fast?7000:0));
-      tr.push(nm(list[i])+" ✓ "+fmt(performance.now()-t1));window.__gTrace=tr.join(" → ");if(fast)try{localStorage.setItem("eng-fast-ok",list[i])}catch(_){}return r;
+      let r;
+      try{r=await callOne(prompt,json,m,fast&&!window.__noThinkBad,tmo)}
+      catch(e){
+        if(e&&e.think){window.__noThinkBad=true;try{localStorage.setItem("eng-nothink-bad","1")}catch(_){}r=await callOne(prompt,json,m,false,tmo)}
+        else throw e}
+      if(fast){try{localStorage.setItem("eng-fast-ok",m)}catch(_){}}
+      else{
+        const lite=/lite/.test(m)&&!/lite/.test(all[0]);
+        aiNote(lite?"Model chính đã hết lượt hôm nay, đang dùng model nhẹ hơn nên nhận xét có thể kém tinh hơn. Lượt thường được làm mới vào khoảng 15 giờ (giờ Việt Nam).":"");
+      }
+      return r;
     }catch(e){
-      if(e&&e.think){window.__noThinkBad=true;try{localStorage.setItem("eng-nothink-bad","1")}catch(_){}
-        tr.push(nm(list[i])+" ✗ từ chối lệnh không-suy-nghĩ "+fmt(performance.now()-t1));
-        const t2=performance.now();
-        try{const r=await callOne(prompt,json,list[i],false,to||(fast?7000:0));tr.push(nm(list[i])+" ✓ "+fmt(performance.now()-t2));window.__gTrace=tr.join(" → ");return r}catch(e2){e=e2}}
-      last=e;tr.push(nm(list[i])+" ✗ "+(e&&(e.code==="rate_limited"?"429":e.retry?"lỗi/quá tải":e.code||"lỗi"))+" "+fmt(performance.now()-t1));
-      window.__gTrace=tr.join(" → ");if(!(e&&e.retry))throw e}
-    if(i===0&&!fast)await new Promise(r=>setTimeout(r,1200));
+      last=e;
+      if(e&&e.code==="rate_limited")setSkip(m,e.daily?3*3600e3:90e3);
+      if(!(e&&e.retry))throw e}
   }
   throw last;
 }
@@ -837,9 +846,9 @@ async function callOne(prompt,json,model,noThink,to){
   try{r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",signal:ac.signal,headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:Object.assign(json?{responseMimeType:"application/json"}:{},noThink?{thinkingConfig:{thinkingBudget:0}}:{})})})}
   catch(e){clearTimeout(tm);if(e&&e.name==="AbortError")throw{code:"error",msg:"Quá thời gian chờ, model "+model+" không trả lời",retry:true};throw{code:"error",msg:"Không nối được tới Google ("+(e&&e.message||"lỗi mạng")+")"}}
   clearTimeout(tm);
-  if(!r.ok){let m="";try{m=(await r.json()).error.message}catch(e){}
+  if(!r.ok){let m="",raw="";try{raw=await r.text();m=(JSON.parse(raw).error||{}).message||""}catch(e){}
     if(r.status===400&&noThink&&!/api key/i.test(m))throw{code:"error",msg:m,think:true};
-    if(r.status===429)throw{code:"rate_limited",msg:m,retry:true};
+    if(r.status===429)throw{code:"rate_limited",msg:m,retry:true,daily:/PerDay|per day/i.test(raw)};
     if(r.status===401||r.status===403||(r.status===400&&/api key/i.test(m)))throw{code:"bad_key",msg:m};
     throw{code:"error",msg:m||("HTTP "+r.status),retry:r.status===503||r.status===500||r.status===404||r.status===502}}
   const d=await r.json();const c=((d.candidates||[])[0]||{}).content;
