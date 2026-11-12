@@ -807,23 +807,26 @@ const K="eng-gemini-key",M="eng-gemini-model";
 const get=k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}};
 window.__gkey=()=>get(K);
 const FALLBACK=["gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash","gemini-flash-lite-latest"];
-async function call(prompt,json){
-  const first=get(M)||FALLBACK[0],list=[first,...FALLBACK.filter(x=>x!==first)];let last=null;
+async function call(prompt,json,tier){
+  const first=get(M)||(tier==="fast"?"gemini-flash-lite-latest":FALLBACK[0]),list=[first,...FALLBACK.filter(x=>x!==first)];let last=null;
   for(let i=0;i<list.length;i++){
-    try{return await callOne(prompt,json,list[i])}
-    catch(e){last=e;if(!(e&&e.retry))throw e}
+    try{return await callOne(prompt,json,list[i],tier==="fast")}
+    catch(e){
+      if(e&&e.think){try{return await callOne(prompt,json,list[i],false)}catch(e2){e=e2}}
+      last=e;if(!(e&&e.retry))throw e}
     await new Promise(r=>setTimeout(r,i?0:1200));
   }
   throw last;
 }
-async function callOne(prompt,json,model){
+async function callOne(prompt,json,model,noThink){
   const key=get(K);if(!key)throw{code:"no_key"};
   let r;
   const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),(window.__gTimeout||60000));
-  try{r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",signal:ac.signal,headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:json?{responseMimeType:"application/json"}:{}})})}
+  try{r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",signal:ac.signal,headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:Object.assign(json?{responseMimeType:"application/json"}:{},noThink?{thinkingConfig:{thinkingBudget:0}}:{})})})}
   catch(e){clearTimeout(tm);if(e&&e.name==="AbortError")throw{code:"error",msg:"Quá thời gian chờ, model "+model+" không trả lời",retry:true};throw{code:"error",msg:"Không nối được tới Google ("+(e&&e.message||"lỗi mạng")+")"}}
   clearTimeout(tm);
   if(!r.ok){let m="";try{m=(await r.json()).error.message}catch(e){}
+    if(r.status===400&&noThink&&/think/i.test(m))throw{code:"error",msg:m,think:true};
     if(r.status===429)throw{code:"rate_limited",msg:m,retry:true};
     if(r.status===401||r.status===403||(r.status===400&&/api key/i.test(m)))throw{code:"bad_key",msg:m};
     throw{code:"error",msg:m||("HTTP "+r.status),retry:r.status===503||r.status===500||r.status===404||r.status===502}}
@@ -832,8 +835,8 @@ async function callOne(prompt,json,model){
   if(!text)throw{code:"error",msg:"Gemini trả về rỗng"};
   return text;
 }
-const sample=async p=>({text:await call(p,false)});
-sample.json=async p=>{const t=await call(p,true);try{return JSON.parse(t)}catch(e){const m=t.match(/\{[\s\S]*\}/);try{return JSON.parse(m[0])}catch(e2){throw{code:"bad"}}}};
+const sample=async(p,o)=>({text:await call(p,false,o&&o.modelTier)});
+sample.json=async(p,o)=>{const t=await call(p,true,o&&o.modelTier);try{return JSON.parse(t)}catch(e){const m=t.match(/\{[\s\S]*\}/);try{return JSON.parse(m[0])}catch(e2){throw{code:"bad"}}}};
 window.claude={use:async n=>n==="sample"?sample:null};
 })();
 </script>
@@ -1152,7 +1155,7 @@ async function askJSON(prompt,opt){
   if(!sample)throw{code:"no_sample"};
   const full=prompt+(opt&&opt.mono?"":"\n\nFor EVERY field whose name ends in _vi, also include the same field ending in _en: the same content in simple English (A2 level).")+"\n\nReturn ONLY valid JSON, no markdown fences, no extra text.";
   let v;
-  if(typeof sample.json==="function"){v=await sample.json(full,{modelTier:"default"})}
+  if(typeof sample.json==="function"){v=await sample.json(full,{modelTier:opt&&opt.mono?"fast":"default"})}
   else{const r=await sample(full,{modelTier:"default"});const m=(r.text||"").match(/\{[\s\S]*\}/);v=JSON.parse(m?m[0]:r.text)}
   return biMerge(v);
 }
@@ -3131,19 +3134,11 @@ $("gem-key").value=g(K);$("gem-model").value=g(M);
 $("gem-save").onclick=async()=>{
   const m=$("gem-msg"),k=$("gem-key").value.trim().replace(/\s+/g,""),md=$("gem-model").value.trim();
   if(!k){m.style.color="var(--bad)";m.textContent="Dán key trước đã.";return}
-  try{localStorage.setItem(K,k)}catch(e){}
-  const list=md?[md]:["gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash"];
-  window.__gTimeout=20000;let last=null;
-  for(const mod of list){
-    try{localStorage.setItem(M,mod)}catch(e){}
-    m.style.color="var(--muted)";m.textContent="Đang thử model "+mod+"...";
-    try{const s=await window.claude.use("sample");const r=await s("Reply with exactly: OK");
-      window.__gTimeout=60000;m.style.color="var(--ok,#1D9E75)";m.textContent="Kết nối được với "+mod+". Gemini trả lời: "+String(r.text).trim().slice(0,40);$("gem-model").value=mod;if(window.showBanner)showBanner();return}
-    catch(e){last=e;if(e&&(e.code==="bad_key"||e.code==="no_key"))break}
-  }
-  window.__gTimeout=60000;
-  try{if(!md)localStorage.removeItem(M)}catch(e){}
-  m.style.color="var(--bad)";m.textContent=aiErrMsg(last);
+  try{localStorage.setItem(K,k);if(md)localStorage.setItem(M,md);else localStorage.removeItem(M)}catch(e){}
+  m.style.color="var(--muted)";m.textContent="Đang thử kết nối Gemini...";
+  try{const s=await window.claude.use("sample");const r=await s("Reply with exactly: OK");
+    m.style.color="var(--ok,#1D9E75)";m.textContent="Kết nối được. Gemini trả lời: "+String(r.text).trim().slice(0,40);if(window.showBanner)showBanner()}
+  catch(e){m.style.color="var(--bad)";m.textContent=aiErrMsg(e)}
 };
 let armed=false;
 const done=(ok,t)=>{const m=$("imp-msg");m.style.color=ok?"var(--muted)":"var(--bad)";m.textContent=t};
