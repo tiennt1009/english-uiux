@@ -373,6 +373,7 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 @media(max-width:700px){.fab{left:50%;right:auto;transform:translateX(-50%)}}
 .dr-ov{position:fixed;inset:0;background:rgba(31,29,26,.35);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
 .dr-ov.on{opacity:1;pointer-events:auto}
+#nb-ov{z-index:46}#nb-drawer{z-index:50}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,92vw);background:var(--bg);z-index:50;transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(31,29,26,.12)}
 .drawer:not(.on){visibility:hidden;box-shadow:none;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s .28s}
 .drawer.on{transform:none}
@@ -750,21 +751,6 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
     </div>
   </section>
 
-  <!-- BOOKMARKS -->
-  <section id="v-notebook" class="hidden">
-    <div class="seg" id="nb-seg"><button data-t="err">Lỗi của tôi</button><button data-t="words">Từ đã lưu</button><button data-t="notes">Ghi chú</button></div>
-    <div id="nb-err">
-      <div class="card" id="nb-review"></div>
-      <div class="card hidden" id="drill-card"><div id="drill-box"></div></div>
-      <div class="card" id="nb-sum"></div>
-      <div class="card"><h2>Các loại lỗi</h2><p class="muted small" style="margin:0 0 6px">Lỗi hay gặp nhất ở trên. AI dựa vào đây để ra bài.</p><div id="err-list"></div></div>
-    </div>
-    <div id="nb-words" class="hidden"><div class="card">
-      <div id="bm-list"></div>
-    </div></div>
-    <div id="nb-notes" class="hidden"><div class="card"><div id="nt-list"></div></div></div>
-  </section>
-
   <!-- DASHBOARD -->
   <section id="v-dashboard" class="hidden">
     <div class="tiles" id="dash-stats"></div>
@@ -788,7 +774,7 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
       <div id="goals"></div>
     </div>
     <div class="card">
-      <div class="row" style="justify-content:space-between"><h2 style="margin:0">Lỗi hay gặp</h2><a href="#notebook" class="small" style="color:var(--muted)">Mở Sổ tay ›</a></div>
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">Lỗi hay gặp</h2><a href="#notebook" data-nbt="err" class="small" style="color:var(--muted)">Mở Sổ tay ›</a></div>
       <div id="dash-err" style="margin-top:6px"></div>
     </div>
     <div class="card">
@@ -873,6 +859,23 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Lý thuyết" aria-hidden="true">
   <div class="dr-top" id="dr-top"><div class="dr-grab"></div><div class="dr-head"><b>Lý thuyết · Động từ to be</b><button class="icon-btn" id="dr-close" aria-label="Đóng">✕</button></div></div>
   <div class="dr-body" id="dr-body"></div>
+</aside>
+<div class="dr-ov" id="nb-ov"></div>
+<aside class="drawer" id="nb-drawer" role="dialog" aria-modal="true" aria-label="Sổ tay" aria-hidden="true">
+  <div class="dr-top" id="nb-top"><div class="dr-grab"></div><div class="dr-head"><b>Sổ tay</b><button class="icon-btn" id="nb-close" aria-label="Đóng">✕</button></div>
+    <div class="seg" id="nb-seg" style="margin:10px 0 0"><button data-t="words">Từ đã lưu</button><button data-t="notes">Ghi chú</button><button data-t="err">Lỗi của tôi</button></div></div>
+  <div class="dr-body" id="nb-body">
+<div id="nb-err">
+      <div class="card" id="nb-review"></div>
+      <div class="card hidden" id="drill-card"><div id="drill-box"></div></div>
+      <div class="card" id="nb-sum"></div>
+      <div class="card"><h2>Các loại lỗi</h2><p class="muted small" style="margin:0 0 6px">Lỗi hay gặp nhất ở trên. AI dựa vào đây để ra bài.</p><div id="err-list"></div></div>
+    </div>
+    <div id="nb-words" class="hidden"><div class="card">
+      <div id="bm-list"></div>
+    </div></div>
+    <div id="nb-notes" class="hidden"><div class="card"><div id="nt-list"></div></div></div>
+  </div>
 </aside>
 
 <script>
@@ -1503,12 +1506,12 @@ function route(){
   const h=(location.hash||"#today").slice(1);
   vTopUp();
   closeDrawer(true);
-  let view,sess=null,nav;
+  let view,sess=null,nav,nbWant=false;
   const m=h.match(/^s-(\d+)-(\d)$/);
   if(m&&+m[1]===1&&+m[2]>0&&BODY[+m[2]]){sess={wk:1,dow:+m[2],fromToday:false};nav="lessons"}
   else if(h==="vocab"){sess={wk:W().n,dow:0,fromToday:false,daily:true};nav="today"}
   else if(h==="lessons"||h==="dashboard"||h==="settings"){view=h;nav=h}
-  else if(h==="notebook"||h==="bookmarks"){view="notebook";nav="notebook";if(h==="bookmarks")nbTab="words"}
+  else if(h==="notebook"||h==="bookmarks"){nav="today";if(h==="bookmarks")nbTab="words";nbWant=true}
   else if(h==="review"){view="review";nav="today"}
   else if(h==="placement"){view="placement";nav="lessons"}
   else{nav="today";if(W().n===1){const t=todayTarget();if(t!==null)sess={wk:1,dow:t,fromToday:true}}}
@@ -1517,11 +1520,11 @@ function route(){
   hideSel();
   if(burst.stop)burst.stop();if(burst.state==="ask"||burst.state==="grading")burst.state="idle";
   if(quick.stop)quick.stop();if(quick.state==="ask")quick.state="idle";
-  ["today","session","lessons","dashboard","settings","notebook","review","placement"].forEach(x=>document.getElementById("v-"+x).classList.toggle("hidden",x!==view));
+  ["today","session","lessons","dashboard","settings","review","placement"].forEach(x=>document.getElementById("v-"+x).classList.toggle("hidden",x!==view));
   document.querySelectorAll("#tabs a, .nb-link, #bnav a").forEach(a=>{a.classList.toggle("on",a.dataset.v===nav);if(a.dataset.v===nav)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
   const act=document.querySelector(`#tabs a[data-v="${nav}"] span, .side-foot .nb-link[data-v="${nav}"] span`);
   /* màn cấp 2 trên điện thoại: có nút quay lại */
-  const deep=(sess&&!sess.fromToday)?(sess.daily?"#today":"#lessons"):view==="placement"?"#lessons":view==="review"?"#notebook":view==="notebook"?"#today":null;
+  const deep=(sess&&!sess.fromToday)?(sess.daily?"#today":"#lessons"):view==="placement"?"#lessons":view==="review"?"#notebook":null;
   BACK.parent=deep;document.body.classList.toggle("deep",!!deep);document.body.classList.toggle("in-session",view==="session");critSheet(false);
   const sname=sess?(sess.daily?DAILY:SESS.find(x=>x.dow===sess.dow)).name:"";
   document.getElementById("mtitle").textContent=(sess&&!sess.fromToday)?sname:view==="placement"?"Bài xếp tuần":view==="review"?"Ôn lại câu sai":(act?act.textContent:"");
@@ -1529,11 +1532,11 @@ function route(){
   if(view==="session")renderSession();
   if(view==="lessons")renderLessons();
   if(view==="dashboard")renderDashboard();
-  if(view==="notebook")setNbTab(nbTab);
   if(view==="review")startReview();
   if(view==="placement"){plState="idle";renderPlacement()}
   updateFab();
   window.scrollTo(0,0);
+  if(nbWant)openNb(nbTab);else closeNb(true);
 }
 window.addEventListener("hashchange",route);
 
@@ -3280,7 +3283,7 @@ function renderBackups(){renderFlags();
     bakSave("restore");S=Object.assign(JSON.parse(JSON.stringify(DEF)),o);migrate();save();renderAll0();renderBackups()})}
 function renderErrors(){renderBackups();
   const list=errList().slice(0,3);
-  document.getElementById("dash-err").innerHTML=list.length?list.map(([t,e])=>{const tr=trend(t);return `<a class="lrow" href="#notebook"><div class="lt"><b>${esc(TAGS[t]||t)}</b><div>${e.count} lần${tr.a||tr.b?` · tuần này ${tr.a}, tuần trước ${tr.b}`:""}</div></div><span class="muted">›</span></a>`}).join(""):`<p class="muted small">Chưa có lỗi nào được ghi.</p>`;
+  document.getElementById("dash-err").innerHTML=list.length?list.map(([t,e])=>{const tr=trend(t);return `<a class="lrow" href="#notebook" data-nbt="err"><div class="lt"><b>${esc(TAGS[t]||t)}</b><div>${e.count} lần${tr.a||tr.b?` · tuần này ${tr.a}, tuần trước ${tr.b}`:""}</div></div><span class="muted">›</span></a>`}).join(""):`<p class="muted small">Chưa có lỗi nào được ghi.</p>`;
   document.getElementById("hist-list").innerHTML=S.history.length?S.history.slice(0,20).map(h=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)"><span class="muted">${new Date(h.t).toLocaleDateString("vi-VN")}</span> · ${esc(h.text)}</div>`).join(""):`<p class="muted">Chưa có hoạt động.</p>`;
   syncUI();document.getElementById("store-info").textContent=dbRef===gistRef?"Tiến độ đồng bộ qua GitHub Gist của bạn. Mở trên máy khác, dán cùng token là có.":dbRef?"Tiến độ được lưu trong tài khoản AI của bạn, mở trên máy khác vẫn còn. Chỉ bạn xem được.":"Tiến độ đang lưu tạm trong trình duyệt này. Mở trang trong AI để lưu vào tài khoản.";
 }
@@ -3428,9 +3431,9 @@ JSON shape: {"vi":"nghĩa tiếng Việt ngắn gọn","ipa":"US IPA of the ENGL
 const bmBusy=new Set();
 async function ensureBmVi(b){
   if(!b||looksVi(b.vi)||bmBusy.has(b.t))return;
-  bmBusy.add(b.t);if(curView==="notebook"&&nbTab==="words")renderBookmarks();
+  bmBusy.add(b.t);if(nbOpen&&nbTab==="words")renderBookmarks();
   try{const t=await fetchMeaning(b.t,b.ctx);if(t&&looksVi(t.vi)){b.vi=t.vi;b.note=t.note||b.note||"";save()}}catch(e){}
-  bmBusy.delete(b.t);if(curView==="notebook"&&nbTab==="words")renderBookmarks();
+  bmBusy.delete(b.t);if(nbOpen&&nbTab==="words")renderBookmarks();
 }
 async function doTranslate(){
   const text=SEL.text,key=norm(text);
@@ -3456,7 +3459,7 @@ function toggleBm(){
   const text=SEL.text;
   if(bmHas(text)){S.bm=S.bm.filter(b=>norm(b.t)!==norm(text));document.getElementById("sp-bm-l").textContent="Lưu vào bookmark"}
   else{const t=TRC[norm(text)];const nb={t:text,ctx:SEL.ctx,vi:t&&looksVi(t.vi)?t.vi:"",note:t&&t.note||"",d:today(),qa:SEL.qa.filter(x=>x.a).slice(-5)};S.bm.unshift(nb);setTimeout(()=>ensureBmVi(nb),0);document.getElementById("sp-bm-l").textContent="Đã lưu · bỏ lưu";xp(1);log("bookmark","Lưu: "+text)}
-  save();renderBmCount();if(curView==="notebook"&&nbTab==="words")renderBookmarks();
+  save();renderBmCount();if(nbOpen&&nbTab==="words")renderBookmarks();
 }
 function flash(act){const b=document.querySelector(`#selpop [data-act="${act}"]`);b.classList.add("kb");setTimeout(()=>b.classList.remove("kb"),200)}
 const IPAC={};
@@ -3587,9 +3590,34 @@ const RULES={
  "vocabulary-choice":"Chọn từ đúng nghĩa trong ngữ cảnh. Bấm vào từ để Dịch hoặc Hỏi.",
  "other":"Các lỗi khác."
 };
-let nbTab="err";
+let nbTab="words",nbOpen=false;
 function setNbTab(t){nbTab=t;document.querySelectorAll("#nb-seg button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));document.getElementById("nb-err").classList.toggle("hidden",t!=="err");document.getElementById("nb-words").classList.toggle("hidden",t!=="words");document.getElementById("nb-notes").classList.toggle("hidden",t!=="notes");if(t==="words")renderBookmarks();else if(t==="notes")renderNotes();else renderNbErr()}
 document.querySelectorAll("#nb-seg button").forEach(b=>b.onclick=()=>setNbTab(b.dataset.t));
+function openNb(t){
+  if(t)nbTab=t;closeDrawer(true);hideSel();
+  nbOpen=true;const d=document.getElementById("nb-drawer");d.style.transform="";
+  d.classList.add("on");d.setAttribute("aria-hidden","false");document.getElementById("nb-ov").classList.add("on");
+  document.body.style.overflow="hidden";document.querySelectorAll(".nb-link").forEach(a=>a.classList.add("on"));
+  setNbTab(nbTab);document.getElementById("nb-body").scrollTop=0;
+  updateFab();setTimeout(()=>document.getElementById("nb-close").focus({preventScroll:true}),50);
+}
+function closeNb(silent){
+  if(!nbOpen)return;nbOpen=false;const d=document.getElementById("nb-drawer");d.style.transform="";
+  d.classList.remove("on");d.setAttribute("aria-hidden","true");document.getElementById("nb-ov").classList.remove("on");
+  document.body.style.overflow="";document.querySelectorAll(".nb-link").forEach(a=>a.classList.remove("on"));
+  if(/^#(notebook|bookmarks)$/.test(location.hash))history.replaceState(null,"",location.pathname+location.search+"#today");
+  updateFab();
+}
+document.getElementById("nb-close").onclick=()=>closeNb();
+document.getElementById("nb-ov").onclick=()=>closeNb();
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&nbOpen)closeNb()});
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest('a[href="#notebook"],a[href="#bookmarks"]');if(!a)return;e.preventDefault();openNb(a.getAttribute("href")==="#bookmarks"?"words":a.dataset.nbt||null)});
+(function nbDrag(){
+  const top=document.getElementById("nb-top"),d=document.getElementById("nb-drawer");let y0=null,dy=0;
+  top.addEventListener("touchstart",e=>{if(!isSheet()||e.target.closest("#nb-seg"))return;y0=e.touches[0].clientY;dy=0;d.style.transition="none"},{passive:true});
+  top.addEventListener("touchmove",e=>{if(y0===null)return;dy=Math.max(0,e.touches[0].clientY-y0);d.style.transform=`translateY(${dy}px)`},{passive:true});
+  top.addEventListener("touchend",()=>{if(y0===null)return;d.style.transition="";y0=null;if(dy>90)closeNb();else d.style.transform=""});
+})();
 function trend(tag){const now=new Date();let a=0,b=0;(S.elog||[]).forEach(e=>{if(e.t!==tag)return;const days=(now-parseIso(e.d))/864e5;if(days<7)a++;else if(days<14)b++});return {a,b}}
 function errList(){return Object.entries(S.errors).filter(([,e])=>e.count>0).sort((x,y)=>y[1].count-x[1].count)}
 function renderNbErr(){
@@ -3647,7 +3675,7 @@ async function makeSummary(auto){
   const list=errList(),nErr=list.reduce((s,[,e])=>s+e.count,0);
   if(!list.length||sumBusy)return;
   if(!sample||!navigator.onLine){if(!auto){const e=document.getElementById("sum-err");if(e)e.innerHTML=`<div class="err-inline">${aiErrMsg(sample?{code:"offline"}:{code:"no_sample"})}</div>`}return}
-  sumBusy=true;if(curView==="notebook")renderNbErr();
+  sumBusy=true;if(nbOpen)renderNbErr();
   try{
     const v=await askJSON(`${learnerCtx()}
 
@@ -3666,8 +3694,8 @@ JSON shape: {"points":[{"title":"","why":"","wrong":"","right":"","tip":"","exam
     const pts=(v.points||[]).filter(p=>p&&p.title).slice(0,3);
     if(!pts.length)throw{code:"bad"};
     S.errSum={v:2,points:pts,improving:v.improving||"",at:Date.now(),d:today(),n:nErr};save();
-  }catch(e){if(!auto){sumBusy=false;if(curView==="notebook")renderNbErr();const el=document.getElementById("sum-err");if(el)el.innerHTML=`<div class="err-inline">${e&&e.code==="bad"?"AI trả về chưa đúng dạng, bấm Cập nhật lại.":aiErrMsg(e)}</div>`;return}}
-  sumBusy=false;if(curView==="notebook")renderNbErr();
+  }catch(e){if(!auto){sumBusy=false;if(nbOpen)renderNbErr();const el=document.getElementById("sum-err");if(el)el.innerHTML=`<div class="err-inline">${e&&e.code==="bad"?"AI trả về chưa đúng dạng, bấm Cập nhật lại.":aiErrMsg(e)}</div>`;return}}
+  sumBusy=false;if(nbOpen)renderNbErr();
 }
 function autoSummary(){
   const s=S.errSum,now=Date.now();
