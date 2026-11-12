@@ -812,9 +812,9 @@ const FALLBACK=["gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash","gem
 async function call(prompt,json,tier,to){
   const first=get(M)||(tier==="fast"?"gemini-flash-lite-latest":FALLBACK[0]),list=[first,...FALLBACK.filter(x=>x!==first)];let last=null;
   for(let i=0;i<list.length;i++){
-    try{return await callOne(prompt,json,list[i],tier==="fast",to)}
+    try{return await callOne(prompt,json,list[i],tier==="fast"&&!window.__noThinkBad,to)}
     catch(e){
-      if(e&&e.think){try{return await callOne(prompt,json,list[i],false,to)}catch(e2){e=e2}}
+      if(e&&e.think){window.__noThinkBad=true;try{return await callOne(prompt,json,list[i],false,to)}catch(e2){e=e2}}
       last=e;if(!(e&&e.retry))throw e}
     await new Promise(r=>setTimeout(r,i?0:1200));
   }
@@ -828,7 +828,7 @@ async function callOne(prompt,json,model,noThink,to){
   catch(e){clearTimeout(tm);if(e&&e.name==="AbortError")throw{code:"error",msg:"Quá thời gian chờ, model "+model+" không trả lời",retry:true};throw{code:"error",msg:"Không nối được tới Google ("+(e&&e.message||"lỗi mạng")+")"}}
   clearTimeout(tm);
   if(!r.ok){let m="";try{m=(await r.json()).error.message}catch(e){}
-    if(r.status===400&&noThink&&/think/i.test(m))throw{code:"error",msg:m,think:true};
+    if(r.status===400&&noThink&&!/api key/i.test(m))throw{code:"error",msg:m,think:true};
     if(r.status===429)throw{code:"rate_limited",msg:m,retry:true};
     if(r.status===401||r.status===403||(r.status===400&&/api key/i.test(m)))throw{code:"bad_key",msg:m};
     throw{code:"error",msg:m||("HTTP "+r.status),retry:r.status===503||r.status===500||r.status===404||r.status===502}}
