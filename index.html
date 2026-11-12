@@ -1222,7 +1222,15 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function log(kind,text){S.history.unshift({t:new Date().toISOString(),kind,text:String(text).slice(0,160)});S.history=S.history.slice(0,60)}
+function tagList(){return Object.keys(TAGS).filter(k=>k!=="capitalization").join(", ")}
+function capNorm(s){return String(s||"").toLowerCase().replace(/[’]/g,"'").replace(/[.!?,;:"“”]/g,"").replace(/\s+/g," ").trim()}
+/* lưới an toàn: AI vẫn bắt lỗi chỉ khác viết hoa/dấu câu thì coi là đúng */
+function capOk(r,orig){if(!r||r.ok)return r;const fix=r.corrected||r.right||"";
+  if(fix&&capNorm(fix)===capNorm(orig)){r.ok=true;r.corrected="";r.right="";r.explain_vi="";r.tags=[];r.tag=""}
+  else if(r.tags&&r.tags.length)r.tags=r.tags.filter(t=>t!=="capitalization");
+  if(r.tag==="capitalization")r.tag="other";return r}
 function addErr(tag,wrong,right,vi){
+  if(tag==="capitalization"||(wrong&&right&&capNorm(wrong)===capNorm(right)))return;
   if(!tag)return;if(!TAGS[tag])tag="other";
   if(typeof addReview==="function")addReview(wrong,right,tag,vi);
   const e=S.errors[tag]||(S.errors[tag]={count:0,ex:[]});e.count++;
@@ -1241,6 +1249,7 @@ function learnerCtx(){
 - Vietnamese UI/UX designer. Grammar level: complete beginner (A1); reads English by guessing from context. Vocabulary of UI terms is better than grammar.
 - Goal: switch to a company that requires English within ~6 months. Needs work English AND everyday social English.
 - Current week: 1. Grammar focus: verb "to be" (am/is/are), basic word order, negatives with "not", questions starting with to be. Social topic: greetings and self-introduction.
+- GRADING RULE (always): the learner often types fast on a phone. NEVER mark an answer wrong, NEVER write a correction, and NEVER give feedback about capitalization (lowercase sentence start, lowercase "i", lowercase names) or punctuation (missing or extra final period, question mark, comma, apostrophe in contractions like "dont" is a spelling issue, but commas and periods are not). Read the text as if capitalization and punctuation were already correct, and judge ONLY words, grammar and meaning. A "corrected" or "right" sentence must differ from the learner's by more than capitalization or punctuation, otherwise mark it ok.
 - Do not use grammar beyond present simple of "to be" and very simple present simple unless needed.
 - Frequent mistakes so far:
 ${errs}`;
@@ -1794,7 +1803,7 @@ EXERCISE: ${task}
 ${model?`Model answer: "${model}"`:""}
 Learner answered: "${ans}"
 Decide if the learner's answer is grammatically correct (focus: to be, articles, plurals, word order, question/negative form) AND does what the exercise asks. Accept natural alternatives and contractions; ignore capitalization and final punctuation; small typos in names are fine.
-JSON shape: {"ok":true,"right":"the learner's answer corrected minimally (or a good answer if empty)","explain_vi":"one short Vietnamese sentence","tag":"one of ${Object.keys(TAGS).join(", ")}"}`);
+JSON shape: {"ok":true,"right":"the learner's answer corrected minimally (or a good answer if empty)","explain_vi":"one short Vietnamese sentence","tag":"one of ${tagList()}"}`).then(r=>capOk(r,ans));
 }
 function itemHTML(it,i,num){
   const a=S.ex.answers[i];let body="";
@@ -1899,7 +1908,7 @@ LEVEL 2 (6 items, "translate"): "q" = "Dịch: <Vietnamese sentence>", "answer" 
 - Topics: UI/UX work (screens, buttons, team, deadlines, users, feedback) and office small talk.
 - Weight toward the learner's frequent mistakes.
 ${vocabCtx("At least 5 of the 10 items (including at least 3 translate items) must naturally contain one target word, so the learner meets this week's words again.")}- Do not reuse: ${JSON.stringify(ensureEx().items.map(x=>x.q))}
-- Every item: "level","type","q","answer","explain" (ONE short Vietnamese sentence),"tag" (one of ${Object.keys(TAGS).join(", ")}). mcq/pick need "options" containing "answer" exactly. translate needs "accept": lowercase acceptable answers without final punctuation incl. contractions and word-order variants.
+- Every item: "level","type","q","answer","explain" (ONE short Vietnamese sentence),"tag" (one of ${tagList()}). mcq/pick need "options" containing "answer" exactly. translate needs "accept": lowercase acceptable answers without final punctuation incl. contractions and word-order variants.
 JSON shape: {"items":[{"level":1,"type":"mcq","q":"She ___ our PM.","options":["am","is","are"],"answer":"is","explain":"...","tag":"to-be-agreement"},{"level":2,"type":"translate","q":"Dịch: ...","answer":"...","accept":["..."],"explain":"...","tag":"..."}]}`);
     const okType=x=>x&&x.q&&x.answer&&[1,2].includes(+x.level)&&TYPE_LABEL[x.type]&&((x.type!=="mcq"&&x.type!=="pick")||(Array.isArray(x.options)&&x.options.includes(x.answer)));
     const items=(v&&v.items||[]).filter(okType).map(x=>({...x,level:+x.level})).sort((a,b)=>a.level-b.level).slice(0,12);
@@ -2055,7 +2064,7 @@ Conversation so far:
 ${tr||"(none)"}
 ${last?`Grade the learner's LAST answer: "${last.a}" to "${last.q}". It is correct if grammatical (to be, articles, plurals, word order) and it answers the question. Ignore capitalization and punctuation.`:""}
 ${quick.turns.length+(last?0:0)>=5?"This was the last answer; set next_question to \"\".":"Then write the next question."}
-JSON shape: {"ok":true,"right":"corrected version of the last answer, or empty","explain_vi":"one short Vietnamese sentence, or empty","tag":"one of ${Object.keys(TAGS).join(", ")}","next_question":"..."}`);
+JSON shape: {"ok":true,"right":"corrected version of the last answer, or empty","explain_vi":"one short Vietnamese sentence, or empty","tag":"one of ${tagList()}","next_question":"..."}`);
     if(last){
       const t=quick.turns[quick.turns.length-1];t.ok=last.a?!!v.ok:false;t.right=v.right||"";t.why=last.a?v.explain_vi||"":"Hết giờ.";
       xp(t.ok?3:1);if(!t.ok&&last.a)addErr(v.tag||"other",last.a,v.right,"Trả lời: "+last.q);
@@ -2159,7 +2168,7 @@ async function placementSubmit(){
 
 PLACEMENT TEST on "to be". Grade each translation. Correct = grammatical and same meaning (accept contractions, natural variants; ignore capitalization/punctuation and small spelling mistakes in names).
 ${unsure.map(([r,i])=>`${i}. Vietnamese: "${PLACE[i].vi}" | model: "${PLACE[i].en}" | learner: "${r.ans}"`).join("\n")}
-JSON shape: {"results":[{"i":0,"ok":true,"right":"corrected learner sentence","explain_vi":"short Vietnamese reason","tag":"one of ${Object.keys(TAGS).join(", ")}"}]}`);
+JSON shape: {"results":[{"i":0,"ok":true,"right":"corrected learner sentence","explain_vi":"short Vietnamese reason","tag":"one of ${tagList()}"}]}`);
       (v.results||[]).forEach(x=>{const r=results[+x.i];if(r){r.ok=!!x.ok;r.right=x.right||r.right;r.why=x.explain_vi||"";r.tag=x.tag}});
     }catch(e){}
   }
@@ -2181,10 +2190,11 @@ The learner wrote these sentences (numbered):
 ${sentences.map((s,i)=>`${i+1}. ${s}`).join("\n")}
 
 For EACH sentence: decide if it is grammatically correct and natural enough for a workplace. If not, give the minimal correction (keep the learner's meaning and simple words) and explain the main error in ONE short Vietnamese sentence. Ignore tiny issues like a missing final period. If a sentence is correct but could sound more natural, set ok=true and put the natural version in "better".
-"tags" for each sentence: zero or more of ${Object.keys(TAGS).join(", ")}.
+"tags" for each sentence: zero or more of ${tagList()}.
 Then "praise_vi": one short, specific, honest Vietnamese sentence about what they did well. "tip_vi": the single most useful thing to fix next, one Vietnamese sentence.
 JSON shape: {"results":[{"original":"...","ok":true,"corrected":"...","better":"","explain_vi":"...","tags":[]}],"praise_vi":"...","tip_vi":"..."}`);
     const rs=(v&&v.results)||[];
+    rs.forEach((r,i)=>capOk(r,sentences[i]));
     rs.forEach(r=>{if(!r.ok)(r.tags&&r.tags.length?r.tags:["other"]).forEach(t=>addErr(t,r.original,r.corrected))});
     S[store]={sentences,v};save();
     renderGrade(target,S[store].v,sentences);
@@ -2808,7 +2818,7 @@ Transcript so far:
 ${transcript||"(empty — you speak first)"}
 
 ${userText?`The learner's LAST line most likely comes from speech-to-text (they spoke it). Ignore capitalization and punctuation. If a word looks like a mis-hearing of a similar-sounding word (the learner probably said another word), set "heard_vi" to a short Vietnamese note naming the word they probably meant and the sound to practise, e.g. "Máy nghe thành 'tree', có lẽ bạn muốn nói 'three': chú ý âm /θ/, đặt đầu lưỡi giữa hai răng." Do not count such mis-hearings as grammar mistakes. Otherwise "heard_vi" is "".
-Also check the learner's LAST line: "${userText}". If it has a grammar or word-choice mistake, set "fix_vi" to a short Vietnamese explanation and "better" to the corrected natural sentence, and list "tags" from: ${Object.keys(TAGS).join(", ")}. If it is correct, set "fix_vi" to "" and optionally put a more natural alternative in "better" (or "").`:`Set "fix_vi" and "better" to "".`}
+Also check the learner's LAST line: "${userText}". If it has a grammar or word-choice mistake, set "fix_vi" to a short Vietnamese explanation and "better" to the corrected natural sentence, and list "tags" from: ${tagList()}. If it is correct, set "fix_vi" to "" and optionally put a more natural alternative in "better" (or "").`:`Set "fix_vi" and "better" to "".`}
 ${vocabCtx("As the colleague, naturally use one target word in about every second reply. In hint_vi, when it fits, suggest one target word the learner can use in the answer (write the English word).")}"hint_vi": a short Vietnamese hint of what the learner could answer next, plus a starter in English, e.g. "Trả lời tên và nghề của bạn: I'm ... I'm a ...".
 JSON shape: {"reply":"...","fix_vi":"","better":"","tags":[],"hint_vi":"...","heard_vi":""}`);
     if(userText){const me=S.rp.msgs[S.rp.msgs.length-1];if(v.heard_vi)me.heard=v.heard_vi;if(v.fix_vi){me.fix=v.fix_vi;me.better=v.better||"";(v.tags&&v.tags.length?v.tags:["other"]).forEach(t=>addErr(t,userText,v.better))}else if(v.better&&norm(v.better)!==norm(userText)){me.better=v.better}}
@@ -3003,11 +3013,12 @@ async function wrGradeA(){
   try{
     const v=await askJSON(`${learnerCtx()}
 
-TASK: The learner replies to 3 workplace chat messages (Slack). For EACH reply: is the English grammatically correct (ignore missing final period, capitalization)? If not, give the minimal correction keeping their meaning ("corrected") and explain the main error in ONE short Vietnamese sentence ("explain_vi"). Also decide "fits": does the reply actually answer the message and have a suitable, polite tone for the person who wrote it? If not, explain in one short Vietnamese sentence ("fit_vi"). "better": a short, natural reply a native colleague would send, at the learner's level (A1-A2). "tags": zero or more of ${Object.keys(TAGS).join(", ")}.
+TASK: The learner replies to 3 workplace chat messages (Slack). For EACH reply: is the English grammatically correct (ignore missing final period, capitalization)? If not, give the minimal correction keeping their meaning ("corrected") and explain the main error in ONE short Vietnamese sentence ("explain_vi"). Also decide "fits": does the reply actually answer the message and have a suitable, polite tone for the person who wrote it? If not, explain in one short Vietnamese sentence ("fit_vi"). "better": a short, natural reply a native colleague would send, at the learner's level (A1-A2). "tags": zero or more of ${tagList()}.
 ${wkWords().length?`If a reply uses one of this week's words (${wkWords().join(", ")}) with the wrong meaning, mark it not ok and explain.\n`:""}${x.mi.map((ti,i)=>`${i+1}. From ${WTOP[ti].f}: "${WTOP[ti].m}"\n   Learner replied: "${x.a.m[i].trim()}"`).join("\n")}
 Then "tip_vi": the single most useful thing to improve, one Vietnamese sentence.
 JSON shape: {"results":[{"ok":true,"corrected":"","explain_vi":"","fits":true,"fit_vi":"","better":"","tags":[]}],"tip_vi":"..."}`);
     const rs=(v.results||[]).slice(0,3);while(rs.length<3)rs.push({ok:false,explain_vi:"AI chưa chấm câu này, bấm chấm lại."});
+    rs.forEach((r,i)=>capOk(r,x.a.m[i]||""));
     rs.forEach((r,i)=>{if(!r.ok)(r.tags&&r.tags.length?r.tags:["other"]).forEach(t=>addErr(t,x.a.m[i].trim(),r.corrected||r.better))});
     x.ga={results:rs,tip_vi:v.tip_vi||""};log("write","Trả lời 3 tin nhắn");xp(3);after();
   }catch(e){document.getElementById("wa-sum").innerHTML=`<div class="err-inline">${aiErrMsg(e)}</div>`;b.disabled=false;return}
@@ -3020,10 +3031,11 @@ async function wrGradeU(){
   try{
     const v=await askJSON(`${learnerCtx()}
 
-TASK: UX writing practice. The learner writes short interface text (microcopy) in English. For EACH item: "ok" = grammatically correct, clear for users, fits the UI element, and within the word limit. Be fair to a beginner: simple is fine. If not ok, "corrected" = the minimal fix of their text and "explain_vi" = one short Vietnamese sentence on the main problem (grammar, unclear, too long, wrong tone). Always give "better": a professional version a product team would ship, within the word limit. "tags": zero or more of ${Object.keys(TAGS).join(", ")}.
+TASK: UX writing practice. The learner writes short interface text (microcopy) in English. For EACH item: "ok" = grammatically correct, clear for users, fits the UI element, and within the word limit. Be fair to a beginner: simple is fine. If not ok, "corrected" = the minimal fix of their text and "explain_vi" = one short Vietnamese sentence on the main problem (grammar, unclear, too long, wrong tone). Always give "better": a professional version a product team would ship, within the word limit. "tags": zero or more of ${tagList()}.
 ${x.ui.map((ui,i)=>`${i+1}. Element: ${WUX[ui].k}. Context (Vietnamese): ${WUX[ui].c}. Max ${WUX[ui].n} words.\n   Learner wrote: "${x.a.u[i].trim()}"`).join("\n")}
 JSON shape: {"results":[{"ok":true,"corrected":"","explain_vi":"","better":"","tags":[]}]}`);
     const rs=(v.results||[]).slice(0,2);while(rs.length<2)rs.push({ok:false,explain_vi:"AI chưa chấm câu này, bấm chấm lại."});
+    rs.forEach((r,i)=>capOk(r,x.a.u[i]||""));
     rs.forEach((r,i)=>{if(!r.ok&&r.tags&&r.tags.length)r.tags.forEach(t=>addErr(t,x.a.u[i].trim(),r.corrected||r.better))});
     x.gu={results:rs};log("write","UX writing 2 câu");xp(2);after();
   }catch(e){document.getElementById("wu-sum").innerHTML=`<div class="err-inline">${aiErrMsg(e)}</div>`;b.disabled=false;return}
@@ -3077,7 +3089,7 @@ TASK: The learner wrote a ~30-second spoken self-introduction (for meeting new c
 1) "score": integer 1-10 for correctness and clarity at A1-A2 level (be honest, encouraging).
 ${vocabCtx("In \"polished\", where it fits naturally, keep or add 1-2 target words so the learner practices them aloud.")}2) "polished": a corrected, natural version they can read aloud, keeping THEIR facts and simple words (A1-A2), 4-6 short sentences, about 30 seconds.
 3) "comments_vi": 2-4 short Vietnamese bullet comments: main mistakes and one thing done well.
-4) "errors": list of {"wrong":"...","right":"...","tag":"..."} for each mistake; tag from: ${Object.keys(TAGS).join(", ")}.
+4) "errors": list of {"wrong":"...","right":"...","tag":"..."} for each mistake; tag from: ${tagList()}.
 JSON shape: {"score":7,"polished":"...","comments_vi":["..."],"errors":[{"wrong":"...","right":"...","tag":"..."}]}`);
     (v.errors||[]).forEach(e=>addErr(e.tag,e.wrong,e.right));
     S.product={text:t,v,wk:W().n};log("product",`Tự giới thiệu: ${v.score}/10`);xp(5);after();renderProduct();
