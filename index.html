@@ -2689,7 +2689,7 @@ function renderTr(){
   if(!t){r.innerHTML="";return}
   if(t.loading){r.innerHTML=loadingHTML("Đang dịch...");return}
   if(t.err){r.innerHTML=`<div class="err-inline">${esc(t.err)}</div>`;return}
-  r.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="vi raw">${esc(t.vi)}</div>${speakBtn(SEL.text)}</div>${t.ipa?`<div class="nt">${esc(t.ipa)}</div>`:""}${t.note?`<div class="nt">${esc(t.note)}</div>`:""}`;
+  r.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="vi raw">${esc(t.vi)}</div>${speakBtn(SEL.text)}</div>${(ipaLocal(SEL.text)||okIpa(t.ipa))?`<div class="nt raw">/${esc(ipaLocal(SEL.text)||okIpa(t.ipa))}/</div>`:""}${t.note?`<div class="nt">${esc(t.note)}</div>`:""}`;
 }
 function renderQA(){
   const box=document.getElementById("sp-qa");
@@ -2733,7 +2733,7 @@ async function fetchMeaning(text,ctx){
 Phrase: "${text}"
 Context sentence (may be empty): "${ctx||""}"
 Rules: "vi" MUST be written in Vietnamese with proper diacritics, never in English, and must give the meaning that fits the context (e.g. "layout" -> "bố cục", "too small" -> "quá nhỏ"). Keep design terms that Vietnamese designers say in English (button, modal...) but explain them in Vietnamese. "note" is also in Vietnamese.${strict?" Your previous answer was in English; answer in Vietnamese this time.":""}
-JSON shape: {"vi":"nghĩa tiếng Việt ngắn gọn","ipa":"IPA for a single word or short phrase, else empty","note":"ghi chú ngắn bằng tiếng Việt về cách dùng, hoặc rỗng"}`,{mono:true});
+JSON shape: {"vi":"nghĩa tiếng Việt ngắn gọn","ipa":"US IPA of the ENGLISH phrase (not the Vietnamese meaning), no slashes; empty for long sentences","note":"ghi chú ngắn bằng tiếng Việt về cách dùng, hoặc rỗng"}`,{mono:true});
   let v=await ask(false);if(!looksVi(v.vi))v=await ask(true);
   TRC[key]={vi:v.vi||"",ipa:v.ipa||"",note:v.note||""};return TRC[key];
 }
@@ -2756,7 +2756,7 @@ async function doTranslate(){
 Phrase: "${text}"
 Context sentence (may be empty): "${SEL.ctx}"
 Rules: "vi" MUST be written in Vietnamese with proper diacritics, never in English, and must give the meaning that fits the context (e.g. "layout" -> "bố cục", "too small" -> "quá nhỏ"). Keep design terms that Vietnamese designers say in English (button, modal...) but explain them in Vietnamese. "note" is also in Vietnamese.${strict?" Your previous answer was in English; answer in Vietnamese this time.":""}
-JSON shape: {"vi":"nghĩa tiếng Việt ngắn gọn","ipa":"IPA for a single word or short phrase, else empty","note":"ghi chú ngắn bằng tiếng Việt về cách dùng, hoặc rỗng"}`,{mono:true});
+JSON shape: {"vi":"nghĩa tiếng Việt ngắn gọn","ipa":"US IPA of the ENGLISH phrase (not the Vietnamese meaning), no slashes; empty for long sentences","note":"ghi chú ngắn bằng tiếng Việt về cách dùng, hoặc rỗng"}`,{mono:true});
     let v=await ask(false);
     if(!looksVi(v.vi))v=await ask(true);
     const t={vi:v.vi||"",ipa:v.ipa||"",note:v.note||""};TRC[key]=t;if(norm(SEL.text)===key){SEL.tr=t;renderTr();placeSel()}
@@ -2772,18 +2772,20 @@ function toggleBm(){
 }
 function flash(act){const b=document.querySelector(`#selpop [data-act="${act}"]`);b.classList.add("kb");setTimeout(()=>b.classList.remove("kb"),200)}
 const IPAC={};
+/* IPA hợp lệ của từ tiếng Anh: không chứa chữ cái tiếng Việt */
+function okIpa(x){x=String(x||"").replace(/^\/|\/$/g,"").trim();return x&&!/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(x)?x:""}
 function ipaLocal(text){
   const key=norm(text);if(IPAC[key])return IPAC[key];
   const v=VOCAB.find(v=>norm(v.w)===key&&v.ipa);if(v)return v.ipa;
-  const t=TRC[key];if(t&&t.ipa)return String(t.ipa).replace(/^\/|\/$/g,"");
+  const t=TRC[key];if(t&&okIpa(t.ipa))return okIpa(t.ipa);
   return "";
 }
 function renderIpa(){
   const box=document.getElementById("sp-ipa");if(!box)return;
   if(!SEL.ipaShow){box.innerHTML="";return}
   const ip=ipaLocal(SEL.text);
-  if(ip)box.innerHTML=`<span class="ipa raw">/${esc(ip)}/</span>${SEL.ipaSrc?` <span class="nt raw">· ${esc(SEL.ipaSrc)}</span>`:""}`;
-  else if(SEL.ipaShow===2)box.innerHTML=`<div class="nt">Chưa lấy được phiên âm.${SEL.ipaErr?` <span class="raw">(${esc(String(SEL.ipaErr).slice(0,200))})</span>`:""}</div>`;
+  if(ip)box.innerHTML=`<span class="ipa raw">/${esc(ip)}/</span>`;
+  else if(SEL.ipaShow===2)box.innerHTML=`<div class="nt">Chưa lấy được phiên âm.</div>`;
   else if(SEL.ipaShow===3)box.innerHTML=`<div class="nt">Câu dài, chỉ phiên âm từ và cụm ngắn.</div>`;
   else box.innerHTML=loadingHTML("Đang lấy phiên âm...");
   placeSel();
