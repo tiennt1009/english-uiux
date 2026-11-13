@@ -1922,7 +1922,7 @@ function itemHTML(it,i,num){
   else if(a&&a.offline)fb=`<div class="fb" style="display:block;background:#E6EEF6;color:#0C447C">Câu này khác đáp án mẫu nên cần AI chấm. Có mạng lại trang sẽ tự chấm.</div>`;
   else if(a){
     const right=a.right||it.answer,free=it.type!=="mcq"&&it.type!=="pick";
-    fb=`<div class="fb ${a.ok?"ok":"no"}">${a.ok?"Đúng."+(free&&norm(a.v)!==norm(it.answer)?` Đáp án mẫu: <b>${esc(it.answer)}</b>`:""):"Chưa đúng. Đáp án: <b>"+esc(right)+"</b>"}<div class="ex-why">${esc(a.note||it.explain)}</div>${a.ok?"":svBtn({w:a.v,r:right,why:a.note||it.explain,src:"Ngữ pháp"})}
+    fb=`<div class="fb ${a.ok?"ok":"no"}">${a.ok?"Đúng."+(free&&norm(a.v)!==norm(it.answer)?` Đáp án mẫu: <b>${esc(it.answer)}</b>`:""):"Chưa đúng. Đáp án: <b>"+esc(right)+"</b>"}<div class="ex-why">${esc(a.note||it.explain)}</div>${svBtn({w:a.v,r:right||a.v,why:a.note||it.explain,src:"Ngữ pháp"})}
     ${!a.ok&&free?`<button class="btn ghost small" data-self="${i}" style="padding:2px 0;margin-top:4px">Câu của tôi cũng đúng</button>`:""}</div>`;
   }
   return `<div class="ex" style="border:0;padding:0"><div class="small muted">${TYPE_LABEL[it.type]||""}</div><div class="q">${esc(it.q)}</div>${body}${fb}</div>`;
@@ -2074,7 +2074,7 @@ function renderBurst(){
     box.innerHTML=head+pr+`<div class="result ${r.ok?"ok":"no"}" style="margin-top:10px">
       ${r.timeout?`<b>Hết giờ.</b>`:`<div>${r.ok?"✓ ":""}${esc(r.ans)}</div>`}
       ${!r.ok&&r.right?`<div class="fix" style="margin-top:4px">${esc(r.right)}</div>`:""}
-      ${r.why?`<div class="why">${esc(r.why)}</div>${r.ok?"":svBtn({w:r.ans,r:r.right,why:r.why,src:"Ngữ pháp"})}`:""}
+      ${r.why?`<div class="why">${esc(r.why)}</div>${svBtn({w:r.ans,r:r.right||r.ans,why:r.why,src:"Ngữ pháp"})}`:""}
       <div class="small muted" style="margin-top:6px">Câu mẫu: ${esc(p.sample||r.right||"")}</div></div>
       ${(W().burstStreak||0)>=5&&r.ok?`<div class="note">🔥 Đạt 5 câu liên tiếp. Cấp 4 đã mở.</div>`:""}
       <div class="row"><button class="btn pri" id="b-next">Câu tiếp ›</button><button class="btn ghost" id="b-stop">Dừng</button></div>`;
@@ -2227,7 +2227,7 @@ function renderReview(){
   }
   if(rv.state==="grading"){box.innerHTML=head+loadingHTML("Đang chấm...");return}
   const l=rv.last;
-  box.innerHTML=head+`<div class="result ${l.ok?"ok":"no"}"><div>${l.ok?"✓ ":""}${esc(l.ans)}</div>${!l.ok?`<div class="fix">${esc(l.right)}</div>`:""}${l.why?`<div class="why">${esc(l.why)}</div>${l.ok?"":svBtn({w:l.ans,r:l.right,why:l.why,src:"Ôn câu sai"})}`:""}</div>
+  box.innerHTML=head+`<div class="result ${l.ok?"ok":"no"}"><div>${l.ok?"✓ ":""}${esc(l.ans)}</div>${!l.ok?`<div class="fix">${esc(l.right)}</div>`:""}${l.why?`<div class="why">${esc(l.why)}</div>${svBtn({w:l.ans,r:l.right||l.ans,why:l.why,src:"Ôn câu sai"})}`:""}</div>
     <div class="small muted" style="margin:6px 0 10px">${l.ok?(r.step>=3?"Đã thuộc câu này, sẽ không hỏi lại.":`Quay lại sau ${[1,3,7][r.step]||7} ngày.`):"Quay lại vào ngày mai."}</div>
     <button class="btn pri" id="rv-next">Câu tiếp ›</button>`;
   const nx=document.getElementById("rv-next");nx.focus({preventScroll:true});nx.onclick=()=>{rv.i++;rv.state="ask";renderReview()};
@@ -2251,7 +2251,7 @@ function renderPlacement(){
   if(pl&&pl.results&&plState!=="redo"){
     box.innerHTML=`<p class="h-big" style="font-size:22px">${pl.passed?"✓ Đạt":"Chưa đạt"}: ${pl.score}/10</p>
       <p class="muted">${pl.passed?"Phần ngữ pháp tuần 1 đã được tính xong. Nhắn AI trong chat \"mở tuần 2\" để có bài tuần 2 ngay, không cần đợi.":"Bạn chưa chắc to be như mình nghĩ. Học tiếp tuần 1, các câu sai đã được đưa vào hàng ôn."}</p>
-      ${pl.results.map((r,i)=>`<div class="result ${r.ok?"ok":"no"}"><div class="small muted">${i+1}. <span class="raw">${esc(PLACE[i].vi)}</span></div><div>${r.ok?"✓ ":""}${esc(r.ans||"(bỏ trống)")}</div>${r.ok?"":`<div class="fix">${esc(r.right)}</div>${r.why?`<div class="why">${esc(r.why)}</div>${svBtn({w:r.ans,r:r.right,why:r.why,src:"Kiểm tra xếp tuần"})}`:""}`}</div>`).join("")}
+      ${pl.results.map((r,i)=>`<div class="result ${r.ok?"ok":"no"}"><div class="small muted">${i+1}. <span class="raw">${esc(PLACE[i].vi)}</span></div><div>${r.ok?"✓ ":""}${esc(r.ans||"(bỏ trống)")}</div>${r.ok?(r.why?`<div class="why">${esc(r.why)}</div>${svBtn({w:r.ans,r:r.right||r.ans,why:r.why,src:"Kiểm tra xếp tuần"})}`:""):`<div class="fix">${esc(r.right)}</div>${r.why?`<div class="why">${esc(r.why)}</div>${svBtn({w:r.ans,r:r.right,why:r.why,src:"Kiểm tra xếp tuần"})}`:""}`}</div>`).join("")}
       <button class="btn" id="pl-redo">Làm lại</button>`;
     document.getElementById("pl-redo").onclick=()=>{plState="redo";renderPlacement()};return;
   }
@@ -2494,7 +2494,7 @@ function fcResHTML(c,l){
   const v=!l.ans?"Câu mẫu":l.ok?"✓ Câu đúng":"✗ Cần sửa";
   return `<div class="fc-ans ${l.ok?"ok":l.ans?"no":""}"><div class="fc-v">${v}</div>
     ${l.ans&&l.ok?`<div class="cmp"><span class="lbl">Bạn viết</span><span class="w">${esc(l.ans)}</span></div>`:""}${l.ans&&!l.ok&&l.right?`<div class="cmp"><span class="lbl">Bạn viết</span><span class="w">${diffMark(l.ans,l.right)[0]}</span></div><div class="cmp"><span class="lbl">Sửa</span><span class="w fix">${diffMark(l.ans,l.right)[1]}</span>${speakBtn(l.right,1)}</div>`:""}
-    ${l.why?`<div class="why">${esc(l.why)}</div>${l.ok?"":svBtn({w:l.ans,r:l.right,why:l.why,src:"Từ vựng"})}`:""}</div>${ex}`;
+    ${l.why?`<div class="why">${esc(l.why)}</div>${svBtn({w:l.ans,r:l.right||l.ans,why:l.why,src:"Từ vựng"})}`:""}</div>${ex}`;
 }
 function fcPaint(c,mode){
   const inp=document.getElementById("fc-in"),ck=document.getElementById("fc-chk"),res=document.getElementById("fc-res"),idk=document.getElementById("fc-idk");if(!inp||!res)return;
@@ -2820,7 +2820,7 @@ function renderVuse(){
   const c=VOCAB.find(x=>x.w===cur),r=v8.res[cur];
   let body;
   if(vuSt==="grading")body=loadingHTML("AI đang xem câu của bạn...");
-  else if(vuSt==="result"&&r)body=`<div class="result ${r.ok?"ok":"no"}" style="text-align:left">${r.ok?`✓ ${esc(r.ans)}`:(r.ans?`<span class="orig">${esc(r.ans)}</span><br>`:"")+(r.right?`<span class="fix">${esc(r.right)}</span>`:"")}${r.why?`<div class="why">${esc(r.why)}</div>${r.ok?"":svBtn({w:r.ans,r:r.right,why:r.why,src:"Dùng từ"})}`:""}</div>
+  else if(vuSt==="result"&&r)body=`<div class="result ${r.ok?"ok":"no"}" style="text-align:left">${r.ok?`✓ ${esc(r.ans)}`:(r.ans?`<span class="orig">${esc(r.ans)}</span><br>`:"")+(r.right?`<span class="fix">${esc(r.right)}</span>`:"")}${r.why?`<div class="why">${esc(r.why)}</div>${svBtn({w:r.ans,r:r.right||r.ans,why:r.why,src:"Dùng từ"})}`:""}</div>
       <div class="row" style="justify-content:center">${speakBtn(r.right&&!r.ok?r.right:r.ans||c.ex)}</div><button class="btn pri" id="vu-next" style="align-self:center">${dn>=n?"Xem kết quả":"Từ tiếp ›"}</button>`;
   else body=`<div class="muted small">Viết một câu tiếng Anh có dùng từ này</div>
       <div class="row" style="flex-wrap:nowrap;margin-top:6px"><textarea rows="1" class="tin" id="vu-in" autocomplete="off" placeholder="Câu của bạn"></textarea><button class="btn pri" id="vu-chk">Kiểm tra</button></div>
@@ -3756,7 +3756,7 @@ function renderDrill(){
   }
   if(drill.state==="grading"){box.innerHTML=head+prog+loadingHTML("Đang chấm...");wire();return}
   const l=drill.last;
-  box.innerHTML=head+prog+`<div class="result ${l.ok?"ok":"no"}"><div>${l.ok?"✓ ":""}${esc(l.ans||"(hết giờ)")}</div>${l.ok?"":`<div class="fix">${esc(l.right)}</div>`}${l.why?`<div class="why">${esc(l.why)}</div>${l.ok?"":svBtn({w:l.ans,r:l.right,why:l.why,src:"Luyện lỗi"})}`:""}</div><button class="btn pri" id="dl-next">${drill.i+1<drill.items.length?"Câu tiếp ›":"Xem kết quả"}</button>`;
+  box.innerHTML=head+prog+`<div class="result ${l.ok?"ok":"no"}"><div>${l.ok?"✓ ":""}${esc(l.ans||"(hết giờ)")}</div>${l.ok?"":`<div class="fix">${esc(l.right)}</div>`}${l.why?`<div class="why">${esc(l.why)}</div>${svBtn({w:l.ans,r:l.right||l.ans,why:l.why,src:"Luyện lỗi"})}`:""}</div><button class="btn pri" id="dl-next">${drill.i+1<drill.items.length?"Câu tiếp ›":"Xem kết quả"}</button>`;
   wire();const nx=document.getElementById("dl-next");nx.focus({preventScroll:true});
   nx.onclick=()=>{drill.i++;if(drill.i>=drill.items.length){drill.state="done";const ok=drill.res.filter(Boolean).length;if(ok===drill.items.length){S.errState=S.errState||{};S.errState[drill.tag]={d:today()}}log("drill",`Luyện ${TAGS[drill.tag]}: ${ok}/${drill.items.length}`);after();renderNbErr()}else{drill.state="ask";renderDrill()}};
 }
