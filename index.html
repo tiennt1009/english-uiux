@@ -401,6 +401,7 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
  .drawer{top:auto;left:0;right:0;width:auto;height:84vh;border-left:0;border-radius:18px 18px 0 0;transform:translateY(100%);box-shadow:0 -10px 30px rgba(31,29,26,.15)}
  .drawer.on{transform:none}
  .dr-grab{display:block;width:40px;height:5px;border-radius:3px;background:var(--faint);margin:0 auto 10px;opacity:.6}
+ body{touch-action:manipulation}
  .dr-top{touch-action:none;border-radius:18px 18px 0 0}
 }
 .lvl{margin:16px 0 8px;display:flex;align-items:center;gap:10px}
@@ -3595,10 +3596,12 @@ document.addEventListener("mouseup",e=>{
     if(s){showSel(s.text,s.rect,s.ctx);return}
     if(e.target.closest(NOSEL)||e.button!==0){hideSel();return}
     const w=wordAt(e.clientX,e.clientY);
-    if(SELM==="click"&&w&&isEn(w.text)){const sl=getSelection();sl.removeAllRanges();sl.addRange(w.range);lastPage=norm(w.text);showSel(w.text,w.rect,w.ctx)}else hideSel();
+    let go=SELM==="click";
+    if(SELM==="dbl"){const t=Date.now(),d=TAP0;TAP0={t,x:e.clientX,y:e.clientY};go=!!d&&t-d.t<500&&Math.abs(d.x-e.clientX)<30&&Math.abs(d.y-e.clientY)<30;if(go)TAP0=null}
+    if(go&&w&&isEn(w.text)){const sl=getSelection();sl.removeAllRanges();sl.addRange(w.range);lastPage=norm(w.text);showSel(w.text,w.rect,w.ctx)}else hideSel();
   },10);
 });
-let SELM="click";try{SELM=localStorage.getItem("eng-sel-mode")==="dbl"?"dbl":"click"}catch(e){}
+let TAP0=null,SELM="click";try{SELM=localStorage.getItem("eng-sel-mode")==="dbl"?"dbl":"click"}catch(e){}
 function paintSelm(){document.querySelectorAll("[data-selm]").forEach(b=>{const on=b.dataset.selm===SELM;b.classList.toggle("pri",on);b.classList.toggle("ghost",!on)})}
 document.querySelectorAll("[data-selm]").forEach(b=>b.onclick=()=>{SELM=b.dataset.selm;try{localStorage.setItem("eng-sel-mode",SELM)}catch(e){}paintSelm();hideSel()});paintSelm();
 let selT=null,lastPage="";
