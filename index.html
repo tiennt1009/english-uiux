@@ -1161,6 +1161,8 @@ const STATIC_EX=[
  {level:2,type:"translate",q:"Dịch: Bản thiết kế chưa xong.",answer:"The design is not ready yet.",accept:["the design isn't ready yet","the design is not ready","the design isn't ready","the design is not finished","the design isn't finished","the design is not done","the design isn't done","the design is not finished yet","the design isn't finished yet"],explain:"Phủ định: is not / isn't. \"Chưa\" thường dịch là not ... yet.",tag:"negative-form"},
  {level:2,type:"translate",q:"Dịch: Bạn có phải designer mới không?",answer:"Are you the new designer?",accept:["are you a new designer"],explain:"Câu hỏi đưa Are lên đầu.",tag:"question-form"},
  {level:2,type:"translate",q:"Dịch: Hôm nay PM của chúng tôi không ở văn phòng.",answer:"Our PM is not in the office today.",accept:["our pm isn't in the office today","today our pm is not in the office","today our pm isn't in the office","our pm's not in the office today"],explain:"Our PM + is not + in the office + today. Thời gian thường để cuối câu.",tag:"negative-form"}
+ ,{level:2,type:"translate",q:"Dịch: Những nút này không rõ ràng.",answer:"These buttons are not clear.",accept:["these buttons aren't clear","the buttons are not clear","the buttons aren't clear","these buttons are not clear enough"],explain:"Nhiều nút nên dùng are + not, nút thêm -s.",tag:"negative-form"},
+ {level:2,type:"translate",q:"Dịch: Màn đăng nhập đã sẵn sàng chưa?",answer:"Is the login screen ready?",accept:["is the login screen ready yet","is the login page ready","is the login page ready yet"],explain:"Câu hỏi đưa Is lên đầu: Is + the login screen + ready?",tag:"question-form"}
 ];
 const BURST_STATIC=[
  {il:"button",ask:"Nhận xét về nút được khoanh đỏ (to, nhỏ, rõ, khó thấy...).",sample:"The button is too small."},
@@ -1899,7 +1901,9 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drOpen)closeDrawer(
 const LV={1:{n:"Cấp 1 · Khởi động",d:"Trắc nghiệm nhẹ",c:"S"},2:{n:"Cấp 2 · Dịch",d:"Việt sang Anh, dễ đến khó",c:"V"},3:{n:"Cấp 3 · Bộc phát",d:"30 giây mỗi câu",c:"C"},4:{n:"Cấp 4 · Hỏi nhanh",d:"5 câu hỏi liên tiếp",c:"T"}};
 const TYPE_LABEL={mcq:"Chọn đáp án",pick:"Chọn câu đúng",fill:"Điền vào chỗ trống",translate:"Dịch sang tiếng Anh"};
 const SECS=30;
-function ensureEx(){if(!S.ex||S.ex.v!==4||!Array.isArray(S.ex.items)||!S.ex.items.length)S.ex={v:4,src:"static",items:JSON.parse(JSON.stringify(STATIC_EX)),answers:{}};return S.ex}
+function ensureEx(){if(!S.ex||S.ex.v!==4||!Array.isArray(S.ex.items)||!S.ex.items.length)S.ex={v:4,src:"static",items:JSON.parse(JSON.stringify(STATIC_EX)),answers:{}};
+  else if(S.ex.src==="static"&&S.ex.items.length<STATIC_EX.length){S.ex.items=S.ex.items.concat(JSON.parse(JSON.stringify(STATIC_EX.slice(S.ex.items.length))));save()}
+  return S.ex}
 function l2Stats(){const ex=ensureEx(),idx=ex.items.map((it,i)=>[it,i]).filter(([it])=>it.level===2);const done=idx.filter(([,i])=>ex.answers[i]&&!ex.answers[i].pending&&!ex.answers[i].offline).length,ok=idx.filter(([,i])=>ex.answers[i]&&ex.answers[i].ok).length;return {n:idx.length,done,ok,need:Math.ceil(idx.length*2/3)}}
 function l1Done(){const ex=ensureEx();return ex.items.every((it,i)=>it.level!==1||(ex.answers[i]&&!ex.answers[i].pending))}
 function l3Open(){const s=l2Stats();return (l1Done()&&s.done===s.n)||(W().burstBest||0)>=5||!!S.sessions[`w${W().n}-1`]}
@@ -1947,8 +1951,7 @@ function renderLvOv(){
     [3,w.burstBest>=5,`🔥 ${w.burstStreak||0}/5 liên tiếp`,l3Open()],
     [4,(w.quickBest||0)>=4,`Đúng ${w.quickBest||0}/5 · cần 4`,l4Open()]];
   const own=S.own&&S.own.v&&S.own.wk===w.n;
-  document.getElementById("lv-ov").innerHTML=cells.map(([L,d,t,open])=>`<div data-lv="${L}" class="${d?"dn":open?LV[L].c:"lk"} ${gLvCur()===L?"sel":""}"><b>${d?"✓ ":open?"":"🔒 "}${LV[L].n.split(" · ")[1]}</b>${t}</div>`).join("")
-    +`<div data-lv="5" class="${own?"dn":"opt"} ${gLvCur()===5?"sel":""}"><b>${own?"✓ ":""}Thêm</b>Tự đặt câu</div>`;
+  document.getElementById("lv-ov").innerHTML=cells.map(([L,d,t,open])=>`<div data-lv="${L}" class="${d?"dn":open?LV[L].c:"lk"} ${gLvCur()===L?"sel":""}"><b>${d?"✓ ":open?"":"🔒 "}${LV[L].n.split(" · ")[1]}</b>${t}</div>`).join("");
   document.querySelectorAll("#lv-ov [data-lv]").forEach(c=>c.onclick=()=>showLv(+c.dataset.lv));
   lvApply();
 }
@@ -2011,12 +2014,12 @@ document.getElementById("ex-new").onclick=async()=>{
   try{
     const v=await askJSON(`${learnerCtx()}
 
-TASK: Create 10 exercises about "to be" (am/is/are), negatives, and questions starting with to be.
+TASK: Create 12 exercises about "to be" (am/is/are), negatives, and questions starting with to be.
 LEVEL 1 (4 items, warm-up): 2 "mcq" (3 options) + 2 "pick" (choose the one correct full sentence out of 3; distractors show typical Vietnamese-speaker errors: missing to be, wrong agreement, wrong question order, missing article).
-LEVEL 2 (6 items, "translate"): "q" = "Dịch: <Vietnamese sentence>", "answer" = natural English. Order from short/easy to longer/harder (the last 2 should combine negative or question + time/place words, e.g. "Hôm nay PM không ở văn phòng"). The learner can read but struggles to produce sentences, so make them think.
+LEVEL 2 (8 items, "translate"): "q" = "Dịch: <Vietnamese sentence>", "answer" = natural English. Order from short/easy to longer/harder (the last 3 should combine negative or question + time/place words, e.g. "Hôm nay PM không ở văn phòng"). The learner can read but struggles to produce sentences, so make them think.
 - Topics: UI/UX work (screens, buttons, team, deadlines, users, feedback) and office small talk.
 - Weight toward the learner's frequent mistakes.
-${vocabCtx("At least 5 of the 10 items (including at least 3 translate items) must naturally contain one target word, so the learner meets this week's words again.")}- Do not reuse: ${JSON.stringify(ensureEx().items.map(x=>x.q))}
+${vocabCtx("At least 6 of the 12 items (including at least 4 translate items) must naturally contain one target word, so the learner meets this week's words again.")}- Do not reuse: ${JSON.stringify(ensureEx().items.map(x=>x.q))}
 - Every item: "level","type","q","answer","explain" (ONE short Vietnamese sentence),"tag" (one of ${tagList()}). mcq/pick need "options" containing "answer" exactly. translate needs "accept": lowercase acceptable answers without final punctuation incl. contractions and word-order variants.
 JSON shape: {"items":[{"level":1,"type":"mcq","q":"She ___ our PM.","options":["am","is","are"],"answer":"is","explain":"...","tag":"to-be-agreement"},{"level":2,"type":"translate","q":"Dịch: ...","answer":"...","accept":["..."],"explain":"...","tag":"..."}]}`);
     const okType=x=>x&&x.q&&x.answer&&[1,2].includes(+x.level)&&TYPE_LABEL[x.type]&&((x.type!=="mcq"&&x.type!=="pick")||(Array.isArray(x.options)&&x.options.includes(x.answer)));
