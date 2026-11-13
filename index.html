@@ -1612,10 +1612,11 @@ function tasksFor(dow){
   const w=W(),wk=w.n,go=`s-1-${dow}`;
   if(dow===1){
     if(S.placement&&S.placement.passed&&S.placement.wk===wk)return [{l:`Qua bài xếp tuần: ${S.placement.score}/10`,p:"Phần ngữ pháp tuần này được tính xong",d:true,go:"placement"}];
-    const s=l2Stats();
+    const s=l2Stats(),ex1=ensureEx(),l1n=ex1.items.filter(x=>x.level===1).length,l1d=ex1.items.filter((x,i)=>x.level===1&&ex1.answers[i]&&!ex1.answers[i].pending).length;
     return [
       {l:"Đọc lý thuyết",p:w.grammarSeen?"Đã đọc hết":"Khoảng 10 phút · tính khi bạn đọc tới cuối",d:w.grammarSeen,go,tab:"theory"},
-      {l:`Khởi động + Dịch: dịch đúng ít nhất ${s.need}/${s.n}`,p:s.done?`Đã dịch ${s.done}/${s.n}, đúng ${s.ok}`:"Chưa làm",d:l1Done()&&s.done===s.n&&s.ok>=s.need,bar:pct(s.done,s.n),go,tab:"practice"},
+      {l:`Khởi động: làm hết ${l1n} câu`,p:l1d?`Đã làm ${l1d}/${l1n} câu`:"Chưa làm",d:l1Done(),bar:pct(l1d,l1n),go,tab:"practice"},
+      {l:`Dịch: đúng ít nhất ${s.need}/${s.n}`,p:s.done?`Đã dịch ${s.done}/${s.n}, đúng ${s.ok}`:"Chưa làm",d:s.done===s.n&&s.ok>=s.need,bar:pct(s.done,s.n),go,tab:"practice"},
       {l:"Bộc phát: 5 câu đúng liên tiếp, mỗi câu 30 giây",p:`Kỷ lục ${w.burstBest||0}/5 · không mở lý thuyết khi đang làm`,d:(w.burstBest||0)>=5,bar:pct(w.burstBest||0,5),go,tab:"practice",to:"burst-card"},
       {l:"Hỏi nhanh: 5 câu liên tiếp, đúng ít nhất 4",p:`Tốt nhất ${w.quickBest||0}/5`,d:(w.quickBest||0)>=4,bar:pct(w.quickBest||0,4),go,tab:"practice",to:"quick-card"}];
   }
