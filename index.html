@@ -3063,16 +3063,18 @@ function recStart(btn,{live,done,short,target}){
     recEnd({code:c,src:"claude"})});return}
   if(!SRC()){recEnd({code:"unsupported"});return}
   REC.my=null;REC.aid=0;
+  /* Android: dùng chung micro (start(track)) làm bộ nhận diện nghe thấy im lặng → luôn báo "không nghe thấy". Không ghi âm trên Android. */
+  if(/Android/i.test(navigator.userAgent)){srRun();return}
   myRecStart().then(m=>{if(!REC.on){if(m){m.mr.stop()}return}REC.my=m;srRun()});
 }
 /* Chrome Android: chế độ continuous trả lại cả câu cộng dồn ở mỗi kết quả ("hi", "hi i"...), nối lại thành tràng lặp.
    Nên trên Android mỗi lượt nghe chỉ 1 câu (continuous=false); hết lượt mà người dùng chưa bấm Dừng thì tự mở lượt mới. */
 function srJoin(a){return a.filter(Boolean).reduce((x,y)=>srMerge(x,y),"").trim()}
 function srRun(){
-  const C=SRC(),android=/Android/i.test(navigator.userAgent);let cur="",curFin=false,hadErr=null,retryPlain=false;const useTrack=!!(REC.my&&REC.my.track&&REC.my.track.readyState==="live");
+  const C=SRC(),android=/Android/i.test(navigator.userAgent);let cur="",curFin=false,hadErr=null,retryPlain=false,gotRes=false;const useTrack=!!(REC.my&&REC.my.track&&REC.my.track.readyState==="live");
   const show=()=>{REC.fin=srJoin(REC.segs);if(REC.live)REC.live((REC.fin+" "+(curFin?"":cur)).trim()||"Đang nghe...")};
   try{const r=new C();REC.sr=r;r.lang="en-US";r.interimResults=true;r.continuous=!android;r.maxAlternatives=5;
-    r.onresult=e=>{let f="",i="",fa=[];
+    r.onresult=e=>{gotRes=true;let f="",i="",fa=[];
       for(const x of e.results){const alts=[...x].map(a=>a.transcript.trim()).filter(Boolean);
         if(x.isFinal){const t=srPick(alts,REC.target);f=srMerge(f,t)}else i=srMerge(i,alts[0]||"")}
       if(f){REC.segs[REC.segIdx]=f;curFin=!i;cur=i}else{cur=i;curFin=false}show()};
@@ -3085,6 +3087,8 @@ function srRun(){
       if(!REC.segs[REC.segIdx]&&cur)REC.segs[REC.segIdx]=cur;
       REC.segs=REC.segs.filter(Boolean);REC.fin=srJoin(REC.segs);
       if(!REC.on)return;
+      /* dùng chung micro mà cả lượt không nghe được gì: có thể máy không cho dùng chung → tắt ghi âm, nghe lại bằng micro riêng */
+      if(useTrack&&!gotRes&&!REC.stopping&&(!hadErr||hadErr==="no-speech"))retryPlain=true;
       if(retryPlain){myRecOff();srRun();return}
       const tooLong=Date.now()-REC.t0>90000,fatal=hadErr&&!["no-speech","aborted"].includes(hadErr);
       if(REC.stopping||tooLong||fatal){recEnd(REC.fin?null:fatal?{code:hadErr,raw:hadErr,src:"web"}:{code:"no-speech"});return}
