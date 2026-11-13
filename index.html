@@ -149,7 +149,7 @@ table.tb td{padding:8px 10px;border-bottom:1px solid var(--line)}
 @keyframes p{50%{opacity:.3}}
 .result{border-radius:12px;padding:12px 14px;margin:8px 0;font-size:15px}
 .result.ok{background:var(--ok-bg)}
-.svq{display:flex;gap:8px;align-items:center;margin-top:8px}.svq .qabtn{padding:4px 10px;font-size:13px}
+.svq{display:flex;gap:8px;align-items:center;margin-top:8px}.svq .qabtn.on{background:var(--ink);color:#fff}
 .qa-box{margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.7);font-size:14px;color:var(--ink)}
 .qa-q{font-weight:600;margin-top:6px}.qa-a{margin:2px 0 6px;line-height:1.5}
 .result.no{background:var(--bad-bg)}
@@ -1339,7 +1339,17 @@ function biMerge(o){
   return o;
 }
 function plain(s){return String(s??"").replace(/⟪([^‖⟫]*)‖([^⟫]*)⟫/g,"$1")}
+const NODIA_W=/\b(khong|cua|duoc|nhung|nguoi|nhu|nen|dung|phai|cau|thi|voi|mot|nay|hay|roi|chua|rat|nhieu|noi|ban)\b/gi,DIA=/[àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
+function noDiaStr(t){t=String(t||"");if(t.length<12||DIA.test(t))return false;const m=t.match(NODIA_W);return !!m&&new Set(m.map(x=>x.toLowerCase())).size>=2}
+function noDiaAny(v){if(typeof v==="string")return noDiaStr(v);if(Array.isArray(v))return v.some(noDiaAny);if(v&&typeof v==="object")return Object.values(v).some(noDiaAny);return false}
+const VIRULE=`
+
+VIETNAMESE RULE (strict): every Vietnamese word you write must have full Vietnamese diacritics (tiếng Việt có dấu, e.g. "Nói với PM: Nút này không rõ ràng."). NEVER write Vietnamese without diacritics (e.g. "Noi voi PM: Nut nay khong ro rang" is forbidden).`;
 async function askJSON(prompt,opt){
+  const v=await askJSON0(prompt+VIRULE,opt);
+  if(noDiaAny(v)){const v2=await askJSON0(prompt+VIRULE+"\nYour previous answer wrongly had Vietnamese WITHOUT diacritics. Redo it with full Vietnamese diacritics in every Vietnamese field.",opt);return v2}
+  return v}
+async function askJSON0(prompt,opt){
   if(!navigator.onLine)throw{code:"offline"};
   if(!sample)throw{code:"no_sample"};
   const full=prompt+(opt&&opt.mono?"":"\n\nFor EVERY field whose name ends in _vi, also include the same field ending in _en: the same content in simple English (A2 level).")+"\n\nReturn ONLY valid JSON, no markdown fences, no extra text.";
@@ -1351,7 +1361,9 @@ async function askJSON(prompt,opt){
 async function askText(prompt){
   if(!navigator.onLine)throw{code:"offline"};
   if(!sample)throw{code:"no_sample"};
-  const r=await sample(prompt,{modelTier:"default"});return r.text||"";
+  let r=await sample(prompt+VIRULE,{modelTier:"default"}),t=r.text||"";
+  if(noDiaStr(t)){r=await sample(prompt+VIRULE+"\nYour previous answer wrongly had Vietnamese WITHOUT diacritics. Redo it with full Vietnamese diacritics.",{modelTier:"default"});t=r.text||t}
+  return t;
 }
 function aiErrMsg(e){
   const c=e&&e.code;
@@ -3800,13 +3812,14 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
   if(i>=0)F.splice(i,1);else{const o=FLQ[k];if(!o)return;F.unshift(Object.assign({k,d:today()},o));S.flags=F.slice(0,30)}
   save();const on=i<0;b.classList.toggle("on",on);b.title=on?"Đã báo AI chấm sai":"Báo AI chấm sai";if(typeof renderFlags==="function")renderFlags()},true);
 const BMK='<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h11a2 2 0 0 1 2 2v16l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+const QMK=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.8-1.1 1.6"/><circle cx="12" cy="16.2" r=".6" fill="currentColor"/></svg>`;
 const QAH={};let qaN=0;
 function svBtn(o){if(!o||!(o.why||o.r||o.w))return "";
   let sv="";if(o.why){const k=svKey(o);SVQ[k]=o;const on=notes().some(n=>n.k===k);
     sv=`<button class="icon-btn sm savebtn${on?" on":""}" data-sv="${k}" title="${on?"Đã lưu ghi chú":"Lưu ghi chú"}" aria-label="Lưu ghi chú">${BMK}</button>`}
   if(o.noq)return sv;
   const qk="qa"+(++qaN);QAH[qk]={o,qa:(QAH[o._qk]||{}).qa||[]};
-  return `<div class="svq">${sv}<button class="btn ghost sm qabtn" data-qa="${qk}">Đặt câu hỏi</button></div><div class="qa-box hidden" id="${qk}"></div>`}
+  return `<div class="svq">${sv}<button class="icon-btn sm qabtn" data-qa="${qk}" title="Đặt câu hỏi" aria-label="Đặt câu hỏi">${QMK}</button></div><div class="qa-box hidden" id="${qk}"></div>`}
 function qaRender(qk){const h=QAH[qk],box=document.getElementById(qk);if(!h||!box)return;
   box.innerHTML=h.qa.map(x=>`<div class="qa-q">${esc(x.q)}</div><div class="qa-a">${x.a==null?loadingHTML("AI đang trả lời..."):esc(x.a)}</div>`).join("")
    +`<div class="row" style="flex-wrap:nowrap;margin-top:8px"><input class="qa-in" placeholder="Hỏi về câu trả lời và giải thích này..." style="flex:1"><button class="btn sm" data-qago>Hỏi</button></div><div class="err-inline qa-e"></div>`;
