@@ -58,6 +58,7 @@ Cũng kiểm: `VOCAB` ≥720 từ, không trùng, 174 từ gốc (`tests/vocab-o
 KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi tiết, điện thoại thật.
 
 ## Việc còn treo
+- [x] 15/11/2026: từ mức Dễ (lv 1, 167 từ) bị ẩn khỏi pool (`vEasy`, `vPool`, `vLeft`, `vAdv`); đã thêm 168 từ Vừa/Khó vào cuối `VMORE` (tổng 895, dùng được 728; `APP_BUILD` 2026-11-15-b). Từ mới chưa có IPA, nên soát nghĩa/ví dụ.
 - [x] Kho từ vựng đã thêm sẵn lên **727** từ (15/11/2026, 553 từ mới, chưa có IPA). Người dùng sẽ tự chỉnh độ dễ/khó sau; từ mới luôn thêm vào CUỐI `VMORE`. Nên soát lại nghĩa/ví dụ do AI soạn.
 - [ ] Người dùng cần bấm **Cài đặt → "Học lại từ đầu"** (2 lần) trên điện thoại để đặt lại tiến độ, tuần 1 bắt đầu thứ 2 16/11/2026. Bản cũ nằm ở "Bản sao lưu tự động" (tối đa 8 bản).
 - [ ] Chưa kiểm chứng: reset khi có 2 máy cùng bật Gist (logic `S.rst` trong `pullSync`, chỉ mới đọc code, chưa thử với GitHub thật).
