@@ -3353,16 +3353,21 @@ function ill(k){
 function vState(w){return S.vocab[w]||{box:0,due:null}}
 const VDAILY=6;
 function vIdx(){let n=20+(S.vu||0);VOCAB.forEach((c,i)=>{if(S.vocab[c.w]&&i+1>n)n=i+1});return Math.min(VOCAB.length,n)}
-function vPool(){return VOCAB.slice(0,vIdx())}
-function vLeft(){return VOCAB.length-vIdx()}
+/* từ mức Dễ (cơ bản) không còn được mở/ôn nữa; dữ liệu cũ của chúng vẫn giữ nguyên trong S.vocab */
+function vEasy(c){return (c.lv||1)===1}
+const VTOT=VOCAB.filter(c=>!vEasy(c)).length;
+function vPool(){return VOCAB.slice(0,vIdx()).filter(c=>!vEasy(c))}
+function vLeft(){return VOCAB.slice(vIdx()).filter(c=>!vEasy(c)).length}
+/* mở thêm k từ (không tính từ Dễ): trả về S.vu mới */
+function vAdv(k){let n=vIdx();while(k>0&&n<VOCAB.length){if(!vEasy(VOCAB[n]))k--;n++}return n-20}
 function vUnseen(){return vPool().filter(c=>!S.vocab[c.w])}
 /* mỗi ngày mở thêm cho đủ 6 từ mới chưa học; bỏ lỡ vài ngày cũng không dồn lại */
-function vTopUp(){const t=today();if(S.vday===t)return;S.vday=t;const u=vUnseen().length;S.vu=Math.min(VOCAB.length-20,vIdx()-20+Math.max(0,VDAILY-u));save()}
-function vMore(){const n=Math.min(VDAILY,vLeft());if(!n)return;S.vu=vIdx()-20+n;log("vocab",`Mở thêm ${n} từ mới`);fcMode="review";fcPractice=false;fcDoneMsg=false;fcQueue=[];fcState="ask";fcLast=null;after();renderVocab()}
+function vTopUp(){const t=today();if(S.vday===t)return;S.vday=t;const u=vUnseen().length;S.vu=vAdv(Math.max(0,VDAILY-u));save()}
+function vMore(){const n=Math.min(VDAILY,vLeft());if(!n)return;S.vu=vAdv(n);log("vocab",`Mở thêm ${n} từ mới`);fcMode="review";fcPractice=false;fcDoneMsg=false;fcQueue=[];fcState="ask";fcLast=null;after();renderVocab()}
 function vDailyInfo(){const dc=dueCards(),nw=dc.filter(c=>!S.vocab[c.w]).length;return {nw,rv:dc.length-nw,all:dc.length}}
 function vDailyDone(){return !!(S.vd&&S.vd.d===today()&&S.vd.n>0&&dueCards().length===0)}
 /* từ của tuần: những từ đã học trong tuần (ưu tiên từ còn yếu); chốt khi đã bắt đầu làm */
-function weekWords(){const m=mon(),ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.vocab[c.w]&&c.cat!=="talk");
+function weekWords(){const m=mon(),ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.vocab[c.w]&&c.cat!=="talk"&&!vEasy(c));
   const th=ent.filter(([c])=>(S.vocab[c.w].first||m)>=m),pl=th.length>=6?th:ent;
   return pl.slice().sort((a,b)=>(S.vocab[a[0].w].box||0)-(S.vocab[b[0].w].box||0)||a[1]-b[1]).slice(0,8).map(([c])=>c.w)}
 function vu8Get(){if(!S.vu8||S.vu8.ws!==mon())S.vu8={ws:mon(),words:[],res:{}};if(!Object.keys(S.vu8.res).length)S.vu8.words=weekWords();return S.vu8}
@@ -3371,7 +3376,7 @@ function usedWords(text,words){const t=" "+norm(text)+" ";return words.filter(w=
 /* toàn bộ từ đã học tính tới hôm nay trong tuần (T2 6 từ, T3 12 từ...), ưu tiên từ mới học và từ còn yếu.
    Đề được soạn lúc bạn mở buổi, nên luôn dùng đúng các từ đã học tới ngày đó, không dùng từ chưa học. */
 function wkWords(){const m=mon(),t=today();
-  const ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.vocab[c.w]&&c.cat!=="talk");
+  const ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.vocab[c.w]&&c.cat!=="talk"&&!vEasy(c));
   const sorted=pl=>pl.slice().sort((a,b)=>(S.vocab[a[0].w].box||0)-(S.vocab[b[0].w].box||0)||String(S.vocab[b[0].w].first||"").localeCompare(String(S.vocab[a[0].w].first||""))||b[1]-a[1]);
   const th=sorted(ent.filter(([c])=>(S.vocab[c.w].first||"")>=m));
   if(th.length>=6)return th.map(([c])=>c.w);
@@ -3400,7 +3405,7 @@ document.getElementById("fc-redo").onclick=()=>{
 };
 let fcFocusNext=false;const fcSeen=new Set();
 function renderFoot(){const nv=document.getElementById("fc-novoice");if(nv)nv.classList.toggle("hidden",voiceOK());const mb=document.getElementById("fc-more"),left=vLeft();mb.style.display=left?"":"none";mb.textContent=`＋ Học thêm ${Math.min(VDAILY,left)} từ`;
-  document.getElementById("fc-left").textContent=left?`Đã mở ${vPool().length}/${VOCAB.length} từ · mỗi ngày tự mở thêm ${VDAILY} từ`:"Đã mở hết từ."}
+  document.getElementById("fc-left").textContent=left?`Đã mở ${vPool().length}/${VTOT} từ · mỗi ngày tự mở thêm ${VDAILY} từ`:"Đã mở hết từ."}
 function renderVocab(){
   document.querySelectorAll("#fc-mode .chip").forEach(c=>c.classList.toggle("on",c.dataset.m===fcMode));
   document.getElementById("fc-area").classList.toggle("hidden",fcMode!=="review");
