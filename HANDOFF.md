@@ -49,6 +49,13 @@ nên phần "vì sao" bên dưới chỉ suy ra từ code/commit; chỗ nào kh�
 Đã thử đột biến (chèn lỗi vào `renderDashboard`): test bắt được và báo FAIL.
 Chưa phủ: luồng chấm bài chi tiết, giọng nói thật, bố cục từng màn, khả năng dùng trên điện thoại thật.
 
+## 7b. Thay đổi 15/11/2026 (APP_BUILD `2026-11-15-a`)
+- `VMORE` từ 174 → 727 từ (thêm vào cuối, 5 đợt soạn: ~140 + ~130 + ~125 + ~125 + ~65; lọc trùng bằng script, bỏ các cụm ghép gượng). Chưa có IPA cho từ mới (`IPA[w]` rỗng, giao diện đã chịu được).
+- Nút **Học lại từ đầu** (Cài đặt → Dữ liệu): `restartAll()` gọi `bakSave("reset")`, đặt `S=DEF`, `S.start`/`weekStarts[1]` = thứ 2 của ngày mai, `S.rst=S.upd=now`, đẩy thẳng lên `dbRef`. Bấm 2 lần (hết hạn xác nhận sau 4 giây).
+- `S.rst` (trường mới) là mốc reset: trong `pullSync`, bên có `rst` mới hơn không bị bên "giàu dữ liệu" đè (`richL`/`richR`), nhờ đó máy khác lấy trạng thái đã reset thay vì đẩy dữ liệu cũ lên lại.
+- `overdue()` trả rỗng khi tuần hiện tại chưa bắt đầu (tránh hiện cả tuần "quá hạn" vào Chủ nhật trước tuần mới).
+- Quy trình thêm từ: viết hàng `["từ","nghĩa","ví dụ","emoji","nhóm",độ khó,[đồng nghĩa]]`, thêm vào cuối `VMORE`, chạy `npm test` (kiểm trùng + 174 từ gốc).
+
 ## 8. Việc còn treo
 Xem danh sách trong CLAUDE.md (nguồn chính). Ghi chú thêm:
 - Thêm ~550 từ: nên chia 4 đợt ~150 từ; mỗi đợt chạy `npm test`, đổi `APP_BUILD`, kiểm tra không từ nào trùng `w` với từ cũ, và `vIdx()` vẫn hợp lý (`VDAILY=6` từ/ngày → 174 từ đủ ~25 ngày, 724 từ ~4 tháng).

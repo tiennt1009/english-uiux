@@ -217,6 +217,66 @@ try {
     if (errors.length) fail('Sync gây lỗi JS: ' + errors.join(' || ')); else ok('Sync không lỗi JS');
     await context.close();
   }
+
+  // 5) Kho từ vựng: đủ số lượng, không trùng, giữ nguyên 174 từ gốc đúng thứ tự đầu danh sách
+  console.log('\n[5] Kho từ vựng');
+  {
+    const orig = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'vocab-original.json'), 'utf8'));
+    const { context, page, errors } = await newPage();
+    await page.goto(BASE, { waitUntil: 'load' });
+    const v = await page.evaluate(() => ({ ws: VOCAB.map((c) => c.w), badShape: VOCAB.filter((c) => !c.w || !c.vi || !c.ex || !c.il || !['it', 'ui', 'work', 'daily', 'talk'].includes(c.cat) || ![1, 2, 3].includes(c.lv)).map((c) => c.w) }));
+    const uniq = new Set(v.ws.map((w) => w.toLowerCase())).size;
+    if (v.ws.length >= 720) ok('VOCAB có ' + v.ws.length + ' từ'); else fail('VOCAB chỉ có ' + v.ws.length + ' từ');
+    if (uniq === v.ws.length) ok('Không có từ trùng'); else fail('Có từ trùng: ' + (v.ws.length - uniq));
+    if (!v.badShape.length) ok('Mọi từ đủ trường (nghĩa, ví dụ, emoji, nhóm, độ khó)'); else fail('Từ thiếu trường: ' + v.badShape.slice(0, 5).join(', '));
+    const moved = orig.filter((w, i) => v.ws[i] !== w);
+    if (!moved.length) ok(orig.length + ' từ gốc còn nguyên đúng vị trí đầu danh sách'); else fail('Từ gốc bị đổi/xóa/dịch chỗ: ' + moved.slice(0, 5).join(', '));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
+
+  // 6) "Học lại từ đầu": sao lưu, xóa tiến độ, tuần 1 bắt đầu thứ 2 sau ngày mai, đẩy lên Gist (mock), không lỗi
+  console.log('\n[6] Học lại từ đầu');
+  {
+    calls.github.length = 0;
+    const words = ['deploy', 'backlog', 'stakeholder', 'affordance', 'overwhelmed', 'exhausted'];
+    const vocab = {}; words.forEach((w) => { vocab[w] = { box: 2, due: '2026-11-20', first: '2026-11-09' }; });
+    const old = { v: 3, vset: 2, start: '2026-11-09', weekStarts: { 1: '2026-11-09' }, act: {}, bm: ['deploy'], notes: [], rv: [], sessions: { 'w1-1': 1, 'w1-2': 1 }, errors: { article: { count: 3, ex: [] } }, vocab, history: [], rp: { scen: 'first', msgs: [] }, vu: 5, upd: Date.now() - 1000 };
+    const { context, page, errors } = await newPage({ 'eng-ux-state': JSON.stringify(old), 'eng-build': APP_BUILD, 'eng-gist-token': 'ghp_MOCK' });
+    await page.clock.install({ time: new Date('2026-11-15T12:00:00') }); // Chủ nhật
+    await page.goto(BASE + '#settings', { waitUntil: 'load' });
+    await page.waitForTimeout(1200);
+    await page.click('#restart-btn');
+    const armed = await page.evaluate(() => document.getElementById('restart-btn').textContent);
+    if (/lần nữa/i.test(armed)) ok('Bấm lần 1 chỉ hỏi xác nhận'); else fail('Nút không hỏi xác nhận: ' + armed);
+    const mid = await page.evaluate(() => JSON.parse(localStorage.getItem('eng-ux-state')).vocab.deploy ? 'keep' : 'lost');
+    if (mid === 'keep') ok('Chưa xóa gì sau lần bấm đầu'); else fail('Dữ liệu bị xóa ngay lần bấm đầu');
+    calls.github.length = 0;
+    await page.click('#restart-btn');
+    await page.waitForTimeout(800);
+    const r = await page.evaluate(() => ({
+      st: JSON.parse(localStorage.getItem('eng-ux-state')),
+      baks: Object.keys(localStorage).filter((k) => k.startsWith('eng-bak-')),
+      od: overdue().length, msg: document.getElementById('restart-msg').textContent,
+      oldBak: Object.keys(localStorage).filter((k) => k.endsWith('-reset')).map((k) => JSON.parse(localStorage.getItem(k)).vocab).map((x) => Object.keys(x).length),
+    }));
+    if (!Object.keys(r.st.vocab).length && !Object.keys(r.st.sessions).length && !Object.keys(r.st.errors).length) ok('Đã xóa từ, buổi học, lỗi'); else fail('Chưa xóa sạch: ' + JSON.stringify({ v: Object.keys(r.st.vocab).length, s: Object.keys(r.st.sessions).length }));
+    if (r.st.start === '2026-11-16' && r.st.weekStarts[1] === '2026-11-16') ok('Tuần 1 bắt đầu thứ 2 16/11'); else fail('Ngày bắt đầu sai: ' + r.st.start);
+    if (r.oldBak.length && r.oldBak[0] === words.length) ok('Bản sao lưu "reset" giữ đủ ' + words.length + ' từ cũ'); else fail('Không có bản sao lưu reset đúng: ' + JSON.stringify(r.oldBak));
+    if (r.st.rst) ok('Có mốc rst để các máy khác không ghi đè lại'); else fail('Thiếu S.rst');
+    if (r.od === 0) ok('Chủ nhật trước tuần mới: không có buổi "quá hạn"'); else fail('Còn ' + r.od + ' buổi quá hạn trước khi tuần bắt đầu');
+    if (calls.github.some((c) => c.startsWith('PATCH'))) ok('Đã đẩy trạng thái trống lên Gist (mock)'); else fail('Không thấy PATCH Gist sau reset: ' + calls.github.join(','));
+    if (/Đã xóa tiến độ/.test(r.msg)) ok('Hiện thông báo xong'); else fail('Thông báo: ' + r.msg);
+    if (errors.length) fail('Reset gây lỗi JS: ' + errors.join(' || '));
+    // sang thứ 2: buổi hôm nay là Ngữ pháp (dow 1), không quá hạn, dữ liệu không đổi
+    await page.clock.setFixedTime(new Date('2026-11-16T09:00:00'));
+    await page.goto(BASE + '#today', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const m = await page.evaluate(() => ({ t: todayTarget(), od: overdue().length, start: S.start, vocabN: Object.keys(S.vocab).length }));
+    if (m.t === 1 && m.od === 0 && m.start === '2026-11-16') ok('Thứ 2 16/11: hôm nay là buổi Ngữ pháp, không quá hạn'); else fail('Sáng thứ 2 sai: ' + JSON.stringify(m));
+    if (errors.length) fail('Lỗi JS sau reset: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {

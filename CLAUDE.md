@@ -37,7 +37,7 @@ Lịch sử chi tiết, ghi chú kiến trúc, cạm bẫy: xem [HANDOFF.md](HAN
 | Khối / chỗ | Nội dung |
 |---|---|
 | Script 1 (~927-1029) | Lớp AI: `call()` điều phối, `callClaude`, `claudeFirst`, `callOne` (Gemini), `sample`/`sample.json`; gán `window.claude={use}` (tiện ích giả lập "sample"; "dictation"/"tts" trả null) |
-| Dữ liệu (~1033-1278) | `TAGS`, `SESS`, `VOCAB=[]` rồi `VMORE` (174 từ, push ở dòng ~1226), `IPA`, `STATIC_EX`, `PLACE`, `SCEN` (roleplay) |
+| Dữ liệu (~1033-1278) | `TAGS`, `SESS`, `VOCAB=[]` rồi `VMORE` (727 từ; `VMORE.forEach` push vào `VOCAB`), `IPA`, `STATIC_EX`, `PLACE`, `SCEN` (roleplay) |
 | State (~1281-1325) | `DEF`, `S`, `APP_BUILD`, `bakSave`/`bakList`/`prog`, `migrate()`, `save()`/`flush()` |
 | Đồng bộ (~1327-1371) | Gist riêng tư: `gapi`, `gistRef`, `pullSync()` (bên có `upd` mới hơn hoặc "giàu" hơn thắng), `syncOn` |
 | Prompt helper (~1375-1440) | `learnerCtx()`, `tagList()`, `VIRULE`, `askJSON`/`askJSON0` (JSON, tự thêm field `_en`), `askText`, `aiErrMsg` |
@@ -55,10 +55,13 @@ localStorage khác: `eng-gemini-key/model`, `eng-claude-key/model`, `eng-gist-to
 ## Test
 `tests/smoke.mjs` (Playwright-core + Chrome hệ thống, headless, 390px, Android UA). Gemini/Claude/GitHub là **mock** qua `context.route`.
 Kiểm: tải không lỗi JS; 12 màn + sổ tay mở được; Claude-first và rơi về Gemini khi 401; dữ liệu cũ (`eng-ux-state`) còn nguyên và tự sao lưu khi `APP_BUILD` đổi; Gist sync (mock).
+Cũng kiểm: `VOCAB` ≥720 từ, không trùng, 174 từ gốc (`tests/vocab-original.json`) còn đúng vị trí đầu danh sách; nút "Học lại từ đầu" (`restartAll`, sao lưu `-reset`, đặt `S.rst`, tuần 1 từ thứ 2 sau ngày mai).
 KHÔNG kiểm: giọng nói thật, Gemini/Claude thật, GitHub thật, bố cục chi tiết, điện thoại thật.
 
 ## Việc còn treo
-- [ ] Kho từ vựng chỉ có **174** từ, cần thêm ~**550** (ưu tiên cao). Soạn theo đợt ~150 từ, **thêm vào cuối `VMORE`**, không đổi/xóa từ cũ, đổi `APP_BUILD`, thêm IPA nếu có.
+- [x] Kho từ vựng đã thêm sẵn lên **727** từ (15/11/2026, 553 từ mới, chưa có IPA). Người dùng sẽ tự chỉnh độ dễ/khó sau; từ mới luôn thêm vào CUỐI `VMORE`. Nên soát lại nghĩa/ví dụ do AI soạn.
+- [ ] Người dùng cần bấm **Cài đặt → "Học lại từ đầu"** (2 lần) trên điện thoại để đặt lại tiến độ, tuần 1 bắt đầu thứ 2 16/11/2026. Bản cũ nằm ở "Bản sao lưu tự động" (tối đa 8 bản).
+- [ ] Chưa kiểm chứng: reset khi có 2 máy cùng bật Gist (logic `S.rst` trong `pullSync`, chỉ mới đọc code, chưa thử với GitHub thật).
 - [ ] Bỏ giới hạn 8 từ ở buổi T6 (`weekWords()` có `.slice(0,8)`), đang chờ người dùng quyết mức cắt 30/12.
 - [ ] Nút "Bận, chỉ có 10 phút" trên màn Hôm nay (chưa có trong code).
 - [ ] Nếu roleplay ăn hết lượt model xịn: chuyển roleplay (`rpTurn`) sang tier nhẹ.
