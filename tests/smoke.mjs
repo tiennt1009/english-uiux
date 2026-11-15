@@ -35,7 +35,6 @@ const BASE = `http://127.0.0.1:${server.address().port}/`;
 
 // ---- mock mạng ----
 const calls = { claude: [], gemini: [], github: [] };
-let claudeMode = 'ok'; // ok | 401
 function mockText(prompt) {
   // lời nhắc JSON của app luôn kết thúc bằng "Return ONLY valid JSON"
   return /Return ONLY valid JSON/.test(prompt) ? '{"ok":true,"items":[],"msgs":[]}' : 'OK';
@@ -48,7 +47,6 @@ async function installMocks(context) {
     try { body = JSON.parse(route.request().postData() || '{}'); } catch {}
     if (url.startsWith('https://api.anthropic.com/')) {
       calls.claude.push(body.model);
-      if (claudeMode === '401') return route.fulfill({ status: 401, contentType: 'application/json', body: '{"error":{"message":"invalid x-api-key"}}' });
       const p = (body.messages && body.messages[0] && body.messages[0].content) || '';
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ content: [{ type: 'text', text: mockText(p) }] }) });
     }
@@ -157,24 +155,19 @@ try {
     await context.close();
   }
 
-  // 2) Có key giả cho Claude + Gemini: Claude phải được gọi TRƯỚC; Claude lỗi 401 thì rơi về Gemini
-  console.log('\n[2] Key giả Claude + Gemini (mock)');
+  // 2) Có key Gemini giả: gọi Gemini; không còn kết nối Claude (key Claude cũ trong máy bị dọn, không gọi Anthropic)
+  console.log('\n[2] Key Gemini giả (mock), không còn Claude');
   {
     calls.claude.length = 0; calls.gemini.length = 0;
-    const { context, page, errors } = await newPage({ 'eng-claude-key': 'sk-ant-MOCK', 'eng-gemini-key': 'AIzaMOCK' });
+    const { context, page, errors } = await newPage({ 'eng-claude-key': 'sk-ant-CU', 'eng-claude-model': 'x', 'eng-gemini-key': 'AIzaMOCK' });
     await page.goto(BASE, { waitUntil: 'load' });
     await page.waitForTimeout(500);
-    const r = await page.evaluate(() => window.__ctest());
-    if (r && r.text === 'OK') ok('Claude mock trả lời qua __ctest'); else fail('__ctest không trả OK: ' + JSON.stringify(r));
+    const left = await page.evaluate(() => ['eng-claude-key', 'eng-claude-model', 'eng-skip-claude'].filter((k) => localStorage.getItem(k) !== null));
+    if (!left.length) ok('Key Claude cũ trong máy đã được xóa'); else fail('Còn key Claude trong localStorage: ' + left.join(','));
+    const hasCard = await page.evaluate(() => !!document.getElementById('cl-card') || /Kết nối Claude/.test(document.getElementById('v-settings').innerText));
+    if (!hasCard) ok('Cài đặt không còn thẻ "Kết nối Claude"'); else fail('Cài đặt vẫn còn thẻ Claude');
     const t = await page.evaluate(async () => { const s = await window.claude.use('sample'); return (await s('Reply with exactly: OK')).text; });
-    if (t.trim() === 'OK' && calls.claude.length && !calls.gemini.length) ok('Mặc định Claude-first: Claude được gọi, Gemini không');
-    else fail(`Claude-first sai: claude=${calls.claude.length} gemini=${calls.gemini.length}`);
-    // Claude 401 -> Gemini dự phòng
-    claudeMode = '401';
-    const t2 = await page.evaluate(async () => { const s = await window.claude.use('sample'); return (await s('Reply with exactly: OK')).text; });
-    claudeMode = 'ok';
-    if (t2.trim() === 'OK' && calls.gemini.length) ok('Claude 401 → rơi về Gemini'); else fail('Fallback Gemini không chạy: ' + JSON.stringify({ t2, gemini: calls.gemini }));
-    // JSON qua askJSON
+    if (t.trim() === 'OK' && calls.gemini.length && !calls.claude.length) ok('Gọi Gemini, không gọi Anthropic'); else fail(`Sai: gemini=${calls.gemini.length} claude=${calls.claude.length}`);
     const j = await page.evaluate(async () => { const v = await askJSON('Test. Return field note_vi.'); return typeof v; });
     if (j === 'object') ok('askJSON trả object'); else fail('askJSON trả ' + j);
     errors.length = 0;

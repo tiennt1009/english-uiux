@@ -10,15 +10,14 @@ nên phần "vì sao" bên dưới chỉ suy ra từ code/commit; chỗ nào kh�
   T5 Viết, T6 Dùng từ vựng, T7 Sản phẩm tuần; ngoài ra có "Từ mới hôm nay" (`#vocab`) hằng ngày.
 - Bài có sẵn (`STATIC_EX`, `PLACE`, `BURST_STATIC`, 174 từ) chạy offline/không key; phần AI sinh bài, chấm bài, roleplay cần key.
 
-## 2. AI: ai là mặc định?
-Đọc `call()` (dòng ~941):
-1. Có `eng-claude-key` và `eng-skip-claude` đã hết hạn → `claudeFirst()` (Claude). Tier `fast`/`quick` → `claude-haiku-5-5`; còn lại → `eng-claude-model` hoặc `claude-sonnet-5-5`. 5xx thử lại 1 lần.
-2. Claude lỗi: `rate_limited` → bỏ qua Claude 90 s; `bad_key` → hiện banner "Key Claude không đúng…"; nếu không có key Gemini thì ném lỗi lên.
-3. Gemini (`callOne`): danh sách `FALLBACK` (chất lượng) hoặc `FAST` (tier fast/quick), cuối là Gemma; model hết lượt bị `setSkip` (ngày: 3 giờ, phút: 90 s); nhớ model chạy được ở `eng-gemini-model`/`eng-fast-ok`.
-4. Gọi qua `askJSON` (tự thêm yêu cầu field `_en` cho mọi field `_vi`, gộp thành `⟪vi‖en⟫` bằng `biMerge`, giao diện chọn ngôn ngữ) hoặc `askText`. Cả hai nối `VIRULE` và retry nếu phát hiện tiếng Việt không dấu.
-- `window.claude={use}` luôn được gán (dòng ~1028) để code kiểu "chạy trong claude.ai" dùng chung. `use("sample")` trả hàm AI; `dictation`/`tts`/`db`/`user` trả `null`.
+## 2. AI
+Đọc `call()` (~dòng 941). **Từ 15/11/2026 chỉ còn Gemini** — kết nối Claude (Claude-first, `callClaude`, thẻ "Kết nối Claude" trong Cài đặt) đã bị gỡ theo yêu cầu; trước đó `eng-claude-key` có thì gọi Claude (haiku-5-5 / sonnet-5-5), lỗi thì rơi về Gemini. Lịch sử có trong git (commit `7b937f4` thêm, commit gỡ ở nhánh main sau `2b99065`).
+1. Gemini (`callOne`): danh sách `FALLBACK` (chất lượng) hoặc `FAST` (tier fast/quick), cuối là Gemma; model hết lượt bị `setSkip` (ngày: 3 giờ, phút: 90 s); nhớ model chạy được ở `eng-gemini-model`/`eng-fast-ok`.
+2. Gọi qua `askJSON` (tự thêm yêu cầu field `_en` cho mọi field `_vi`, gộp thành `⟪vi‖en⟫` bằng `biMerge`, giao diện chọn ngôn ngữ) hoặc `askText`. Cả hai nối `VIRULE` và retry nếu phát hiện tiếng Việt không dấu.
+3. Mỗi lần tải, script 1 xóa `eng-claude-key/model` và `eng-skip-claude` còn sót trong localStorage.
+- `window.claude={use}` (tên cũ của lớp giả lập "chạy trong claude.ai") vẫn được gán; `use("sample")` trả hàm AI; `dictation`/`tts`/`db`/`user` trả `null`.
   Hệ quả: `dict` luôn `null` → nhận diện giọng dùng Web Speech của Chrome; nhánh `!window.claude` trong `boot()` là mã chết.
-- API trình duyệt gọi thẳng: Anthropic cần header `anthropic-dangerous-direct-browser-access`. Key nằm trong localStorage (rủi ro đã chấp nhận: app cá nhân).
+- Key Gemini nằm trong localStorage, gọi thẳng từ trình duyệt (rủi ro đã chấp nhận: app cá nhân).
 
 ## 3. State & dữ liệu học
 - `S` lưu ở `eng-ux-state`. Trường chính: `v, vset, start, weekStarts, act, w, bm, notes, rv, placement, sessions, errors, elog, vocab, vu, vday, vu8, vd, history, ex, own, rp, write, product, upd`.

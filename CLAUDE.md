@@ -23,20 +23,19 @@ Lịch sử chi tiết, ghi chú kiến trúc, cạm bẫy: xem [HANDOFF.md](HAN
 - Mỗi chuỗi giao diện mới phải có mục trong từ điển `I18N` (có bản tiếng Anh). Chuỗi có số dùng `#` (xem `trLookup`).
 - **KHÔNG chấm lỗi viết hoa và dấu câu** (đã có `capOk`, `addErr` chặn). Lời nhắc AI mới phải dùng `learnerCtx()` và `tagList()`.
 - Tiếng Việt luôn có dấu trong mọi chuỗi và lời nhắc AI (`VIRULE`, `noDiaAny` tự retry nếu thiếu dấu).
-- Trả lời người dùng bằng tiếng Việt, ngắn gọn; nói rõ cái gì đã test và cái gì CHƯA test (điện thoại thật, Gemini/Claude thật).
+- Trả lời người dùng bằng tiếng Việt, ngắn gọn; nói rõ cái gì đã test và cái gì CHƯA test (điện thoại thật, Gemini thật).
 - Sau thay đổi lớn: cập nhật HANDOFF.md/CLAUDE.md rồi commit. Hỏi người dùng chỉ khi thật sự bị chặn.
 
-## AI nào là mặc định (đọc từ code, `call()` ~dòng 941)
-**Claude-first nếu có key Claude**, Gemini là dự phòng:
-- Có `eng-claude-key` và chưa bị `eng-skip-claude` → gọi `claudeFirst()`: tier `fast`/`quick` dùng `CLAUDE_Q` = `claude-haiku-5-5`;
-  còn lại dùng `eng-claude-model` hoặc `CLAUDE_D` = `claude-sonnet-5-5`. Lỗi 429 → bỏ qua Claude 90 giây.
-- Claude lỗi (hoặc không có key) và có `eng-gemini-key` → chuỗi Gemini (`FALLBACK`/`FAST`, cuối là Gemma). Không có key nào → ném `no_key`.
+## AI (đọc từ code, `call()` ~dòng 941)
+**Chỉ còn Gemini** (đã bỏ kết nối Claude ngày 15/11/2026 theo yêu cầu người dùng; không thêm lại nếu chưa được hỏi):
+- Key `eng-gemini-key` dán ở Cài đặt → chuỗi model `FALLBACK`/`FAST` (cuối là Gemma); model hết lượt bị `setSkip`.
+- Khối script 1 xóa `eng-claude-key`, `eng-claude-model`, `eng-skip-claude` khỏi localStorage mỗi lần tải.
 - Không có key: các bài có sẵn vẫn chạy; phần AI chấm/ra bài bị khóa.
 
 ## Cấu trúc code (một file, 3 khối `<script>`)
 | Khối / chỗ | Nội dung |
 |---|---|
-| Script 1 (~927-1029) | Lớp AI: `call()` điều phối, `callClaude`, `claudeFirst`, `callOne` (Gemini), `sample`/`sample.json`; gán `window.claude={use}` (tiện ích giả lập "sample"; "dictation"/"tts" trả null) |
+| Script 1 (~927-1029) | Lớp AI: `call()` điều phối, `callOne` (Gemini), `sample`/`sample.json`; gán `window.claude={use}` (tiện ích giả lập "sample"; "dictation"/"tts" trả null) |
 | Dữ liệu (~1033-1278) | `TAGS`, `SESS`, `VOCAB=[]` rồi `VMORE` (727 từ; `VMORE.forEach` push vào `VOCAB`), `IPA`, `STATIC_EX`, `PLACE`, `SCEN` (roleplay) |
 | State (~1281-1325) | `DEF`, `S`, `APP_BUILD`, `bakSave`/`bakList`/`prog`, `migrate()`, `save()`/`flush()` |
 | Đồng bộ (~1327-1371) | Gist riêng tư: `gapi`, `gistRef`, `pullSync()` (bên có `upd` mới hơn hoặc "giàu" hơn thắng), `syncOn` |
@@ -48,15 +47,15 @@ Lịch sử chi tiết, ghi chú kiến trúc, cạm bẫy: xem [HANDOFF.md](HAN
 | Giọng nói (~3025-3110) | `recStart` → `srRun` (Web Speech), `myRecStart` (ghi âm nghe lại, **tắt trên Android**), `pronScore` |
 | Roleplay | `renderScen`, `renderChat`, `rpTurn` (~3371) |
 | Sổ tay | `openNb` (~4083): tab Từ đã lưu / Ghi chú / Lỗi / Lý thuyết |
-| Boot (~4357) | `renderAll0()` rồi `boot()`; script 3 (~4476) gắn nút Cài đặt (key Gemini/Claude, nhập/xuất dữ liệu) |
+| Boot (~4357) | `renderAll0()` rồi `boot()`; script 3 gắn nút Cài đặt (key Gemini, nhập/xuất dữ liệu) |
 
-localStorage khác: `eng-gemini-key/model`, `eng-claude-key/model`, `eng-gist-token/id`, `eng-build`, `eng-bak-*` (tối đa 8), `eng-ux-lang`, `eng-ux-dirty`.
+localStorage khác: `eng-gemini-key/model`, `eng-gist-token/id`, `eng-build`, `eng-bak-*` (tối đa 8), `eng-ux-lang`, `eng-ux-dirty`.
 
 ## Test
-`tests/smoke.mjs` (Playwright-core + Chrome hệ thống, headless, 390px, Android UA). Gemini/Claude/GitHub là **mock** qua `context.route`.
-Kiểm: tải không lỗi JS; 12 màn + sổ tay mở được; Claude-first và rơi về Gemini khi 401; dữ liệu cũ (`eng-ux-state`) còn nguyên và tự sao lưu khi `APP_BUILD` đổi; Gist sync (mock).
+`tests/smoke.mjs` (Playwright-core + Chrome hệ thống, headless, 390px, Android UA). Gemini/GitHub là **mock** qua `context.route`.
+Kiểm: tải không lỗi JS; 12 màn + sổ tay mở được; gọi Gemini mock, không còn gọi Anthropic, key Claude cũ bị dọn; dữ liệu cũ (`eng-ux-state`) còn nguyên và tự sao lưu khi `APP_BUILD` đổi; Gist sync (mock).
 Cũng kiểm: `VOCAB` ≥720 từ, không trùng, 174 từ gốc (`tests/vocab-original.json`) còn đúng vị trí đầu danh sách; nút "Học lại từ đầu" (`restartAll`, sao lưu `-reset`, đặt `S.rst`, tuần 1 từ thứ 2 sau ngày mai).
-KHÔNG kiểm: giọng nói thật, Gemini/Claude thật, GitHub thật, bố cục chi tiết, điện thoại thật.
+KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi tiết, điện thoại thật.
 
 ## Việc còn treo
 - [x] Kho từ vựng đã thêm sẵn lên **727** từ (15/11/2026, 553 từ mới, chưa có IPA). Người dùng sẽ tự chỉnh độ dễ/khó sau; từ mới luôn thêm vào CUỐI `VMORE`. Nên soát lại nghĩa/ví dụ do AI soạn.
@@ -66,4 +65,4 @@ KHÔNG kiểm: giọng nói thật, Gemini/Claude thật, GitHub thật, bố c�
 - [ ] Nút "Bận, chỉ có 10 phút" trên màn Hôm nay (chưa có trong code).
 - [ ] Nếu roleplay ăn hết lượt model xịn: chuyển roleplay (`rpTurn`) sang tier nhẹ.
 - [ ] Chưa kiểm chứng trên điện thoại thật: nhận diện giọng nói (Android đã bỏ ghi âm nghe lại), đồng bộ Gist với GitHub thật, chấm bài với AI thật.
-- [ ] Dọn nhỏ: comment đầu script 1 và `showBanner()` còn nhắc "Gemini" dù Claude-first; nhánh `!window.claude` trong `boot()` không bao giờ chạy vì `window.claude` luôn được gán.
+- [ ] Dọn nhỏ: comment đầu script 1 còn nói "Gemini thay cho AI"; nhánh `!window.claude` trong `boot()` không bao giờ chạy vì `window.claude` (tên cũ của lớp giả lập) luôn được gán.
