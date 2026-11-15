@@ -1,0 +1,8 @@
+{
+  "name": "english-uiux-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Smoke test cho index.html (Playwright, Chrome headless, 390px)",
+  "scripts": { "test": "node smoke.mjs" },
+  "devDependencies": { "playwright-core": "^1.49.0" }
+}

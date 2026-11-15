@@ -1,0 +1,66 @@
+# EN UIUX — hướng dẫn cho Claude
+
+App học tiếng Anh **một file HTML** (`index.html`, ~4450 dòng, không build) cho UI/UX designer người Việt, trình độ A1,
+mục tiêu 6-12 tháng đủ đi làm/phỏng vấn. Người dùng học chủ yếu trên **Android Chrome**.
+Lịch sử chi tiết, ghi chú kiến trúc, cạm bẫy: xem [HANDOFF.md](HANDOFF.md).
+
+## Deploy
+- Repo `github.com/tiennt1009/english-uiux` (public), nhánh `main`. Pages: `tiennt1009.github.io/english-uiux`.
+- Deploy = `git push origin HEAD:main`; Pages cập nhật sau ~1 phút. Không có bước build.
+- Trước khi push: `cd tests && npm install && npm test` (cần Chrome). Chỉ push khi PASS, không lỗi JS.
+
+## Quy tắc bắt buộc — BẢO VỆ DỮ LIỆU HỌC (ưu tiên cao nhất)
+- Tiến độ nằm ở localStorage `eng-ux-state` (+ Gist nếu bật đồng bộ). **Không đổi tên key này.**
+- Không đổi cấu trúc `S` theo kiểu làm mất dữ liệu cũ. Chỉ **thêm** trường mới (mặc định trong `DEF` và/hoặc `migrate()`).
+  Không xóa/đổi tên trường cũ khi chưa chuyển dữ liệu. Lưu ý `Object.assign(DEF, saved)` chỉ gộp nông.
+- `migrate()` nhánh `S.vset!==2` **xóa từ trong `S.vocab` không có trong `VOCAB`** → khi sửa `VOCAB`, giữ nguyên mọi từ `w` đã có.
+- Thứ tự `VOCAB` quyết định từ nào được mở (`vIdx()`, `S.vu`) → **chỉ thêm từ mới vào CUỐI `VMORE`**, không chèn giữa, không đổi thứ tự.
+- Mỗi lần sửa `migrate()` / cấu trúc `S` / `VOCAB`: **đổi `APP_BUILD`** (hằng cạnh `BK=`) để máy tự `bakSave` trước khi chạy code mới.
+- Không bao giờ hardcode hoặc xin API key trong chat/code. Key do người dùng dán ở tab Cài đặt (localStorage).
+
+## Quy ước làm việc
+- UI đơn giản, ngắn gọn, dễ hiểu; chữ ngắn; mỗi lần chỉ hiện 1 thứ.
+- Mỗi chuỗi giao diện mới phải có mục trong từ điển `I18N` (có bản tiếng Anh). Chuỗi có số dùng `#` (xem `trLookup`).
+- **KHÔNG chấm lỗi viết hoa và dấu câu** (đã có `capOk`, `addErr` chặn). Lời nhắc AI mới phải dùng `learnerCtx()` và `tagList()`.
+- Tiếng Việt luôn có dấu trong mọi chuỗi và lời nhắc AI (`VIRULE`, `noDiaAny` tự retry nếu thiếu dấu).
+- Trả lời người dùng bằng tiếng Việt, ngắn gọn; nói rõ cái gì đã test và cái gì CHƯA test (điện thoại thật, Gemini/Claude thật).
+- Sau thay đổi lớn: cập nhật HANDOFF.md/CLAUDE.md rồi commit. Hỏi người dùng chỉ khi thật sự bị chặn.
+
+## AI nào là mặc định (đọc từ code, `call()` ~dòng 941)
+**Claude-first nếu có key Claude**, Gemini là dự phòng:
+- Có `eng-claude-key` và chưa bị `eng-skip-claude` → gọi `claudeFirst()`: tier `fast`/`quick` dùng `CLAUDE_Q` = `claude-haiku-5-5`;
+  còn lại dùng `eng-claude-model` hoặc `CLAUDE_D` = `claude-sonnet-5-5`. Lỗi 429 → bỏ qua Claude 90 giây.
+- Claude lỗi (hoặc không có key) và có `eng-gemini-key` → chuỗi Gemini (`FALLBACK`/`FAST`, cuối là Gemma). Không có key nào → ném `no_key`.
+- Không có key: các bài có sẵn vẫn chạy; phần AI chấm/ra bài bị khóa.
+
+## Cấu trúc code (một file, 3 khối `<script>`)
+| Khối / chỗ | Nội dung |
+|---|---|
+| Script 1 (~927-1029) | Lớp AI: `call()` điều phối, `callClaude`, `claudeFirst`, `callOne` (Gemini), `sample`/`sample.json`; gán `window.claude={use}` (tiện ích giả lập "sample"; "dictation"/"tts" trả null) |
+| Dữ liệu (~1033-1278) | `TAGS`, `SESS`, `VOCAB=[]` rồi `VMORE` (174 từ, push ở dòng ~1226), `IPA`, `STATIC_EX`, `PLACE`, `SCEN` (roleplay) |
+| State (~1281-1325) | `DEF`, `S`, `APP_BUILD`, `bakSave`/`bakList`/`prog`, `migrate()`, `save()`/`flush()` |
+| Đồng bộ (~1327-1371) | Gist riêng tư: `gapi`, `gistRef`, `pullSync()` (bên có `upd` mới hơn hoặc "giàu" hơn thắng), `syncOn` |
+| Prompt helper (~1375-1440) | `learnerCtx()`, `tagList()`, `VIRULE`, `askJSON`/`askJSON0` (JSON, tự thêm field `_en`), `askText`, `aiErrMsg` |
+| I18N (~1483-1598) | `LANG`, `I18N` (nhiều `Object.assign(I18N,…)`), `trTree`, `setLang` |
+| Router (~1599-1640) | `route()`; hash: `#today #dashboard #lessons #settings #vocab #s-1-{1,2,4,5,6} #review #placement #notebook` |
+| Màn hình | `renderTodayRest`, `renderSession` (theo `BODY`), `renderLessons`, `renderDashboard`, `renderVocab`, `renderWrite`, `renderProduct`, `startReview` |
+| Từ vựng (~2830-2880) | `vIdx`/`vPool`/`vTopUp` (mở 6 từ/ngày, `VDAILY`), `dueCards`, `weekWords()` |
+| Giọng nói (~3025-3110) | `recStart` → `srRun` (Web Speech), `myRecStart` (ghi âm nghe lại, **tắt trên Android**), `pronScore` |
+| Roleplay | `renderScen`, `renderChat`, `rpTurn` (~3371) |
+| Sổ tay | `openNb` (~4083): tab Từ đã lưu / Ghi chú / Lỗi / Lý thuyết |
+| Boot (~4357) | `renderAll0()` rồi `boot()`; script 3 (~4476) gắn nút Cài đặt (key Gemini/Claude, nhập/xuất dữ liệu) |
+
+localStorage khác: `eng-gemini-key/model`, `eng-claude-key/model`, `eng-gist-token/id`, `eng-build`, `eng-bak-*` (tối đa 8), `eng-ux-lang`, `eng-ux-dirty`.
+
+## Test
+`tests/smoke.mjs` (Playwright-core + Chrome hệ thống, headless, 390px, Android UA). Gemini/Claude/GitHub là **mock** qua `context.route`.
+Kiểm: tải không lỗi JS; 12 màn + sổ tay mở được; Claude-first và rơi về Gemini khi 401; dữ liệu cũ (`eng-ux-state`) còn nguyên và tự sao lưu khi `APP_BUILD` đổi; Gist sync (mock).
+KHÔNG kiểm: giọng nói thật, Gemini/Claude thật, GitHub thật, bố cục chi tiết, điện thoại thật.
+
+## Việc còn treo
+- [ ] Kho từ vựng chỉ có **174** từ, cần thêm ~**550** (ưu tiên cao). Soạn theo đợt ~150 từ, **thêm vào cuối `VMORE`**, không đổi/xóa từ cũ, đổi `APP_BUILD`, thêm IPA nếu có.
+- [ ] Bỏ giới hạn 8 từ ở buổi T6 (`weekWords()` có `.slice(0,8)`), đang chờ người dùng quyết mức cắt 30/12.
+- [ ] Nút "Bận, chỉ có 10 phút" trên màn Hôm nay (chưa có trong code).
+- [ ] Nếu roleplay ăn hết lượt model xịn: chuyển roleplay (`rpTurn`) sang tier nhẹ.
+- [ ] Chưa kiểm chứng trên điện thoại thật: nhận diện giọng nói (Android đã bỏ ghi âm nghe lại), đồng bộ Gist với GitHub thật, chấm bài với AI thật.
+- [ ] Dọn nhỏ: comment đầu script 1 và `showBanner()` còn nhắc "Gemini" dù Claude-first; nhánh `!window.claude` trong `boot()` không bao giờ chạy vì `window.claude` luôn được gán.
