@@ -3254,10 +3254,9 @@ function renderBurst(){
   if(burst.state==="result"){
     const r=burst.last;
     box.innerHTML=head+pr+`<div class="result rsw" style="margin-top:10px">${resBlk({ans:r.ans,timeout:r.timeout,ok:r.ok,right:r.right,sample:p.sample,why:r.why})}${r.timeout?"":svBtn({w:r.ans,r:r.right||p.sample||r.ans,why:r.why,src:"Bộc phát",q:p.ask})}</div>
-      <div class="abar">${(W().burstStreak||0)>=5&&r.ok?`<button class="btn pri" id="b-go4">Sang ${LV[4].n} ›</button><button class="btn" id="b-next">Luyện tiếp</button>`:`<button class="btn pri" id="b-next">Câu tiếp ›</button>`}<button class="btn" id="b-stop" style="flex:none">Dừng</button></div>`;
+      <div class="abar">${(W().burstStreak||0)>=5&&r.ok?`<button class="btn pri" id="b-go4">Sang ${LV[4].n} ›</button><button class="btn" id="b-next">Luyện tiếp</button>`:`<button class="btn pri" id="b-next">Câu tiếp ›</button>`}</div>`;
     const nx=document.getElementById("b-next");(document.getElementById("b-go4")||nx).focus({preventScroll:true});nx.onclick=burstNext;
     const g4=document.getElementById("b-go4");if(g4)g4.onclick=()=>showLv(4);
-    document.getElementById("b-stop").onclick=()=>{burst.state="idle";renderBurst()};
   }
 }
 async function burstNext(){
