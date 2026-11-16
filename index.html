@@ -576,7 +576,7 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
  .crit-sheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:56;background:var(--card);border-radius:18px 18px 0 0;padding:8px 16px calc(16px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto;transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 30px rgba(31,29,26,.15)}
  body.crit-open .crit-sheet{transform:none}
  body.info-open .crit-ov{opacity:1;pointer-events:auto}
- #ex-head #ex-actions{display:none}
+ #ex-head{display:none}
  .info-sheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:56;background:var(--card);border-radius:18px 18px 0 0;padding:8px 16px calc(16px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto;transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 30px rgba(31,29,26,.15)}
  body.info-open .info-sheet{transform:none}
  .info-sheet .dr-grab{display:block;width:40px;height:5px;border-radius:3px;background:var(--faint);opacity:.6;margin:2px auto 10px}
@@ -678,11 +678,9 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
       <div id="g-practice">
         <div class="lvov" id="lv-ov"></div>
         <div class="card" id="ex-card">
-          <div class="row" id="ex-head" style="justify-content:space-between">
-            <h2 style="margin:0">Bài tập</h2>
+          <div class="row" id="ex-head" style="justify-content:flex-end">
             <div class="row" id="ex-actions"><button class="btn ghost" id="ex-redo">↻ Làm lại</button><button class="btn" id="ex-new">Tạo bộ bài mới</button></div>
           </div>
-          <p class="muted small" id="ex-src" style="margin:4px 0 4px"></p>
           <div id="ex-list"></div>
           <div class="row"><span class="score" id="ex-score"></span></div>
         </div>
@@ -3265,7 +3263,6 @@ function renderLvOv(){
 }
 function renderEx(){
   const ex=ensureEx(),box=document.getElementById("ex-list");
-  document.getElementById("ex-src").textContent=(ex.src==="ai"?"Bộ bài do AI tạo theo lỗi bạn hay mắc.":"Bộ bài có sẵn.")+" Trắc nghiệm chỉ để khởi động. Phần chính là tự viết câu.";
   const L=gLvCur()<=2?gLvCur():1;
   const idx=ex.items.map((it,i)=>i).filter(i=>ex.items[i].level===L),n=idx.length,fin=i=>ex.answers[i]&&!ex.answers[i].pending&&!ex.answers[i].offline;
   let html=`<div class="lvl"><span class="lb ${LV[L].c}">${LV[L].n}</span><span class="small muted">${LV[L].d}</span></div>`;
