@@ -57,6 +57,11 @@ Kiểm: tải không lỗi JS; 12 màn + sổ tay mở được; gọi Gemini mo
 Cũng kiểm: `VOCAB` ≥720 từ, không trùng, 174 từ gốc (`tests/vocab-original.json`) còn đúng vị trí đầu danh sách; nút "Học lại từ đầu" (`restartAll`, sao lưu `-reset`, đặt `S.rst`, tuần 1 từ thứ 2 sau ngày mai).
 KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi tiết, điện thoại thật.
 
+## Giao diện (cập nhật 16/11/2026)
+- Tab Hôm nay chỉ liệt kê 2 thẻ (Từ mới hôm nay → `#vocab`, buổi hôm nay → `#d-{dow}`); bấm vào mới vào màn học. `#d-N` là buổi học mở từ Hôm nay (`sess.back="today"`, màn "deep", không có bnav).
+- Mọi nút hành động trong màn học (Tiếp, Bắt đầu, Câu trước...) nằm trong thanh cố định ở đáy: class `.abar` (hoặc `.exnav`/`.shnav`). JS bật `body.has-abar` để chừa chỗ cuối trang và đẩy nút Lý thuyết lên.
+- Chấm câu tự do (`checkFree`) dùng tầng nhanh (`{fast:true}`), không còn ghi chú "model chính hết lượt".
+
 ## Việc còn treo
 - [x] 15/11/2026: từ mức Dễ (lv 1, 167 từ) bị ẩn khỏi pool (`vEasy`, `vPool`, `vLeft`, `vAdv`); đã thêm 168 từ Vừa/Khó vào cuối `VMORE` (tổng 895, dùng được 728; `APP_BUILD` 2026-11-15-b). Từ mới chưa có IPA, nên soát nghĩa/ví dụ.
 - [x] Kho từ vựng đã thêm sẵn lên **727** từ (15/11/2026, 553 từ mới, chưa có IPA). Người dùng sẽ tự chỉnh độ dễ/khó sau; từ mới luôn thêm vào CUỐI `VMORE`. Nên soát lại nghĩa/ví dụ do AI soạn.
