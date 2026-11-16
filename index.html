@@ -399,6 +399,9 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .fab{position:fixed;right:20px;bottom:20px;z-index:30;border:0;background:var(--ink);color:#fff;border-radius:999px;padding:12px 18px;font-size:15px;cursor:pointer;box-shadow:0 6px 20px rgba(31,29,26,.25)}
 @media(max-width:700px){.fab{left:50%;right:auto;transform:translateX(-50%)}}
+/* nút lý thuyết: nửa hình tròn sát mép trái, chỉ có biểu tượng */
+.fab,#theory-fab{left:0;right:auto;transform:none;width:44px;height:56px;padding:0 4px 0 0;border-radius:0 999px 999px 0;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;box-shadow:2px 4px 14px rgba(31,29,26,.25)}
+@media(min-width:701px){#theory-fab{left:var(--side)}}
 .dr-ov{position:fixed;inset:0;background:rgba(31,29,26,.35);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
 .dr-ov.on{opacity:1;pointer-events:auto}
 #nb-ov{z-index:46}#nb-drawer{z-index:50}
@@ -914,7 +917,7 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
   <a href="#lessons" data-v="lessons"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7M8 11h5"/></svg><span>Bài học</span></a>
   <a href="#settings" data-v="settings"><svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Cài đặt</span></a>
 </nav>
-<button class="fab hidden" id="theory-fab" aria-controls="drawer">📖 Xem lý thuyết</button>
+<button class="fab hidden" id="theory-fab" aria-controls="drawer" aria-label="Xem lý thuyết" title="Xem lý thuyết">📖</button>
 <div class="dr-ov" id="dr-ov"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Lý thuyết" aria-hidden="true">
   <div class="dr-top" id="dr-top"><div class="dr-grab"></div><div class="dr-head"><b id="dr-title">Lý thuyết</b><button class="icon-btn" id="dr-close" aria-label="Đóng">✕</button></div></div>
