@@ -5115,6 +5115,8 @@ renderAll0();
   if(!window.claude||!window.claude.use){showBanner();if(gtok()){dbRef=gistRef;try{if(await pullSync())renderAll0()}catch(e){if(e&&e.code==="gh_auth")syncBad="Token sai hoặc thiếu quyền gist"}syncReady=true;syncUI()}return}
   const [smp,ttsNs,dc,dbNs,usr]=await Promise.all(["sample","tts","dictation","db","user"].map(n=>window.claude.use(n).catch(()=>null)));
   sample=smp;tts=ttsNs;dict=dc;
+  /* màn đã vẽ trước khi AI sẵn sàng (mở thẳng vào buổi học) thì vẽ lại */
+  if(sample&&(curView==="session"||curView==="review"||curView==="placement"))route();
   if(dict){
     dict.onPartial(({text})=>{if(REC.on){if(REC.live)REC.live((REC.fin+" "+text).trim());return}if(MIC.onText)MIC.onText((MIC.buf+" "+text).trim())});
     dict.onFinal(({text})=>{if(REC.on){REC.fin=(REC.fin+" "+text).trim();if(REC.live)REC.live(REC.fin);if(REC.short&&REC.fin)dict.stop().catch(()=>{});return}MIC.buf=(MIC.buf+" "+text).trim();if(MIC.onText)MIC.onText(MIC.buf)});
