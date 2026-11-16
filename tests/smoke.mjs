@@ -111,7 +111,8 @@ async function visitAll(page, errors, label) {
     await page.evaluate((h) => { location.hash = h; }, hash);
     await page.waitForTimeout(250);
     const r = await page.evaluate((id) => {
-      const el = document.getElementById(id);
+      /* #today mở thẳng buổi học nếu hôm nay có buổi (tuần 1) → coi #v-session là hợp lệ */
+      const el = document.getElementById(id === 'v-today' && document.getElementById('v-today').classList.contains('hidden') ? 'v-session' : id);
       const de = document.documentElement;
       return { shown: !!el && !el.classList.contains('hidden'), len: el ? el.innerText.trim().length : 0, over: de.scrollWidth - de.clientWidth };
     }, id);
