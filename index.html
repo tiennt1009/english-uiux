@@ -271,6 +271,7 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .box-dots i.on{background:var(--ok)}
 /* chat */
 .chat{display:flex;flex-direction:column;gap:10px;max-height:460px;overflow-y:auto;padding:4px}
+#quick-box .chat{max-height:none;overflow:visible}
 .msg{display:flex;gap:8px;align-items:flex-end;max-width:88%}
 .msg.me{align-self:flex-end;flex-direction:row-reverse}
 .av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
@@ -519,6 +520,7 @@ body.has-abar{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
 body.has-abar .fab{bottom:calc(90px + env(safe-area-inset-bottom))!important}
 body.kb .abar,body.kb .exnav,body.kb .shnav{display:none!important}
 .exnav:not(:has(.btn,.lnk:not([style*="visibility:hidden"]))),.shnav:not(:has(.btn,.lnk:not([style*="visibility:hidden"]))){display:none}
+.corr.okc{background:none;padding:0 0 0 4px;margin-top:-6px}
 .tcards{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
 .tcard{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;text-decoration:none;color:inherit}
 .tcard:active{background:var(--soft)}.tcard.done{background:var(--ok-bg);border-color:#C0DD97}
@@ -2328,7 +2330,7 @@ function route(){
   const prev=curView;curView=view;curSess=sess;
   hideSel();
   if(burst.stop)burst.stop();if(burst.state==="ask"||burst.state==="grading")burst.state="idle";
-  if(quick.stop)quick.stop();if(quick.state==="ask")quick.state="idle";
+  if(quick.stop)quick.stop();if(quick.state==="ask"){quick.state="idle";quick.turns=[]}
   ["today","session","lessons","dashboard","settings","review","placement"].forEach(x=>document.getElementById("v-"+x).classList.toggle("hidden",x!==view));
   document.querySelectorAll("#tabs a, .nb-link, #bnav a").forEach(a=>{a.classList.toggle("on",a.dataset.v===nav);if(a.dataset.v===nav)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
   const act=document.querySelector(`#tabs a[data-v="${nav}"] span, .side-foot .nb-link[data-v="${nav}"] span`);
@@ -3303,33 +3305,37 @@ async function burstSubmit(timeout){
 }
 
 /* ---------- Cấp 4: Hỏi nhanh ---------- */
-const quick={state:"idle",turns:[],q:"",stop:null};
+const quick={state:"idle",turns:[],q:"",qs:[],err:null,stop:null};
 function renderQuick(){
   const box=document.getElementById("quick-box"),w=W(),open=l4Open();
-  const ok=quick.turns.filter(t=>t.ok).length;
-  const head=`<div class="row" style="justify-content:space-between"><span class="lb T" style="font-size:12px;padding:2px 9px;border-radius:999px">${LV[4].n}</span>${open?`<span class="small muted">Câu ${Math.min(quick.turns.length+(quick.state==="ask"||quick.state==="grading"?1:0),5)}/5 · đúng ${ok}</span>`:""}</div>`;
+  const ok=quick.turns.filter(t=>t.ok).length,fin=quick.state==="done";
+  const head=`<div class="row" style="justify-content:space-between"><span class="lb T" style="font-size:12px;padding:2px 9px;border-radius:999px">${LV[4].n}</span>${open?`<span class="small muted">${fin?`Đúng ${ok}/5`:`Câu ${Math.min(quick.turns.length+(quick.state==="ask"?1:0),5)}/5`}</span>`:""}</div>`;
   if(!open){box.innerHTML=head+`<div class="locked" style="margin-top:10px">🔒 Đạt 5 câu liên tiếp ở Cấp 3 để mở</div>`;return}
-  const hist=quick.turns.map(t=>`<div class="msg them"><div class="av S">CO</div><div class="bub">${esc(t.q)}</div></div><div class="msg me"><div class="av C">Bạn</div><div class="bub">${esc(t.a||"(hết giờ)")}</div></div>${t.ok||t.ok===undefined?"":`<div class="corr">✎ ${esc(t.why||"")}${t.right?`<br>Nói thế này: <b>${esc(t.right)}</b>`:""}${svBtn({w:t.a||"",r:t.right||"",why:t.why||"",src:"Hỏi nhanh",q:t.q})}</div>`}`).join("");
+  /* chỉ sau khi chấm xong mới hiện sửa lỗi và nút ? cho từng câu */
+  const hist=quick.turns.map(t=>`<div class="msg them"><div class="av S">CO</div><div class="bub">${esc(t.q)}</div></div><div class="msg me"><div class="av C">Bạn</div><div class="bub">${esc(t.a||"(hết giờ)")}</div></div>${t.ok===undefined?"":t.ok?`<div class="corr okc">${svBtn({w:t.a||"",r:t.a||"",why:t.why||"",src:"Hỏi nhanh",q:t.q})}</div>`:`<div class="corr">✎ ${esc(t.why||"")}${t.right?`<br>Nói thế này: <b>${esc(t.right)}</b>`:""}${svBtn({w:t.a||"",r:t.right||"",why:t.why||"",src:"Hỏi nhanh",q:t.q})}</div>`}`).join("");
   if(quick.state==="idle"){
-    box.innerHTML=head+`<h3 style="margin-top:12px">Đồng nghiệp hỏi liên tục 5 câu</h3><p class="small muted" style="margin:0 0 10px">Mỗi câu ${SECS} giây. Cần đúng 4/5.${(w.quickBest||0)>=4?" Bạn đã đạt.":""}</p>
+    box.innerHTML=head+`<h3 style="margin-top:12px">Đồng nghiệp hỏi liên tục 5 câu</h3><p class="small muted" style="margin:0 0 10px">Mỗi câu ${SECS} giây. Trả lời hết 5 câu rồi AI chấm một lượt. Cần đúng 4/5.${(w.quickBest||0)>=4?" Bạn đã đạt.":""}</p>
       <div class="abar"><button class="btn pri" id="q-start">${quick.turns.length?"Làm lượt mới":"Bắt đầu"}</button></div>`+(quick.turns.length?`<div class="chat" style="margin-top:12px">${hist}</div>`:"");
     document.getElementById("q-start").onclick=()=>{quick.turns=[];quickAsk()};return;
   }
   if(quick.state==="loading"){box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}</div>${loadingHTML("Đồng nghiệp đang nghĩ câu hỏi...")}`;return}
-  if(quick.state==="ask"||quick.state==="grading"){
-    box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}${quick.state==="ask"?`<div class="msg them" id="q-cur"><div class="av S">CO</div><div class="bub">${esc(quick.q)}</div>${speakBtn(quick.q)}</div>`:""}</div>`+
-      (quick.state==="ask"?`<div class="timer" id="q-bar"><i></i></div><span class="tsec" id="q-sec"></span>
-      <div class="row" style="flex-wrap:nowrap;margin-top:6px"><button class="icon-btn mic hidden" id="q-mic" aria-label="Nói">🎙</button><textarea rows="1" class="tin" id="q-in" autocomplete="off" placeholder="Trả lời bằng tiếng Anh"></textarea><button class="btn pri" id="q-send">Gửi</button></div>`:loadingHTML("AI đang chấm..."));
-    if(quick.state==="ask"){
-      /* câu hỏi mới nằm dưới cùng: cuộn tới để đọc được ngay */
-      const qc=document.getElementById("q-cur");if(qc)qc.scrollIntoView({block:"center",behavior:"smooth"});
-      const inp=document.getElementById("q-in");
-      inp.addEventListener("keydown",e=>{if(e.key==="Enter")quickSubmit(false)});
-      document.getElementById("q-send").onclick=()=>quickSubmit(false);
-      wireMic(document.getElementById("q-mic"),t=>{const x=document.getElementById("q-in");if(x)x.value=t});
-      quick.stop=runTimer("q-bar","q-sec",()=>quickSubmit(true));
-    }
+  if(quick.state==="ask"){
+    box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}<div class="msg them" id="q-cur"><div class="av S">CO</div><div class="bub">${esc(quick.q)}</div>${speakBtn(quick.q)}</div></div>
+      <div class="timer" id="q-bar"><i></i></div><span class="tsec" id="q-sec"></span>
+      <div class="row" style="flex-wrap:nowrap;margin-top:6px"><button class="icon-btn mic hidden" id="q-mic" aria-label="Nói">🎙</button><textarea rows="1" class="tin" id="q-in" autocomplete="off" placeholder="Trả lời bằng tiếng Anh"></textarea><button class="btn pri" id="q-send">${quick.turns.length>=4?"Gửi và chấm":"Gửi"}</button></div>`;
+    /* câu hỏi mới nằm dưới cùng: cuộn tới để đọc được ngay */
+    const qc=document.getElementById("q-cur");if(qc)qc.scrollIntoView({block:"center",behavior:"smooth"});
+    const inp=document.getElementById("q-in");
+    inp.addEventListener("keydown",e=>{if(e.key==="Enter")quickSubmit(false)});
+    document.getElementById("q-send").onclick=()=>quickSubmit(false);
+    wireMic(document.getElementById("q-mic"),t=>{const x=document.getElementById("q-in");if(x)x.value=t});
+    quick.stop=runTimer("q-bar","q-sec",()=>quickSubmit(true));
     return;
+  }
+  if(quick.state==="grading"){box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}</div>${loadingHTML("AI đang chấm 5 câu...")}`;return}
+  if(quick.state==="gerr"){
+    box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}</div><div class="err-inline">${aiErrMsg(quick.err)}</div><div class="abar"><button class="btn pri" id="q-regrade">Chấm lại</button></div>`;
+    document.getElementById("q-regrade").onclick=quickGrade;return;
   }
   if(quick.state==="done"){
     const pass=ok>=4;
@@ -3337,27 +3343,18 @@ function renderQuick(){
     document.getElementById("q-start").onclick=()=>{quick.turns=[];quickAsk()};
   }
 }
-async function quickAsk(last){
+/* bắt đầu: AI soạn sẵn 5 câu một lần, trả lời xong mới chấm một lượt */
+async function quickAsk(){
   if(!sample){document.getElementById("quick-box").insertAdjacentHTML("beforeend",`<div class="err-inline">${aiErrMsg({code:"no_sample"})}</div>`);return}
-  quick.state=last?"grading":"loading";renderQuick();
-  const tr=quick.turns.map(t=>`Colleague: ${t.q}\nLearner: ${t.a||"(no answer, time ran out)"}`).join("\n");
+  quick.turns=[];quick.state="loading";renderQuick();
   try{
     const v=await askJSON(`${learnerCtx()}
 
-QUICK-FIRE CONVERSATION (5 questions, learner has 30 s per answer). You are a friendly colleague at a tech company. Ask short, simple questions a beginner can answer with "to be" (work, team, the design, where things are, how they feel, small talk). Each new question should follow naturally from the learner's previous answer.
-Conversation so far:
-${tr||"(none)"}
-${last?`Grade the learner's LAST answer: "${last.a}" to "${last.q}". It is correct if grammatical (to be, articles, plurals, word order) and it answers the question. Ignore capitalization and punctuation.`:""}
-${quick.turns.length+(last?0:0)>=5?"This was the last answer; set next_question to \"\".":"Then write the next question."}
-JSON shape: {"ok":true,"right":"corrected version of the last answer, or empty","explain_vi":"one short Vietnamese sentence, or empty","tag":"one of ${tagList()}","next_question":"..."}`);
-    if(last){
-      const t=quick.turns[quick.turns.length-1];t.ok=last.a?!!v.ok:false;t.right=v.right||"";t.why=last.a?v.explain_vi||"":"Hết giờ.";
-      xp(t.ok?3:1);if(!t.ok&&last.a)addErr(v.tag||"other",last.a,v.right,"Trả lời: "+last.q);
-    }
-    if(quick.turns.length>=5){
-      const ok=quick.turns.filter(t=>t.ok).length,w=W();w.quickBest=Math.max(w.quickBest||0,ok);log("quick",`Hỏi nhanh: đúng ${ok}/5`);quick.state="done";after();renderQuick();renderLvOv();return;
-    }
-    quick.q=v.next_question||"How are you today?";quick.state="ask";after();renderQuick();
+QUICK-FIRE CONVERSATION. You are a friendly colleague at a tech company. Write exactly 5 short, simple questions a beginner can answer in one sentence using "to be" (work, team, the design, where things are, how they feel, small talk). The 5 questions must be different from each other and easy to answer without extra context. Flow naturally from one to the next like a real chat.
+JSON shape: {"questions":["q1","q2","q3","q4","q5"]}`,{fast:true,timeout:12000});
+    const qs=(v.questions||[]).map(x=>String(x||"").trim()).filter(Boolean).slice(0,5);
+    if(qs.length<5)throw{code:"error",msg:"AI trả về thiếu câu hỏi, bấm Bắt đầu lại."};
+    quick.q=qs[0];quick.qs=qs;quick.state="ask";renderQuick();
   }catch(e){quick.state="idle";renderQuick();document.getElementById("quick-box").insertAdjacentHTML("beforeend",`<div class="err-inline">${aiErrMsg(e)}</div>`)}
 }
 function quickSubmit(timeout){
@@ -3366,7 +3363,27 @@ function quickSubmit(timeout){
   if(!timeout&&!a){inp.placeholder="Gõ câu trả lời trước đã";return}
   if(quick.stop)quick.stop();if(MIC.listening&&dict)dict.stop().catch(()=>{});
   quick.turns.push({q:quick.q,a});
-  quickAsk({q:quick.q,a});
+  if(quick.turns.length>=5){quickGrade();return}
+  quick.q=quick.qs[quick.turns.length];quick.state="ask";renderQuick();
+}
+async function quickGrade(){
+  quick.state="grading";renderQuick();
+  const tr=quick.turns.map((t,i)=>`${i}. Colleague: ${t.q}\n   Learner: ${t.a||"(no answer, time ran out)"}`).join("\n");
+  try{
+    const v=await askJSON(`${learnerCtx()}
+
+QUICK-FIRE CONVERSATION, grade all 5 answers at once.
+${tr}
+For each answer: it is correct if grammatical (to be, articles, plurals, word order) and it answers the question. Ignore capitalization and punctuation. An answer of "(no answer, time ran out)" is not correct.
+JSON shape: {"results":[{"i":0,"ok":true,"right":"corrected version of the learner's answer, or empty","explain_vi":"one short Vietnamese sentence, or empty","tag":"one of ${tagList()}"}]}`,{fast:true,timeout:20000});
+    quick.turns.forEach((t,k)=>{
+      const r=capOk((v.results||[]).find(x=>x&&+x.i===k)||{ok:false},t.a);
+      t.ok=t.a?!!r.ok:false;t.right=r.right||"";t.why=t.a?r.explain_vi||"":"Hết giờ.";
+      xp(t.ok?3:1);if(!t.ok&&t.a)addErr(r.tag||"other",t.a,r.right,"Trả lời: "+t.q);
+    });
+    const ok=quick.turns.filter(t=>t.ok).length,w=W();w.quickBest=Math.max(w.quickBest||0,ok);log("quick",`Hỏi nhanh: đúng ${ok}/5`);
+    quick.state="done";after();renderQuick();renderLvOv();
+  }catch(e){quick.err=e;quick.state="gerr";renderQuick()}
 }
 
 /* ---------- hàng ôn câu sai ---------- */
