@@ -3149,7 +3149,7 @@ function renderEx(){
   }
   box.innerHTML=html;
   const gb=(id,f)=>{const e=document.getElementById(id);if(e)e.onclick=f};
-  gb("ex-prev",()=>{exCur[L]--;renderEx()});gb("ex-next",()=>{exCur[L]++;renderEx();const t=box.querySelector("[data-in]");if(t)t.focus({preventScroll:true})});
+  gb("ex-prev",()=>{exCur[L]--;renderEx()});gb("ex-next",()=>{exCur[L]++;renderEx();});
   gb("ex-gol1",()=>showLv(1));gb("ex-gol2",()=>showLv(2));gb("ex-gol3",()=>showLv(3));gb("ex-new2",()=>document.getElementById("ex-new").click());
   box.querySelectorAll("[data-exgo]").forEach(s=>s.onclick=()=>{exCur[L]=+s.dataset.exgo;renderEx()});
   {const nx=document.getElementById("ex-next");if(nx)nx.focus({preventScroll:true})}
@@ -3243,7 +3243,7 @@ function renderBurst(){
   if(burst.state==="ask"){
     box.innerHTML=head+pr+`<div class="timer" id="b-bar"><i></i></div><div class="row" style="justify-content:space-between"><span class="tsec" id="b-sec"></span><span class="small muted">Enter để gửi</span></div>
       <div class="row" style="flex-wrap:nowrap;margin-top:6px"><button class="icon-btn mic hidden" id="b-mic" aria-label="Nói">🎙</button><textarea rows="1" class="tin" id="b-in" autocomplete="off" placeholder="Viết câu trả lời bằng tiếng Anh"></textarea><button class="btn pri" id="b-send">Gửi</button></div>`;
-    const inp=document.getElementById("b-in");inp.focus({preventScroll:true});
+    const inp=document.getElementById("b-in");
     inp.addEventListener("keydown",e=>{if(e.key==="Enter")burstSubmit(false)});
     document.getElementById("b-send").onclick=()=>burstSubmit(false);
     wireMic(document.getElementById("b-mic"),t=>{const x=document.getElementById("b-in");if(x)x.value=t});
@@ -3306,7 +3306,7 @@ function renderQuick(){
   const ok=quick.turns.filter(t=>t.ok).length;
   const head=`<div class="row" style="justify-content:space-between"><span class="lb T" style="font-size:12px;padding:2px 9px;border-radius:999px">${LV[4].n}</span>${open?`<span class="small muted">Câu ${Math.min(quick.turns.length+(quick.state==="ask"||quick.state==="grading"?1:0),5)}/5 · đúng ${ok}</span>`:""}</div>`;
   if(!open){box.innerHTML=head+`<div class="locked" style="margin-top:10px">🔒 Đạt 5 câu liên tiếp ở Cấp 3 để mở</div>`;return}
-  const hist=quick.turns.map(t=>`<div class="msg them"><div class="av S">CO</div><div class="bub">${esc(t.q)}</div></div><div class="msg me"><div class="av C">Bạn</div><div class="bub">${esc(t.a||"(hết giờ)")}</div></div>${t.ok?"":`<div class="corr">✎ ${esc(t.why||"")}${t.right?`<br>Nói thế này: <b>${esc(t.right)}</b>`:""}${svBtn({w:t.a||"",r:t.right||"",why:t.why||"",src:"Hỏi nhanh",q:t.q})}</div>`}`).join("");
+  const hist=quick.turns.map(t=>`<div class="msg them"><div class="av S">CO</div><div class="bub">${esc(t.q)}</div></div><div class="msg me"><div class="av C">Bạn</div><div class="bub">${esc(t.a||"(hết giờ)")}</div></div>${t.ok||t.ok===undefined?"":`<div class="corr">✎ ${esc(t.why||"")}${t.right?`<br>Nói thế này: <b>${esc(t.right)}</b>`:""}${svBtn({w:t.a||"",r:t.right||"",why:t.why||"",src:"Hỏi nhanh",q:t.q})}</div>`}`).join("");
   if(quick.state==="idle"){
     box.innerHTML=head+`<h3 style="margin-top:12px">Đồng nghiệp hỏi liên tục 5 câu</h3><p class="small muted" style="margin:0 0 10px">Mỗi câu ${SECS} giây. Cần đúng 4/5.${(w.quickBest||0)>=4?" Bạn đã đạt.":""}</p>
       <div class="abar"><button class="btn pri" id="q-start">${quick.turns.length?"Làm lượt mới":"Bắt đầu"}</button></div>`+(quick.turns.length?`<div class="chat" style="margin-top:12px">${hist}</div>`:"");
@@ -3314,11 +3314,13 @@ function renderQuick(){
   }
   if(quick.state==="loading"){box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}</div>${loadingHTML("Đồng nghiệp đang nghĩ câu hỏi...")}`;return}
   if(quick.state==="ask"||quick.state==="grading"){
-    box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}<div class="msg them"><div class="av S">CO</div><div class="bub">${esc(quick.q)}</div>${speakBtn(quick.q)}</div></div>`+
+    box.innerHTML=head+`<div class="chat" style="margin-top:10px">${hist}${quick.state==="ask"?`<div class="msg them" id="q-cur"><div class="av S">CO</div><div class="bub">${esc(quick.q)}</div>${speakBtn(quick.q)}</div>`:""}</div>`+
       (quick.state==="ask"?`<div class="timer" id="q-bar"><i></i></div><span class="tsec" id="q-sec"></span>
       <div class="row" style="flex-wrap:nowrap;margin-top:6px"><button class="icon-btn mic hidden" id="q-mic" aria-label="Nói">🎙</button><textarea rows="1" class="tin" id="q-in" autocomplete="off" placeholder="Trả lời bằng tiếng Anh"></textarea><button class="btn pri" id="q-send">Gửi</button></div>`:loadingHTML("AI đang chấm..."));
     if(quick.state==="ask"){
-      const inp=document.getElementById("q-in");inp.focus({preventScroll:true});
+      /* câu hỏi mới nằm dưới cùng: cuộn tới để đọc được ngay */
+      const qc=document.getElementById("q-cur");if(qc)qc.scrollIntoView({block:"center",behavior:"smooth"});
+      const inp=document.getElementById("q-in");
       inp.addEventListener("keydown",e=>{if(e.key==="Enter")quickSubmit(false)});
       document.getElementById("q-send").onclick=()=>quickSubmit(false);
       wireMic(document.getElementById("q-mic"),t=>{const x=document.getElementById("q-in");if(x)x.value=t});
@@ -3399,7 +3401,7 @@ function renderReview(){
   const head=`<div class="row" style="justify-content:space-between"><span class="small muted">Câu ${rv.i+1}/${rv.queue.length}</span><span class="small muted">Lần ôn ${r.step+1}/3 · ${esc(TAGS[r.tag]||"")}</span></div><div class="q" style="font-size:18px;margin:8px 0 10px">${esc(p.q)}</div>`;
   if(rv.state==="ask"){
     box.innerHTML=head+`<div class="row" style="flex-wrap:nowrap"><textarea rows="1" class="tin" id="rv-in" autocomplete="off" placeholder="Viết câu tiếng Anh"></textarea><button class="btn pri" id="rv-chk">Kiểm tra</button></div><div class="err-inline" id="rv-e"></div>`;
-    const inp=document.getElementById("rv-in");inp.focus({preventScroll:true});inp.addEventListener("keydown",e=>{if(e.key==="Enter")rvCheck()});
+    const inp=document.getElementById("rv-in");inp.addEventListener("keydown",e=>{if(e.key==="Enter")rvCheck()});
     document.getElementById("rv-chk").onclick=rvCheck;return;
   }
   if(rv.state==="grading"){box.innerHTML=head+loadingHTML("Đang chấm...");return}
@@ -3643,7 +3645,6 @@ function renderVocab(){
   if(inp){
     if(fcLast&&fcState!=="ask")inp.value=fcLast.ans||"";
     inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();fcGo(c,mode)}});
-    if(fcFocusNext)inp.focus({preventScroll:true});
     fcPaint(c,mode);
   }
   fcFocusNext=false;
@@ -4016,7 +4017,7 @@ function renderVuse(){
   box.innerHTML=hd+`<div class="fc" style="min-height:0;margin-top:8px"><div class="vtag"><b>${VCAT[c.cat]||""}</b><b class="l${c.lv||1}">${VLV[c.lv||1]}</b></div><div class="ill">${ill(c.il)}</div><div class="fc-wrow"><span style="font-size:22px;font-weight:600">${esc(c.w)}</span>${speakBtn(c.w)}</div>${ipaHTML(c,"blk")}<div class="muted raw">${esc(c.vi)}</div>${body}</div>`;
   wire();
   const inp=document.getElementById("vu-in");
-  if(inp){if(vuFocus)inp.focus({preventScroll:true});vuFocus=false;inp.addEventListener("keydown",e=>{if(e.key==="Enter")vuCheck(c,inp.value.trim())});document.getElementById("vu-chk").onclick=()=>vuCheck(c,inp.value.trim());document.getElementById("vu-idk").onclick=()=>vuDone(c,{ok:false,ans:"",right:c.ex,why:"Câu mẫu ở trên. Đọc to một lần."})}
+  if(inp){vuFocus=false;inp.addEventListener("keydown",e=>{if(e.key==="Enter")vuCheck(c,inp.value.trim())});document.getElementById("vu-chk").onclick=()=>vuCheck(c,inp.value.trim());document.getElementById("vu-idk").onclick=()=>vuDone(c,{ok:false,ans:"",right:c.ex,why:"Câu mẫu ở trên. Đọc to một lần."})}
   const nx=document.getElementById("vu-next");if(nx){nx.onclick=()=>{vuSt="ask";vuLast=null;vuFocus=true;renderVuse()}}
 }
 function vuDone(c,res){
@@ -4052,7 +4053,7 @@ document.getElementById("vs-check").onclick=async()=>{
   if(v){S.vstory.ws=mon();S.vstory.text=t;S.vstory.used=used;log("vocab",`Kể chuyện với từ của tuần: ${ss.length} câu, dùng ${used.length} từ`);xp(5);after()}
   b.disabled=false;
 };
-document.getElementById("vs-redo").onclick=()=>{const t=document.getElementById("vs-text");t.value="";document.getElementById("vs-err").textContent="";document.getElementById("vs-result").innerHTML="";renderStory();t.focus({preventScroll:true})};
+document.getElementById("vs-redo").onclick=()=>{const t=document.getElementById("vs-text");t.value="";document.getElementById("vs-err").textContent="";document.getElementById("vs-result").innerHTML="";renderStory()};
 
 function renderScen(){
   const box=document.getElementById("rp-scen");
@@ -4391,17 +4392,17 @@ function renderWrite(){
   const B=document.getElementById("wr-body"),q=s=>B.querySelector(s);
   B.querySelectorAll("[data-wi]").forEach(s=>s.onclick=()=>{const j=+s.dataset.wi;if(j<=items){wrRetry=null;wrI[P]=j;renderWrite()}});
   B.querySelectorAll("[data-wj]").forEach(s=>s.onclick=()=>{wrRetry=null;wrI[P]=+s.dataset.wj;renderWrite()});
-  const go=d=>{wrI[P]=wrI[P]+d;renderWrite();const t=document.getElementById("wr-ta");if(t&&!t.value)t.focus({preventScroll:true})};
+  const go=d=>{wrI[P]=wrI[P]+d;renderWrite()};
   if(q("#wr-prev"))q("#wr-prev").onclick=()=>{if(k){wrRetry=null;go(-1)}};
   if(q("#wr-next"))q("#wr-next").onclick=()=>{wrRetry=null;go(1)};
-  if(q("#wr-retry"))q("#wr-retry").onclick=()=>{wrRetry={P,k};renderWrite();const t=document.getElementById("wr-ta");if(t){t.focus({preventScroll:true});t.setSelectionRange(t.value.length,t.value.length)}};
+  if(q("#wr-retry"))q("#wr-retry").onclick=()=>{wrRetry={P,k};renderWrite()};
   if(q("#wr-go"))q("#wr-go").onclick=wrDo;
   if(q("[data-why]"))q("[data-why]").onclick=async()=>{const r=cfg.rs(k),d=q("#wr-deep");if(r.deep){r.deep="";r.qa=[];save();d.innerHTML="";return}
     d.innerHTML=loadingHTML("Đang giải thích...");
     try{r.deep=await askText(`${learnerCtx()}\n\n${wrCtx(r)}\nThe learner wants a deeper explanation. Answer in Vietnamese like a friendly tutor talking to a Vietnamese A1 beginner: say the rule in plain words (simple terms like \"chủ ngữ\" or \"số ít\" are fine if you say what they mean, e.g. \"chủ ngữ là it, he, she\"), say why it applies in THIS sentence, then give TWO new short English examples (different from the notes above) from UI/UX work. At most 6 short sentences. Do not repeat the notes above word for word. End by asking if they understood. Plain text, no markdown, no headings.`);save();d.innerHTML=wrDeepHTML(r);wrDeepWire(d,r)}catch(e){d.innerHTML=`<div class="err-inline">${aiErrMsg(e)}</div>`}};
   if(q("#wr-deep")&&cfg.rs(k)&&cfg.rs(k).deep)wrDeepWire(q("#wr-deep"),cfg.rs(k));
   if(q("#wr-fin"))q("#wr-fin").onclick=()=>{x.cfin=true;save();wrI[3]=x.cs.length;renderWrite();after()};
-  if(q("#wr-more"))q("#wr-more").onclick=()=>{x.cfin=false;save();wrI[3]=x.cs.length;renderWrite();const t=document.getElementById("wr-ta");if(t)t.focus({preventScroll:true})};
+  if(q("#wr-more"))q("#wr-more").onclick=()=>{x.cfin=false;save();wrI[3]=x.cs.length;renderWrite()};
   if(q("#wr-nextpart"))q("#wr-nextpart").onclick=()=>{wrGoPart(P+1);window.scrollTo({top:0,behavior:"smooth"})};
   const ta=q("#wr-ta");
   if(ta){const cnt=q("#wr-cnt"),upd=()=>{const c=ta.value.trim()?ta.value.trim().split(/\s+/).length:0;
@@ -4455,7 +4456,7 @@ JSON shape: {"score":7,"polished":"...","comments_vi":["..."],"errors":[{"wrong"
   b.disabled=false;
 };
 document.getElementById("p-text").addEventListener("input",()=>document.getElementById("p-err").textContent="");
-document.getElementById("p-redo").onclick=()=>{const t=document.getElementById("p-text");t.value="";document.getElementById("p-err").textContent="";t.focus({preventScroll:true})};
+document.getElementById("p-redo").onclick=()=>{const t=document.getElementById("p-text");t.value="";document.getElementById("p-err").textContent=""};
 
 /* ---------- errors view ---------- */
 const BKL={day:"Hằng ngày",update:"Trước khi cập nhật app",sync:"Trước khi đồng bộ",import:"Trước khi nhập dữ liệu",restore:"Trước khi khôi phục"};
@@ -4984,7 +4985,7 @@ function renderDrill(){
   const it=drill.items[drill.i],prog=`<div class="small muted" style="margin-top:8px">Câu ${drill.i+1}/${drill.items.length} · đúng ${drill.res.filter(Boolean).length}</div><div class="q" style="font-size:17px;margin:4px 0 8px">${esc(it.q)}</div>`;
   if(drill.state==="ask"){
     box.innerHTML=head+prog+(drill.timed?`<div class="timer" id="dl-bar"><i></i></div><span class="tsec" id="dl-sec"></span>`:"")+`<div class="row" style="flex-wrap:nowrap;margin-top:6px"><textarea rows="1" class="tin" id="dl-in" autocomplete="off" placeholder="Viết câu tiếng Anh"></textarea><button class="btn pri" id="dl-chk">Kiểm tra</button></div>`;
-    wire();const inp=document.getElementById("dl-in");inp.focus({preventScroll:true});inp.addEventListener("keydown",e=>{if(e.key==="Enter")drillCheck(false)});
+    wire();const inp=document.getElementById("dl-in");inp.addEventListener("keydown",e=>{if(e.key==="Enter")drillCheck(false)});
     document.getElementById("dl-chk").onclick=()=>drillCheck(false);
     if(drill.timed)drill.stop=runTimer("dl-bar","dl-sec",()=>drillCheck(true));
     return;
