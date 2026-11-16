@@ -62,6 +62,11 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - Mọi nút hành động trong màn học (Tiếp, Bắt đầu, Câu trước...) nằm trong thanh cố định ở đáy: class `.abar` (hoặc `.exnav`/`.shnav`). JS bật `body.has-abar` để chừa chỗ cuối trang và đẩy nút Lý thuyết lên.
 - Chấm câu tự do (`checkFree`) dùng tầng nhanh (`{fast:true}`), không còn ghi chú "model chính hết lượt".
 
+## Từ vựng theo chủ đề (16/11/2026, `APP_BUILD` 2026-11-16-a)
+- `VTOP` = 34 chủ đề (thứ tự = thứ tự học), mỗi từ thuộc 1 chủ đề (`c.tp`). 105 từ mới (màu sắc, khen/chê, thời tiết, email, khách hàng, phỏng vấn, dev/PM/QA, cảm xúc) đã thêm vào CUỐI `VMORE`. Tổng 1000 từ, 833 dùng được (bỏ lv 1).
+- Mở từ: `S.vo` (từ đã mở nhưng chưa học) + `S.vtp` (chủ đề đang học); `vOpenN(k)` lấy hết chủ đề rồi sang chủ đề kế (từ dễ trước). `S.vu`/`vIdx` chỉ còn dùng cho migrate cũ. Pool = từ trong `S.vo` ∪ từ có trong `S.vocab`.
+- Thêm từ mới: nhớ thêm tên từ vào một chủ đề trong `VTOP`, nếu không `tp=-1` (hiện nhãn nhóm cũ, không bao giờ được mở).
+
 ## Việc còn treo
 - [x] 15/11/2026: từ mức Dễ (lv 1, 167 từ) bị ẩn khỏi pool (`vEasy`, `vPool`, `vLeft`, `vAdv`); đã thêm 168 từ Vừa/Khó vào cuối `VMORE` (tổng 895, dùng được 728; `APP_BUILD` 2026-11-15-b). Từ mới chưa có IPA, nên soát nghĩa/ví dụ.
 - [x] Kho từ vựng đã thêm sẵn lên **727** từ (15/11/2026, 553 từ mới, chưa có IPA). Người dùng sẽ tự chỉnh độ dễ/khó sau; từ mới luôn thêm vào CUỐI `VMORE`. Nên soát lại nghĩa/ví dụ do AI soạn.
