@@ -2116,7 +2116,7 @@ async function askJSON0(prompt,opt){
   if(!sample)throw{code:"no_sample"};
   const full=prompt+(opt&&opt.mono?"":"\n\nFor EVERY field whose name ends in _vi, also include the same field ending in _en: the same content in simple English (A2 level).")+"\n\nReturn ONLY valid JSON, no markdown fences, no extra text.";
   let v;
-  if(typeof sample.json==="function"){v=await sample.json(full,{modelTier:opt&&opt.mono?"fast":opt&&opt.quick?"quick":"default",timeout:opt&&opt.timeout,temp:opt&&opt.temp})}
+  if(typeof sample.json==="function"){v=await sample.json(full,{modelTier:opt&&(opt.mono||opt.fast)?"fast":opt&&opt.quick?"quick":"default",timeout:opt&&opt.timeout,temp:opt&&opt.temp})}
   else{const r=await sample(full,{modelTier:"default"});const m=(r.text||"").match(/\{[\s\S]*\}/);v=JSON.parse(m?m[0]:r.text)}
   return biMerge(v);
 }
@@ -3059,7 +3059,7 @@ EXERCISE: ${task}
 ${model?`Model answer: "${model}"`:""}
 Learner answered: "${ans}"
 Decide if the learner's answer is grammatically correct (focus: to be, articles, plurals, word order, question/negative form) AND does what the exercise asks. Accept natural alternatives and contractions; ignore capitalization and final punctuation; small typos in names are fine.
-JSON shape: {"ok":true,"right":"the learner's answer corrected minimally (or a good answer if empty)","explain_vi":"one short Vietnamese sentence","tag":"one of ${tagList()}"}`).then(r=>capOk(r,ans));
+JSON shape: {"ok":true,"right":"the learner's answer corrected minimally (or a good answer if empty)","explain_vi":"one short Vietnamese sentence","tag":"one of ${tagList()}"}`,{fast:true,timeout:12000}).then(r=>capOk(r,ans));
 }
 function itemHTML(it,i,num){
   const a=S.ex.answers[i];let body="";
