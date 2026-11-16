@@ -524,6 +524,7 @@ kbd{font-family:inherit;font-size:11px;border:1px solid var(--line);border-botto
 body.has-abar{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
 body.has-abar .fab{bottom:calc(90px + env(safe-area-inset-bottom))!important}
 body.kb .abar,body.kb .exnav,body.kb .shnav{display:none!important}
+body.kb .abar.kbin{display:flex!important;position:static;border:0;background:none;backdrop-filter:none;padding:10px 0 0}
 .exnav:not(:has(.btn,.lnk:not([style*="visibility:hidden"]))),.shnav:not(:has(.btn,.lnk:not([style*="visibility:hidden"]))){display:none}
 .corr.okc{background:none;padding:0 0 0 4px;margin-top:-6px}
 .tcards{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
@@ -4127,12 +4128,13 @@ function renderShadow(autoplay){
       <div class="who">${esc(l.who)}</div>
       ${!d?`<div class="shplay">${speakBtn(l.en)}${slowBtn(l.en)}</div>
         <textarea class="tin" rows="2" id="sh-in" placeholder="Chép câu vừa nghe" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-        <button class="btn pri full" id="sh-chk">Kiểm tra</button><button class="lnk small" id="sh-skip" style="align-self:center">Hiện chữ</button>`
+`
       :`<div class="en raw">${esc(l.en)}</div><div class="vi">${esc(l.vi)}</div>
         ${d.pct!=null?`<div class="small muted">Bạn chép: <span class="raw">${d.said||""}</span> · <b>${d.pct}%</b></div>`:""}
         <div class="shplay">${speakBtn(l.en)}${slowBtn(l.en)}</div>
         ${micBtnHTML("sh-say",p!=null?"Nhại lại":"Nhại theo")}<div id="sh-pron">${p!=null?`<div class="small muted">Tốt nhất: ${p}%</div>`:""}</div>`}
       </div>
+      ${!d?`<div class="abar kbin"><button class="btn" id="sh-skip">Hiện chữ</button><button class="btn pri" id="sh-chk">Kiểm tra</button></div>`:""}
       ${d?`<div class="shnav"><button class="lnk small" id="sh-prev" ${i?"":"style='visibility:hidden'"}>‹ Câu trước</button><button class="btn ${ok?"pri":"ghost"}" id="sh-next">${ok?(i+1<n?"Tiếp ›":"Xem kết quả ›"):"Bỏ qua, câu sau ›"}</button></div>`:""}`;
     const go=k=>{x.cur=k;save();renderShadow(true)};
     const pv=document.getElementById("sh-prev");if(pv)pv.onclick=()=>i&&go(i-1);
