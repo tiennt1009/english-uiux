@@ -342,7 +342,8 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .pw.miss{color:var(--bad);background:rgba(200,60,60,.12);text-decoration:underline}
 .rp-tip{margin-top:10px;font-size:13px;background:var(--soft);border-radius:10px;padding:8px 11px;color:var(--ink)}
 .bub.hid{display:flex;align-items:center;gap:10px;color:var(--muted)}
-.bub.hid .mask{letter-spacing:3px}
+.bub.hid .mask{letter-spacing:3px}.bub.hid{white-space:nowrap}
+.msg.rpm{max-width:100%;align-items:flex-start}.rpm .mcol{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}.rpm .macts{display:flex;gap:8px;align-items:center}.rpm .bub{overflow-wrap:anywhere}
 .corr.hear{background:#E6EEFB;color:#1F4E9A}
 .task{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 .task:first-child{border-top:0}
@@ -743,7 +744,6 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
       <div class="card" id="rp-card">
         <div class="chips vfilter" id="rp-scen" style="margin-bottom:10px"></div>
         <div class="chat" id="rp-chat"></div>
-        <div id="rp-words"></div>
         <div class="hint" id="rp-hint"></div>
         <div id="rp-live" class="rp-live hidden"></div>
         <div class="abar kbin" id="rp-bar"><button class="btn" id="rp-type" aria-label="Gõ phím thay vì nói" style="flex:none;padding:13px 16px">⌨ Gõ</button><button class="btn pri rp-talk hidden" id="rp-mic">🎙 Bấm để nói</button></div>
@@ -4103,7 +4103,7 @@ function spOne(){
   el.innerHTML=steps.map(([k,n,d,t])=>`<div class="wrstep ${d?"dn":""} ${k===spPart?"sel":""}" data-sp="${k}"><b>${d?"✓ ":""}${k} · ${n}</b>${t}</div>`).join("");
   el.querySelectorAll("[data-sp]").forEach(e=>e.onclick=()=>{spGo(+e.dataset.sp)});
   document.getElementById("sh-card").classList.toggle("hidden",spPart!==1);
-  document.getElementById("rp-card").classList.toggle("hidden",spPart!==2);
+  document.getElementById("rp-card").classList.toggle("hidden",spPart!==2);scenScroll();
 }
 function spGo(k){spPart=k;try{speechSynthesis.cancel()}catch(e){}if(typeof REC!=="undefined"&&REC.on)recStop();spOne();document.getElementById("sp-steps").scrollIntoView({block:"start",behavior:"smooth"})}
 function shFirstTodo(x,L){for(let i=0;i<L.length;i++)if(!(x.d[i]&&(x.p[i]||0)>=60))return i;return L.length}
@@ -4228,22 +4228,24 @@ document.getElementById("vs-check").onclick=async()=>{
 };
 document.getElementById("vs-redo").onclick=()=>{const t=document.getElementById("vs-text");t.value="";document.getElementById("vs-err").textContent="";document.getElementById("vs-result").innerHTML="";renderStory()};
 
+/* đưa tình huống đang chọn vào giữa hàng chip (chỉ tính được khi thẻ Roleplay đang hiện) */
+function scenScroll(){const box=document.getElementById("rp-scen"),on=box&&box.querySelector(".chip.on");if(on&&box.clientWidth)box.scrollLeft=Math.max(0,on.offsetLeft-box.offsetLeft-(box.clientWidth-on.offsetWidth)/2)}
 function renderScen(){
   const box=document.getElementById("rp-scen");
   box.innerHTML=SCEN.map(s=>`<span class="chip ${S.rp.scen===s.k?"on":""}" data-s="${s.k}">${s.label}</span>`).join("");
+  scenScroll();
   box.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{if(S.rp.scen===c.dataset.s)return;S.rp={scen:c.dataset.s,msgs:[]};save();renderScen();renderChat();renderShadow();shGen();rpTurn()});
 }
 function renderChat(){setTimeout(spOne,0);
   const box=document.getElementById("rp-chat");const sc=SCEN.find(s=>s.k===S.rp.scen);
   const initials=sc.av||(sc.k==="first"?"AN":sc.k==="pantry"?"MI":"TO");
   const lastThem=S.rp.msgs.length-1;
-  box.innerHTML=S.rp.msgs.map((m,i)=>m.r==="them"?`<div class="msg them"><div class="av S">${initials}</div>${i===lastThem&&voiceOK()&&!rpShown.has(m.t)?`<div class="bub hid"><span class="mask">• • • • •</span><button class="lnk" data-rpshow="${i}">Hiện chữ</button></div>`:`<div class="bub">${esc(m.t)}</div>`}${speakBtn(m.t)}${slowBtn(m.t)}</div>`
+  box.innerHTML=S.rp.msgs.map((m,i)=>m.r==="them"?`<div class="msg them rpm"><div class="av S">${initials}</div><div class="mcol">${i===lastThem&&voiceOK()&&!rpShown.has(m.t)?`<div class="bub hid"><span class="mask">• • • • •</span><button class="lnk" data-rpshow="${i}">Hiện chữ</button></div>`:`<div class="bub">${esc(m.t)}</div>`}<div class="macts">${speakBtn(m.t,1)}${slowBtn(m.t)}</div></div></div>`
     :`<div class="msg me"><div class="av C">Bạn</div><div class="bub">${esc(m.t)}</div></div>${m.heard?`<div class="corr hear">🔈 ${esc(m.heard)}</div>`:""}${m.fix?`<div class="corr">✎ ${esc(m.fix)}${m.better?`<br>Nói thế này: <b>${esc(m.better)}</b>`:""}</div>`:(m.better?`<div class="corr" style="background:var(--ok-bg);color:var(--ok)">✓ Đúng rồi. Cách khác: <b>${esc(m.better)}</b></div>`:"")}`).join("");
   if(!S.rp.msgs.length)box.innerHTML="";
   const last=S.rp.msgs[S.rp.msgs.length-1];
   document.getElementById("rp-hint").textContent=last&&last.r==="them"&&last.hint?"Gợi ý: "+last.hint:"";
   box.querySelectorAll("[data-rpshow]").forEach(b=>b.onclick=()=>{rpShown.add(S.rp.msgs[+b.dataset.rpshow].t);renderChat()});
-  const rw=document.getElementById("rp-words");if(rw)rw.innerHTML=wordChips(S.rp.msgs.filter(m=>m.r==="me").map(m=>m.t).join(" "),"Thử dùng từ của tuần");
   box.scrollTop=box.scrollHeight;
 }
 const rpShown=new Set();
