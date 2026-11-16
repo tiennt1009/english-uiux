@@ -4086,7 +4086,7 @@ async function shGen(force){
 Write a short spoken dialogue (6 lines) for listening and shadowing practice.
 Situation: ${sc.setup}
 This week's grammar: ${wk[0]}. Topic: ${wk[1]}.
-${vocabCtx("Use 3-4 different target words naturally in the dialogue, at least 2 of them in the learner's (Bạn) lines.")}The learner is a Vietnamese UI/UX designer and speaks every second line (the "Bạn" lines); the colleague speaks the others. Lines must be natural spoken American English, short (4-12 words), at the learner's level, and useful to reuse in the roleplay afterwards.
+${vocabCtx("The dialogue must stay on the situation's topic. Use up to 2-3 target words ONLY where they fit that topic naturally (some in the learner's (Bạn) lines); skip any word that does not fit, and never change the subject to use a word.")}The learner is a Vietnamese UI/UX designer and speaks every second line (the "Bạn" lines); the colleague speaks the others. Lines must be natural spoken American English, short (4-12 words), at the learner's level, and useful to reuse in the roleplay afterwards.
 JSON: {"lines":[{"who":"name (role) or Bạn","en":"...","vi":"short Vietnamese meaning"}]}`);
     const L=(v.lines||[]).filter(l=>l&&l.en).slice(0,8).map(l=>({who:String(l.who||""),en:String(l.en).trim(),vi:String(l.vi||"")}));
     if(L.length>=3){S.sh={k:shKey(),lines:L,d:{},p:{},cur:0,nw:wkWords().length};save()}
@@ -4294,10 +4294,11 @@ async function rpTurn(userText){
 
 ROLEPLAY. ${sc.setup}
 You play the colleague. Speak simple, natural spoken English for an A1 learner: 1-2 short sentences, mostly present simple and "to be", one question at a time to keep the conversation going. Be warm. Do NOT correct or comment on the learner's English now (feedback comes at the end); just reply naturally and ask the next question.
+TOPIC RULE: the whole conversation must stay on this situation's topic (${sc.label}). Every question follows naturally from what the learner just said and from the situation. Do not jump to unrelated work topics.
 Transcript so far:
 ${transcript||"(empty — you speak first)"}
 
-${vocabCtx("As the colleague, naturally use one target word in about every second reply. In hint_vi, when it fits, suggest one target word the learner can use in the answer (write the English word).")}"hint_vi": a short Vietnamese hint of what the learner could answer to the question that YOUR "reply" asks, plus a starter in English, e.g. "Trả lời tên và nghề của bạn: I'm ... I'm a ...".
+${vocabCtx("OPTIONAL: you may use ONE target word in at most one or two replies of the whole conversation, and ONLY when it fits the situation's topic naturally (for example a lunch chat could mention a deadline, but not force a technical word like deploy). If no target word fits, use none. Never change the subject just to use a word.")}"hint_vi": a short Vietnamese hint of what the learner could answer to the question that YOUR "reply" asks, plus a starter in English, e.g. "Trả lời tên và nghề của bạn: I'm ... I'm a ...".
 JSON shape: {"reply":"...","hint_vi":"..."}`,{fast:true,timeout:15000});
     S.rp.msgs.push({r:"them",t:v.reply||"...",hint:v.hint_vi||""});S.rp.msgs=S.rp.msgs.slice(-30);after();
   }catch(e){err.textContent=aiErrMsg(e)}
