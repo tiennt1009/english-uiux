@@ -361,8 +361,10 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .pw.miss{color:var(--bad);background:rgba(200,60,60,.12);text-decoration:underline}
 .rp-tip{margin-top:10px;font-size:13px;background:var(--soft);border-radius:10px;padding:8px 11px;color:var(--ink)}
 .bub.hid{display:flex;align-items:center;gap:10px;color:var(--muted)}
-.bub.hid .mask{letter-spacing:3px}.bub.hid{white-space:nowrap}
-.bub.hid .mask{font-size:18px}.bub.hid .hold{color:var(--ink)}
+.bub.hid .mask{letter-spacing:3px;overflow-wrap:anywhere}.bub.hid.on .mask{letter-spacing:0;font-size:15px;color:var(--ink)}
+.bub.hid .mask{font-size:18px}
+.chip.ic{display:inline-flex;align-items:center;justify-content:center;width:44px;height:36px;padding:0;font-size:17px}.chip.ic svg{width:18px;height:18px}
+.chip.hold{height:36px;font-weight:600;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
 .msg.rpm{max-width:100%;align-items:flex-start}.rpm .mcol{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}.rpm .macts{display:flex;gap:8px;align-items:center}.rpm .bub{overflow-wrap:anywhere}
 .corr.hear{background:#E6EEFB;color:#1F4E9A}
 .task{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
@@ -777,7 +779,7 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
       <div class="card" id="rp-card">
         <div id="rp-scen" style="margin-bottom:10px"></div>
         <div class="chat" id="rp-chat"></div>
-        <div class="chips rp-tools" id="rp-tools"><span id="rp-sound" style="display:contents"></span><span id="rp-hint" style="display:contents"></span><span id="rp-slow" style="display:contents"></span></div>
+        <div class="chips rp-tools" id="rp-tools"><span id="rp-sound" style="display:contents"></span><span id="rp-slow" style="display:contents"></span><span id="rp-hint" style="display:contents"></span><span id="rp-holdw" style="display:contents"></span></div>
         <div class="small muted" id="rp-hint-text" style="margin-top:8px"></div>
         <div id="rp-live" class="rp-live hidden"></div>
         <div class="abar kbin" id="rp-bar"><button class="btn" id="rp-type" type="button">⌨ Nhập</button><button class="btn pri rp-talk hidden" id="rp-mic">🎙 Nói</button></div>
@@ -2358,8 +2360,11 @@ function speakBtn(text,sm){return `<button class="icon-btn${sm?" sm":""}" title=
 document.addEventListener("click",e=>{const b=e.target.closest("[data-say]");if(b){e.stopPropagation();speak(b.dataset.say)}});
 /* bấm các nút này không lấy focus khỏi ô nhập, để bàn phím không đóng rồi mở lại */
 let slowMode=ls("eng-slow")==="1";
-const audioBtn=t=>`<button class="btn audio" type="button" data-aud="${esc(t)}" aria-label="Nghe">${SPK}<span>Nghe</span></button>`;
-const slowChip=()=>`<button class="chip slowtog${slowMode?" on":""}" type="button" data-slowtog>🐢 Chậm</button>`;
+const audioBtn=t=>`<button class="chip ic audio" type="button" data-aud="${esc(t)}" aria-label="Nghe" title="Nghe">${SPK}</button>`;
+const slowChip=()=>`<button class="chip ic slowtog${slowMode?" on":""}" type="button" data-slowtog aria-label="Nghe chậm" title="Nghe chậm">🐢</button>`;
+/* nút "Giữ xem": giữ thì hiện chữ trong ô ẩn (mk), thả tay thì ẩn lại */
+function wireHold(btn,mk,text){if(!btn||!mk)return;const box=mk.parentNode,show=on=>{mk.textContent=on?text:"• • • • •";box.classList.toggle("on",on)};
+  btn.addEventListener("pointerdown",e=>{e.preventDefault();show(true)});["pointerup","pointercancel","pointerleave"].forEach(ev=>btn.addEventListener(ev,()=>show(false)));btn.addEventListener("contextmenu",e=>e.preventDefault())}
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-aud]");if(a){e.stopPropagation();slowMode?speakSlow(a.dataset.aud):speak(a.dataset.aud);return}
   const g=e.target.closest("[data-slowtog]");if(g){e.stopPropagation();slowMode=!slowMode;ls("eng-slow",slowMode?"1":"0");document.querySelectorAll(".slowtog").forEach(x=>x.classList.toggle("on",slowMode))}});
@@ -4234,8 +4239,8 @@ function renderShadow(autoplay){
     const l=L[i],d=x.d[i],p=x.p[i],ok=(p||0)>=60;
     box.innerHTML=bar+`<div class="shone">
       <div class="who">${esc(l.who)}</div>
-      ${!d?`<div class="shmask" id="sh-maskbox"><span class="mask" id="sh-mask">• • • • •</span><button class="btn small hold" id="sh-hold" type="button">Giữ xem</button></div>
-        <div class="chips shtools">${audioBtn(l.en)}${slowChip()}</div>`
+      ${!d?`<div class="shmask" id="sh-maskbox"><span class="mask" id="sh-mask">• • • • •</span></div>
+        <div class="chips shtools">${audioBtn(l.en)}${slowChip()}<button class="chip hold" id="sh-hold" type="button">Giữ xem</button></div>`
       :`<div class="en raw">${esc(l.en)}</div><div class="vi">${esc(l.vi)}</div>
         ${d.pct!=null?`<div class="small muted">Bạn chép: <span class="raw">${d.said||""}</span> · <b>${d.pct}%</b></div>`:""}
         <div class="chips shtools">${audioBtn(l.en)}${slowChip()}</div>
@@ -4250,11 +4255,7 @@ function renderShadow(autoplay){
       const inp=document.getElementById("sh-in");
       document.getElementById("sh-chk").onclick=()=>{const t=inp.value.trim();if(!t){inp.focus();return}
         const r=pronScore(t,l.en);x.d[i]={pct:r.pct,said:r.said};if(r.pct>=80)xp(1);save();renderShadow()};
-      const hold=document.getElementById("sh-hold"),mk=document.getElementById("sh-mask"),mb=document.getElementById("sh-maskbox");
-      const show=on=>{mk.textContent=on?l.en:"• • • • •";mb.classList.toggle("on",on)};
-      hold.addEventListener("pointerdown",e=>{e.preventDefault();show(true)});
-      ["pointerup","pointercancel","pointerleave"].forEach(ev=>hold.addEventListener(ev,()=>show(false)));
-      hold.addEventListener("contextmenu",e=>e.preventDefault());
+      wireHold(document.getElementById("sh-hold"),document.getElementById("sh-mask"),l.en);
       inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();document.getElementById("sh-chk").click()}});
     }else wireSay("sh-say","sh-pron",l.en,pct=>{x.p[i]=Math.max(x.p[i]||0,pct);shDone();save();
       const b=document.getElementById("sh-next"),good=x.p[i]>=60;
@@ -4355,14 +4356,14 @@ function renderChat(){setTimeout(spOne,0);
   const box=document.getElementById("rp-chat");const sc=SCEN.find(s=>s.k===S.rp.scen);
   const initials=sc.av||(sc.k==="first"?"AN":sc.k==="pantry"?"MI":"TO");
   const lastThem=S.rp.msgs.length-1;
-  box.innerHTML=S.rp.msgs.map((m,i)=>m.r==="them"?`<div class="msg them rpm"><div class="av S">${initials}</div><div class="mcol">${i===lastThem&&voiceOK()?`<div class="bub hid"><span class="mask">• • • • •</span><button class="btn small hold" type="button" data-hold="${i}">Giữ xem</button></div>`:`<div class="bub">${esc(m.t)}</div>`}</div></div>`
+  box.innerHTML=S.rp.msgs.map((m,i)=>m.r==="them"?`<div class="msg them rpm"><div class="av S">${initials}</div><div class="mcol">${i===lastThem&&voiceOK()?`<div class="bub hid" data-hid="${i}"><span class="mask">• • • • •</span></div>`:`<div class="bub">${esc(m.t)}</div>`}</div></div>`
     :`<div class="msg me"><div class="av C">Bạn</div><div class="bub">${esc(m.t)}</div></div>${m.heard?`<div class="corr hear">🔈 ${esc(m.heard)}</div>`:""}${m.fix?`<div class="corr"><span class="bdg no">Cần sửa</span> ${esc(m.fix)}${m.better?`<br>Nói thế này: <b>${esc(m.better)}</b>`:""}</div>`:(m.ok?`<div class="corr okc"><span class="bdg ok">Đúng</span>${m.better?` Cách khác: <b>${esc(m.better)}</b>`:""}</div>`:"")}`).join("");
   if(!S.rp.msgs.length)box.innerHTML="";
   const nMe=S.rp.msgs.filter(m=>m.r==="me").length,fin=nMe>=RP_N,graded=!!S.rp.graded;
   if(fin&&graded){const okn=S.rp.msgs.filter(m=>m.r==="me"&&m.ok).length;box.insertAdjacentHTML("beforeend",`<div class="note">${okn>=Math.ceil(RP_N*2/3)?`<span class="bdg ok">Tốt</span>`:`<span class="bdg no">Cần luyện</span>`} đúng ${okn}/${RP_N}.</div>`)}
   const last=S.rp.msgs[S.rp.msgs.length-1];
   const hb=document.getElementById("rp-hint"),hh=!fin&&last&&last.r==="them"&&last.hint,ht=document.getElementById("rp-hint-text");
-  hb.innerHTML=hh?`<button class="chip${rpHintShown.has(last.t)?" on":""}" id="rp-hint-btn" type="button">💡 Gợi ý</button>`:"";
+  hb.innerHTML=hh?`<button class="chip ic${rpHintShown.has(last.t)?" on":""}" id="rp-hint-btn" type="button" aria-label="Gợi ý" title="Gợi ý">💡</button>`:"";
   ht.textContent=hh&&rpHintShown.has(last.t)?last.hint:"";
   const hbtn=document.getElementById("rp-hint-btn");if(hbtn)hbtn.onclick=()=>{if(rpHintShown.has(last.t))rpHintShown.delete(last.t);else rpHintShown.add(last.t);renderChat()};
   document.getElementById("rp-slow").innerHTML=slowChip();
@@ -4370,8 +4371,9 @@ function renderChat(){setTimeout(spOne,0);
   rpBarUI(fin);
   document.getElementById("rp-bar2").classList.toggle("hidden",!fin);
   document.getElementById("rp-regrade").classList.toggle("hidden",graded);
-  box.querySelectorAll("[data-hold]").forEach(h=>{const mk=h.parentNode.querySelector(".mask"),t=S.rp.msgs[+h.dataset.hold].t,show=on=>{mk.textContent=on?t:"• • • • •";mk.style.letterSpacing=on?"0":"";mk.style.color=on?"var(--ink)":""};
-    h.addEventListener("pointerdown",e=>{e.preventDefault();show(true)});["pointerup","pointercancel","pointerleave"].forEach(ev=>h.addEventListener(ev,()=>show(false)));h.addEventListener("contextmenu",e=>e.preventDefault())});
+  const hid=box.querySelector("[data-hid]"),hw=document.getElementById("rp-holdw");
+  hw.innerHTML=hid?`<button class="chip hold" type="button" id="rp-hold">Giữ xem</button>`:"";
+  if(hid)wireHold(document.getElementById("rp-hold"),hid.querySelector(".mask"),S.rp.msgs[+hid.dataset.hid].t);
   const lt=[...S.rp.msgs].reverse().find(m=>m.r==="them"),snd=document.getElementById("rp-sound");if(snd)snd.innerHTML=lt?audioBtn(lt.t):"";
   box.scrollTop=box.scrollHeight;
 }
