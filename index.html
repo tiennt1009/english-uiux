@@ -329,7 +329,7 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .dotrec{width:10px;height:10px;border-radius:50%;background:var(--bad);flex:none;animation:recp 1s infinite}
 @keyframes recp{50%{opacity:.25}}
 .rp-talk.on{background:var(--bad);border-color:var(--bad)}
-.abar .rp-talk{margin:0;width:auto;flex:1;padding:13px 14px}
+.abar .rp-talk{margin:0;width:auto;flex:1;padding:13px 10px;white-space:nowrap}
 .mic-say{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px}
 .mic-say svg{width:16px;height:16px}
 .mic-say.on{background:var(--bad);border-color:var(--bad);color:#fff}
@@ -752,7 +752,7 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
         <div class="chat" id="rp-chat"></div>
         <div class="hint" id="rp-hint"></div>
         <div id="rp-live" class="rp-live hidden"></div>
-        <div class="abar kbin" id="rp-bar"><button class="btn" id="rp-type" aria-label="Gõ phím thay vì nói" style="flex:none;padding:13px 16px">⌨ Gõ</button><button class="btn pri rp-talk hidden" id="rp-mic">🎙 Bấm để nói</button></div>
+        <div class="abar kbin shbar2" id="rp-bar"><span id="rp-sound" style="display:contents"></span><button class="btn" id="rp-type" aria-label="Gõ phím thay vì nói" style="flex:none;padding:0;width:48px;height:48px">⌨</button><button class="btn pri rp-talk hidden" id="rp-mic">🎙 Bấm để nói</button></div>
         <div class="abar kbin hidden" id="rp-bar2"><button class="btn" id="rp-new">Đề khác</button><button class="btn pri hidden" id="rp-regrade">Chấm bài</button></div>
         <div class="rp-tip hidden" id="rp-tip"></div>
         <div class="row hidden" id="rp-typerow" style="margin-top:8px;flex-wrap:nowrap">
@@ -4284,7 +4284,7 @@ function renderChat(){setTimeout(spOne,0);
   const box=document.getElementById("rp-chat");const sc=SCEN.find(s=>s.k===S.rp.scen);
   const initials=sc.av||(sc.k==="first"?"AN":sc.k==="pantry"?"MI":"TO");
   const lastThem=S.rp.msgs.length-1;
-  box.innerHTML=S.rp.msgs.map((m,i)=>m.r==="them"?`<div class="msg them rpm"><div class="av S">${initials}</div><div class="mcol">${i===lastThem&&voiceOK()&&!rpShown.has(m.t)?`<div class="bub hid"><span class="mask">• • • • •</span><button class="lnk" data-rpshow="${i}">Hiện chữ</button></div>`:`<div class="bub">${esc(m.t)}</div>`}<div class="macts">${speakBtn(m.t,1)}${slowBtn(m.t)}</div></div></div>`
+  box.innerHTML=S.rp.msgs.map((m,i)=>m.r==="them"?`<div class="msg them rpm"><div class="av S">${initials}</div><div class="mcol">${i===lastThem&&voiceOK()?`<div class="bub hid"><span class="mask">• • • • •</span><button class="btn small hold" type="button" data-hold="${i}">Giữ để hiện</button></div>`:`<div class="bub">${esc(m.t)}</div>`}</div></div>`
     :`<div class="msg me"><div class="av C">Bạn</div><div class="bub">${esc(m.t)}</div></div>${m.heard?`<div class="corr hear">🔈 ${esc(m.heard)}</div>`:""}${m.fix?`<div class="corr"><span class="bdg no">Cần sửa</span> ${esc(m.fix)}${m.better?`<br>Nói thế này: <b>${esc(m.better)}</b>`:""}</div>`:(m.ok?`<div class="corr okc"><span class="bdg ok">Đúng</span>${m.better?` Cách khác: <b>${esc(m.better)}</b>`:""}</div>`:"")}`).join("");
   if(!S.rp.msgs.length)box.innerHTML="";
   const nMe=S.rp.msgs.filter(m=>m.r==="me").length,fin=nMe>=RP_N,graded=!!S.rp.graded;
@@ -4297,7 +4297,9 @@ function renderChat(){setTimeout(spOne,0);
   document.getElementById("rp-bar2").classList.toggle("hidden",!fin);
   document.getElementById("rp-regrade").classList.toggle("hidden",graded);
   if(fin)document.getElementById("rp-typerow").classList.add("hidden");
-  box.querySelectorAll("[data-rpshow]").forEach(b=>b.onclick=()=>{rpShown.add(S.rp.msgs[+b.dataset.rpshow].t);renderChat()});
+  box.querySelectorAll("[data-hold]").forEach(h=>{const mk=h.parentNode.querySelector(".mask"),t=S.rp.msgs[+h.dataset.hold].t,show=on=>{mk.textContent=on?t:"• • • • •";mk.style.letterSpacing=on?"0":"";mk.style.color=on?"var(--ink)":""};
+    h.addEventListener("pointerdown",e=>{e.preventDefault();show(true)});["pointerup","pointercancel","pointerleave"].forEach(ev=>h.addEventListener(ev,()=>show(false)));h.addEventListener("contextmenu",e=>e.preventDefault())});
+  const lt=[...S.rp.msgs].reverse().find(m=>m.r==="them"),snd=document.getElementById("rp-sound");if(snd)snd.innerHTML=lt?speakBtn(lt.t)+slowBtn(lt.t):"";
   box.scrollTop=box.scrollHeight;
 }
 const rpShown=new Set(),rpHintShown=new Set();
