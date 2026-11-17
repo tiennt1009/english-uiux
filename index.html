@@ -473,6 +473,7 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .lrow .lt{flex:1;min-width:0}
 .lrow .lt b{font-weight:600}
 .lrow .lt div{font-size:13px;color:var(--muted)}
+.lrow .lt .lst{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.lrow .lt .lst:empty{display:none}
 .st{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
 .st.ok{background:var(--ok-bg);color:var(--ok)}
 .st.now{background:var(--ink);color:#fff}
@@ -2806,13 +2807,13 @@ function renderLessons(){
   const lo2=document.getElementById("ls-open");if(lo2)lo2.onclick=openNextNow;
   document.getElementById("lesson-list").innerHTML=[1,2,3,4,5,6,0].map(d=>{
     const x=SESS.find(s=>s.dow===d),isT=wk===1&&d===dow,date=`${DOWN[d]}<br>${dm(calDate(d))}`;
-    if(!x)return `<div class="lrow"><span class="ld rest">${date}</span><div class="lt"><b style="color:var(--muted)">Nghỉ</b><div>Không bắt buộc: ôn thẻ từ vựng 5 phút nếu muốn</div></div>${isT?'<span class="st now">Hôm nay</span>':""}<span style="width:8px"></span></div>`;
+    if(!x)return `<div class="lrow"><span class="ld rest">${date}</span><div class="lt"><b style="color:var(--muted)">Nghỉ</b><div>Không bắt buộc: ôn thẻ từ vựng 5 phút nếu muốn</div>${isT?'<div class="lst"><span class="st now">Hôm nay</span></div>':""}</div><span style="width:8px"></span></div>`;
     const done=S.sessions[`w1-${d}`];
     let pst='<span class="st">Chưa xong</span>';
     if(!done){const tk=tasksFor(d).filter(t=>!t.opt),dn=tk.filter(t=>t.d).length,ip=tk.some(t=>!t.d&&t.bar>0);
       if(tk.length&&(dn>0||ip))pst=`<span class="st part">Đang làm ${dn}/${tk.length} việc</span>`}
-    return `<a class="lrow" href="#s-1-${d}"><span class="ld">${date}</span><div class="lt"><b>${x.name}</b><div>${x.desc} · ${x.min}</div></div>${isT?'<span class="st now">Hôm nay</span>':""}${done?'<span class="st ok">✓ Đã xong</span>':isT&&pst.indexOf("part")<0?"":pst}<span class="muted">›</span></a>`}).join("");
-  document.getElementById("lesson-next").innerHTML=[wk+1,wk+2,wk+3].filter(i=>i<=24).map(i=>`<div class="lrow"><span class="ld">Tuần ${i}</span><div class="lt"><b>${esc(WEEKS[i-1][0])}</b><div>${esc(WEEKS[i-1][1])} · dự kiến từ ${dm(projStart(i))}</div></div><span class="st">🔒 Chưa mở</span></div>`).join("");
+    return `<a class="lrow" href="#s-1-${d}"><span class="ld">${date}</span><div class="lt"><b>${x.name}</b><div>${x.desc} · ${x.min}</div><div class="lst">${isT?'<span class="st now">Hôm nay</span>':""}${done?'<span class="st ok">✓ Đã xong</span>':isT&&pst.indexOf("part")<0?"":pst}</div></div><span class="muted">›</span></a>`}).join("");
+  document.getElementById("lesson-next").innerHTML=[wk+1,wk+2,wk+3].filter(i=>i<=24).map(i=>`<div class="lrow"><span class="ld">Tuần ${i}</span><div class="lt"><b>${esc(WEEKS[i-1][0])}</b><div>${esc(WEEKS[i-1][1])} · dự kiến từ ${dm(projStart(i))}</div><div class="lst"><span class="st">🔒 Chưa mở</span></div></div></div>`).join("");
 }
 function renderDashboard(){
   const wk=W().n,dow=new Date().getDay();
@@ -5168,7 +5169,7 @@ let nbTab="words",nbOpen=false;
 let nbCh=null;
 function renderNbTheory(){
   const box=document.getElementById("nb-theory"),cur=Math.min(24,curWeek());
-  const row=i=>{const m=chMeta(i);return `<a class="lrow" href="javascript:void 0" data-ch="${i}"><span class="ld">${m.n}</span><div class="lt"><b>${esc(m.t)}</b><div>${esc(m.s)}</div></div>${i===cur?'<span class="st now">Tuần này</span>':""}</a>`};
+  const row=i=>{const m=chMeta(i);return `<a class="lrow" href="javascript:void 0" data-ch="${i}"><span class="ld">${m.n}</span><div class="lt"><b>${esc(m.t)}</b><div>${esc(m.s)}</div>${i===cur?'<div class="lst"><span class="st now">Tuần này</span></div>':""}</div></a>`};
   const grp=(name,ids)=>`<div class="small muted" style="margin:14px 0 2px;font-weight:600">${esc(name)}</div>`+ids.map(row).join("");
   if(nbCh===null){
     const rng=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
