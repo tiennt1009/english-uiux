@@ -674,6 +674,9 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
  body.kb .fc-ans{padding:8px 10px;gap:4px}
  body.kb .emo{font-size:52px}
 }
+/* sheet đang đóng nằm ngay dưới mép màn hình: tắt bóng đổ để không hắt vệt tối lên đáy */
+.drawer:not(.on),.crit-sheet,.info-sheet,.cf-sheet{box-shadow:none}
+body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,body.sc-open #sc-sheet{box-shadow:0 -10px 30px rgba(31,29,26,.15)}
 </style>
 </head>
 <body>
