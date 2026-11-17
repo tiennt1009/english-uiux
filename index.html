@@ -2365,12 +2365,12 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-say]");if(
 /* bấm các nút này không lấy focus khỏi ô nhập, để bàn phím không đóng rồi mở lại */
 let slowMode=ls("eng-slow")==="1";
 const audioBtn=t=>`<button class="chip ic audio" type="button" data-aud="${esc(t)}" aria-label="Nghe" title="Nghe">${SPK}</button>`;
-const slowChip=()=>`<button class="chip ic slowtog${slowMode?" on":""}" type="button" data-slowtog aria-label="Nghe chậm" title="Nghe chậm">🐢</button>`;
+const slowChip=t=>`<button class="chip ic" type="button" data-slow="${esc(t||"")}" aria-label="Nghe chậm" title="Nghe chậm">🐢</button>`;
 /* nút "Giữ xem": giữ thì hiện chữ trong ô ẩn (mk), thả tay thì ẩn lại */
 function wireHold(btn,mk,text){if(!btn||!mk)return;const box=mk.parentNode,show=on=>{mk.textContent=on?text:"• • • • •";box.classList.toggle("on",on)};
   btn.addEventListener("pointerdown",e=>{e.preventDefault();show(true)});["pointerup","pointercancel","pointerleave"].forEach(ev=>btn.addEventListener(ev,()=>show(false)));btn.addEventListener("contextmenu",e=>e.preventDefault())}
 document.addEventListener("click",e=>{
-  const a=e.target.closest("[data-aud]");if(a){e.stopPropagation();slowMode?speakSlow(a.dataset.aud):speak(a.dataset.aud);return}
+  const a=e.target.closest("[data-aud]");if(a){e.stopPropagation();speak(a.dataset.aud);return}
   const g=e.target.closest("[data-slowtog]");if(g){e.stopPropagation();slowMode=!slowMode;ls("eng-slow",slowMode?"1":"0");document.querySelectorAll(".slowtog").forEach(x=>x.classList.toggle("on",slowMode))}});
 document.addEventListener("mousedown",e=>{if(e.target.closest("[data-say],[data-aud],#fc-chk,#fc-idk,.mic-say"))e.preventDefault()});
 
@@ -4089,10 +4089,14 @@ function srRun(){
   const C=SRC(),android=/Android/i.test(navigator.userAgent);let cur="",curFin=false,hadErr=null,retryPlain=false,gotRes=false;const useTrack=!!(REC.my&&REC.my.track&&REC.my.track.readyState==="live");
   const show=()=>{REC.fin=srJoin(REC.segs);if(REC.live)REC.live((REC.fin+" "+(curFin?"":cur)).trim()||"Đang nghe...")};
   try{const r=new C();REC.sr=r;r.lang="en-US";r.interimResults=true;r.continuous=!android;r.maxAlternatives=5;
+    /* trình duyệt mới hỗ trợ "gợi ý cụm từ": nghiêng bộ nhận diện về câu mẫu đang luyện */
+    if(REC.target&&window.SpeechRecognitionPhrase&&"phrases" in r){try{r.phrases=[new SpeechRecognitionPhrase(REC.target,5)]}catch(e){}}
     r.onresult=e=>{gotRes=true;let f="",i="",fa=[];
       for(const x of e.results){const alts=[...x].map(a=>a.transcript.trim()).filter(Boolean);
         if(x.isFinal){const t=srPick(alts,REC.target);f=srMerge(f,t)}else i=srMerge(i,alts[0]||"")}
-      if(f){REC.segs[REC.segIdx]=f;curFin=!i;cur=i}else{cur=i;curFin=false}show()};
+      if(f){REC.segs[REC.segIdx]=f;curFin=!i;cur=i}else{cur=i;curFin=false}show();
+      /* đang nhại 1 câu mẫu: nói đủ câu rồi thì dừng luôn, không nghe tiếp tiếng ồn (Android hay tự thêm từ lạ ở lượt sau) */
+      if(f&&REC.target&&!REC.stopping){const tw=REC.target.split(/\s+/).length,fw=srJoin(REC.segs).split(/\s+/).filter(Boolean).length;if(fw>=Math.ceil(tw*0.6)){REC.stopping=true;try{r.stop()}catch(_){}}}};
     REC.segIdx=REC.segs.length;
     r.onerror=e=>{hadErr=e.error;
       if(useTrack&&(e.error==="audio-capture"||e.error==="not-allowed"||e.error==="service-not-allowed")){retryPlain=true;return}
@@ -4244,10 +4248,10 @@ function renderShadow(autoplay){
     box.innerHTML=bar+`<div class="shone">
       <div class="who">${esc(l.who)}</div>
       ${!d?`<div class="shmask" id="sh-maskbox"><span class="mask" id="sh-mask">• • • • •</span></div>
-        <div class="chips shtools">${audioBtn(l.en)}${slowChip()}<button class="chip hold" id="sh-hold" type="button">Giữ xem</button></div>`
+        <div class="chips shtools">${audioBtn(l.en)}${slowChip(l.en)}<button class="chip hold" id="sh-hold" type="button">Giữ xem</button></div>`
       :`<div class="en raw">${esc(l.en)}</div><div class="vi">${esc(l.vi)}</div>
         ${d.pct!=null?`<div class="small muted">Bạn chép: <span class="raw">${d.said||""}</span> · <b>${d.pct}%</b></div>`:""}
-        <div class="chips shtools">${audioBtn(l.en)}${slowChip()}</div>
+        <div class="chips shtools">${audioBtn(l.en)}${slowChip(l.en)}</div>
         ${micBtnHTML("sh-say",p!=null?"Nhại lại":"Nhại theo")}<div id="sh-pron">${p!=null?`<div class="small muted">Tốt nhất: ${p}%</div>`:""}</div>`}
       </div>
       ${!d?`<div class="abar kbin shin"><textarea class="tin" rows="1" id="sh-in" placeholder="Chép lại câu" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea><button class="btn pri" id="sh-chk">Kiểm tra</button></div>`:""}
@@ -4370,7 +4374,7 @@ function renderChat(){setTimeout(spOne,0);
   hb.innerHTML=hh?`<button class="chip ic${rpHintShown.has(last.t)?" on":""}" id="rp-hint-btn" type="button" aria-label="Gợi ý" title="Gợi ý">💡</button>`:"";
   ht.textContent=hh&&rpHintShown.has(last.t)?last.hint:"";
   const hbtn=document.getElementById("rp-hint-btn");if(hbtn)hbtn.onclick=()=>{if(rpHintShown.has(last.t))rpHintShown.delete(last.t);else rpHintShown.add(last.t);renderChat()};
-  document.getElementById("rp-slow").innerHTML=slowChip();
+  {const lt0=[...S.rp.msgs].reverse().find(m=>m.r==="them");document.getElementById("rp-slow").innerHTML=lt0?slowChip(lt0.t):""}
   document.getElementById("rp-tools").classList.toggle("hidden",fin);
   rpBarUI(fin);
   document.getElementById("rp-bar2").classList.toggle("hidden",!fin);
