@@ -329,7 +329,10 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .dotrec{width:10px;height:10px;border-radius:50%;background:var(--bad);flex:none;animation:recp 1s infinite}
 @keyframes recp{50%{opacity:.25}}
 .rp-talk.on{background:var(--bad);border-color:var(--bad)}
-.abar .rp-talk{margin:0;width:auto;flex:1;padding:13px 10px;white-space:nowrap}
+.abar .rp-talk{margin:0;width:auto;flex:2;padding:13px 10px;white-space:nowrap}
+.btn.audio{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--card);border:1px solid var(--line);color:var(--ink)}.btn.audio svg{width:20px;height:20px;flex:none}
+.slowtog.on,.rp-tools .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rp-tools{margin-top:8px}
 .mic-say{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px}
 .mic-say svg{width:16px;height:16px}
 .mic-say.on{background:var(--bad);border-color:var(--bad);color:#fff}
@@ -756,9 +759,10 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
       <div class="card" id="rp-card">
         <div class="chips vfilter" id="rp-scen" style="margin-bottom:10px"></div>
         <div class="chat" id="rp-chat"></div>
-        <div class="hint" id="rp-hint"></div>
+        <div class="chips rp-tools" id="rp-tools"><span id="rp-hint" style="display:contents"></span><span id="rp-slow" style="display:contents"></span><button class="chip" id="rp-type" type="button">⌨ Gõ</button></div>
+        <div class="small muted" id="rp-hint-text" style="margin-top:8px"></div>
         <div id="rp-live" class="rp-live hidden"></div>
-        <div class="abar kbin shbar2" id="rp-bar"><span id="rp-sound" style="display:contents"></span><button class="btn" id="rp-type" aria-label="Gõ phím thay vì nói" style="flex:none;padding:0;width:48px;height:48px">⌨</button><button class="btn pri rp-talk hidden" id="rp-mic">🎙 Nói</button></div>
+        <div class="abar kbin" id="rp-bar"><span id="rp-sound" style="display:contents"></span><button class="btn pri rp-talk hidden" id="rp-mic">🎙 Nói</button></div>
         <div class="abar kbin hidden" id="rp-bar2"><button class="btn" id="rp-new">Đề khác</button><button class="btn pri hidden" id="rp-regrade">Chấm bài</button></div>
         <div class="rp-tip hidden" id="rp-tip"></div>
         <div class="row hidden" id="rp-typerow" style="margin-top:8px;flex-wrap:nowrap">
@@ -2332,7 +2336,13 @@ const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wid
 function speakBtn(text,sm){return `<button class="icon-btn${sm?" sm":""}" title="Nghe" aria-label="Nghe phát âm" data-say="${esc(text)}">${SPK}</button>`}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-say]");if(b){e.stopPropagation();speak(b.dataset.say)}});
 /* bấm các nút này không lấy focus khỏi ô nhập, để bàn phím không đóng rồi mở lại */
-document.addEventListener("mousedown",e=>{if(e.target.closest("[data-say],#fc-chk,#fc-idk,.mic-say"))e.preventDefault()});
+let slowMode=ls("eng-slow")==="1";
+const audioBtn=t=>`<button class="btn audio" type="button" data-aud="${esc(t)}" aria-label="Nghe">${SPK}<span>Nghe</span></button>`;
+const slowChip=()=>`<button class="chip slowtog${slowMode?" on":""}" type="button" data-slowtog>🐢 Chậm</button>`;
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-aud]");if(a){e.stopPropagation();slowMode?speakSlow(a.dataset.aud):speak(a.dataset.aud);return}
+  const g=e.target.closest("[data-slowtog]");if(g){e.stopPropagation();slowMode=!slowMode;ls("eng-slow",slowMode?"1":"0");document.querySelectorAll(".slowtog").forEach(x=>x.classList.toggle("on",slowMode))}});
+document.addEventListener("mousedown",e=>{if(e.target.closest("[data-say],[data-aud],#fc-chk,#fc-idk,.mic-say"))e.preventDefault()});
 
 /* ---------- ngôn ngữ giao diện VI / EN (không gọi AI) ---------- */
 const LANG={cur:"vi"};
@@ -4193,14 +4203,16 @@ function renderShadow(autoplay){
     box.innerHTML=bar+`<div class="shone">
       <div class="who">${esc(l.who)}</div>
       ${!d?`<div class="shmask" id="sh-maskbox"><span class="mask" id="sh-mask">• • • • •</span><button class="btn small hold" id="sh-hold" type="button">Giữ xem</button></div>
+        <div class="chips">${slowChip()}</div>
         <textarea class="tin" rows="2" id="sh-in" placeholder="Chép câu vừa nghe" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
 `
       :`<div class="en raw">${esc(l.en)}</div><div class="vi">${esc(l.vi)}</div>
         ${d.pct!=null?`<div class="small muted">Bạn chép: <span class="raw">${d.said||""}</span> · <b>${d.pct}%</b></div>`:""}
+        <div class="chips">${slowChip()}</div>
         ${micBtnHTML("sh-say",p!=null?"Nhại lại":"Nhại theo")}<div id="sh-pron">${p!=null?`<div class="small muted">Tốt nhất: ${p}%</div>`:""}</div>`}
       </div>
-      ${!d?`<div class="abar kbin shbar2">${speakBtn(l.en)}${slowBtn(l.en)}<button class="btn pri" id="sh-chk">Kiểm tra</button></div>`:""}
-      ${d?`<div class="shnav shbar2"><button class="lnk small" id="sh-prev" ${i?"":"style='display:none'"}>‹ Trước</button>${speakBtn(l.en)}${slowBtn(l.en)}<button class="btn ${ok?"pri":"ghost"}" id="sh-next">${ok?(i+1<n?"Tiếp ›":"Xem kết quả ›"):"Bỏ qua ›"}</button></div>`:""}`;
+      ${!d?`<div class="abar kbin">${audioBtn(l.en)}<button class="btn pri" id="sh-chk">Kiểm tra</button></div>`:""}
+      ${d?`<div class="shnav">${audioBtn(l.en)}<button class="btn ${ok?"pri":"ghost"}" id="sh-next">${ok?(i+1<n?"Tiếp ›":"Xem kết quả ›"):"Bỏ qua ›"}</button></div>`:""}`;
     const go=k=>{x.cur=k;save();renderShadow(true)};
     const pv=document.getElementById("sh-prev");if(pv)pv.onclick=()=>i&&go(i-1);
     const nx=document.getElementById("sh-next");if(nx)nx.onclick=()=>go(i+1);
@@ -4218,7 +4230,7 @@ function renderShadow(autoplay){
       const b=document.getElementById("sh-next"),good=x.p[i]>=60;
       if(b&&good){b.className="btn pri";b.textContent=i+1<n?"Tiếp ›":"Xem kết quả ›"}
       const seg=box.querySelector(`[data-shgo="${i}"]`);if(seg)seg.className=(good?"ok":"half")+" cur"});
-    if(autoplay&&!d){const s=box.querySelector("[data-say]");if(s)setTimeout(()=>s.click(),250)}
+    if(autoplay&&!d){const s=box.querySelector("[data-aud]");if(s)setTimeout(()=>s.click(),250)}
   }
   box.querySelectorAll("[data-shgo]").forEach(s=>s.onclick=()=>{x.cur=+s.dataset.shgo;save();renderShadow()});
   if(autoplay)document.getElementById("sh-card").scrollIntoView({behavior:"smooth",block:"start"});
@@ -4313,16 +4325,19 @@ function renderChat(){setTimeout(spOne,0);
   const nMe=S.rp.msgs.filter(m=>m.r==="me").length,fin=nMe>=RP_N,graded=!!S.rp.graded;
   if(fin&&graded){const okn=S.rp.msgs.filter(m=>m.r==="me"&&m.ok).length;box.insertAdjacentHTML("beforeend",`<div class="note">${okn>=Math.ceil(RP_N*2/3)?`<span class="bdg ok">Tốt</span>`:`<span class="bdg no">Cần luyện</span>`} đúng ${okn}/${RP_N}.</div>`)}
   const last=S.rp.msgs[S.rp.msgs.length-1];
-  const hb=document.getElementById("rp-hint"),hh=!fin&&last&&last.r==="them"&&last.hint;
-  hb.innerHTML=!hh?"":rpHintShown.has(last.t)?`<span class="small muted">Gợi ý: ${esc(last.hint)}</span>`:`<button class="lnk small" id="rp-hint-btn">💡 Gợi ý</button>`;
-  const hbtn=document.getElementById("rp-hint-btn");if(hbtn)hbtn.onclick=()=>{rpHintShown.add(last.t);renderChat()};
+  const hb=document.getElementById("rp-hint"),hh=!fin&&last&&last.r==="them"&&last.hint,ht=document.getElementById("rp-hint-text");
+  hb.innerHTML=hh?`<button class="chip${rpHintShown.has(last.t)?" on":""}" id="rp-hint-btn" type="button">💡 Gợi ý</button>`:"";
+  ht.textContent=hh&&rpHintShown.has(last.t)?last.hint:"";
+  const hbtn=document.getElementById("rp-hint-btn");if(hbtn)hbtn.onclick=()=>{if(rpHintShown.has(last.t))rpHintShown.delete(last.t);else rpHintShown.add(last.t);renderChat()};
+  document.getElementById("rp-slow").innerHTML=slowChip();
+  document.getElementById("rp-tools").classList.toggle("hidden",fin);
   document.getElementById("rp-bar").classList.toggle("hidden",fin||!recAvail());
   document.getElementById("rp-bar2").classList.toggle("hidden",!fin);
   document.getElementById("rp-regrade").classList.toggle("hidden",graded);
   if(fin)document.getElementById("rp-typerow").classList.add("hidden");
   box.querySelectorAll("[data-hold]").forEach(h=>{const mk=h.parentNode.querySelector(".mask"),t=S.rp.msgs[+h.dataset.hold].t,show=on=>{mk.textContent=on?t:"• • • • •";mk.style.letterSpacing=on?"0":"";mk.style.color=on?"var(--ink)":""};
     h.addEventListener("pointerdown",e=>{e.preventDefault();show(true)});["pointerup","pointercancel","pointerleave"].forEach(ev=>h.addEventListener(ev,()=>show(false)));h.addEventListener("contextmenu",e=>e.preventDefault())});
-  const lt=[...S.rp.msgs].reverse().find(m=>m.r==="them"),snd=document.getElementById("rp-sound");if(snd)snd.innerHTML=lt?speakBtn(lt.t)+slowBtn(lt.t):"";
+  const lt=[...S.rp.msgs].reverse().find(m=>m.r==="them"),snd=document.getElementById("rp-sound");if(snd)snd.innerHTML=lt?audioBtn(lt.t):"";
   box.scrollTop=box.scrollHeight;
 }
 const rpShown=new Set(),rpHintShown=new Set();
