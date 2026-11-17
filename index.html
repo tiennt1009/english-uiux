@@ -519,7 +519,7 @@ kbd{font-family:inherit;font-size:11px;border:1px solid var(--line);border-botto
 .exnav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}.exnav .btn.pri{flex:0 0 auto;min-width:130px;margin-left:auto;padding:10px 22px}
 /* thanh nút cố định ở đáy màn trong: mọi nút hành động (Tiếp, Bắt đầu, Câu trước...) nằm ở đây */
 .abar,.exnav,.shnav{position:fixed;left:0;right:0;bottom:0;z-index:36;margin:0;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(246,244,239,.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px max(16px,calc((100% - 720px)/2)) calc(10px + env(safe-area-inset-bottom))}
-.abar .btn,.exnav .btn,.shnav .btn{flex:1;min-width:0;margin:0;padding:13px 14px;font-size:16px;align-self:stretch}
+.abar .btn,.exnav .btn,.shnav .btn{white-space:nowrap;flex:1;min-width:0;margin:0;padding:13px 14px;font-size:16px;align-self:stretch}
 .abar .btn.pri,.exnav .btn.pri,.shnav .btn.pri{flex:2}
 .abar .lnk,.exnav .lnk,.shnav .lnk{flex:none;padding:10px 4px}
 @media(min-width:701px){.abar,.exnav,.shnav{left:var(--side)}}
@@ -747,7 +747,7 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
         <div class="hint" id="rp-hint"></div>
         <div id="rp-live" class="rp-live hidden"></div>
         <div class="abar kbin" id="rp-bar"><button class="btn" id="rp-type" aria-label="Gõ phím thay vì nói" style="flex:none;padding:13px 16px">⌨ Gõ</button><button class="btn pri rp-talk hidden" id="rp-mic">🎙 Bấm để nói</button></div>
-        <div class="abar kbin hidden" id="rp-bar2"><button class="btn" id="rp-new">Làm lượt mới</button><button class="btn pri hidden" id="rp-regrade">Chấm bài</button></div>
+        <div class="abar kbin hidden" id="rp-bar2"><button class="btn" id="rp-new">Làm lại</button><button class="btn pri hidden" id="rp-regrade">Chấm bài</button></div>
         <div class="rp-tip hidden" id="rp-tip"></div>
         <div class="row hidden" id="rp-typerow" style="margin-top:8px;flex-wrap:nowrap">
           <textarea rows="1" class="tin" id="rp-input" placeholder="Câu trả lời của bạn (nói hoặc gõ)"></textarea>
