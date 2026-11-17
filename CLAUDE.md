@@ -61,7 +61,7 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - Tab Hôm nay chỉ liệt kê 2 thẻ (Từ mới hôm nay → `#vocab`, buổi hôm nay → `#d-{dow}`); bấm vào mới vào màn học. `#d-N` là buổi học mở từ Hôm nay (`sess.back="today"`, màn "deep", không có bnav).
 - Mọi nút hành động trong màn học (Tiếp, Bắt đầu, Câu trước...) nằm trong thanh cố định ở đáy: class `.abar` (hoặc `.exnav`/`.shnav`). JS bật `body.has-abar` để chừa chỗ cuối trang và đẩy nút Lý thuyết lên.
 - Thanh đáy gọn: nghe chép = [ô chép][Kiểm tra]; nhại = [Tiếp]; Roleplay = [Nói] hoặc, khi bấm chip Nhập, [‹][ô nhập][↵][Nói]. Nút Nghe (`audioBtn`), chip Chậm/Gợi ý/Nhập nằm trong thẻ nội dung. Chữ ẩn: giữ nút "Giữ xem" mới hiện.
-- Bàn phím + ô nhập trong thanh đáy: JS đặt `body.kbf`, biến `--kbb` (chiều cao bàn phím) để thanh luôn nằm trên bàn phím, ẩn header, thẻ dồn nội dung xuống sát thanh. Roleplay: tình huống là 1 ô tiêu đề (`#rp-scen-btn`) mở sheet chọn (`openScen`).
+- Bàn phím + ô nhập trong thanh đáy: JS đặt `body.kbf`, `--kbb` (chiều cao bàn phím), `--abh` (chiều cao thanh) để thanh nằm trên bàn phím và trang cuộn tới cuối. KHÔNG ẩn header hay kéo giãn thẻ (người dùng không thích). Roleplay: tình huống là 1 ô tiêu đề (`#rp-scen-btn`) mở sheet chọn (`openScen`).
 - Chấm câu tự do (`checkFree`) dùng tầng nhanh (`{fast:true}`), không còn ghi chú "model chính hết lượt".
 
 ## Từ vựng theo chủ đề (16/11/2026, `APP_BUILD` 2026-11-16-a)

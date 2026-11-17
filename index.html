@@ -335,9 +335,8 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .rp-tools{margin-top:8px;align-items:center}
 @media(max-width:899px){
  body.kbf .abar{bottom:var(--kbb,0px)}
- body.kbf .sess-head,body.kbf #sp-steps,body.kbf #rp-scen{display:none}
- body.kbf #sh-card,body.kbf #rp-card{display:flex;flex-direction:column;justify-content:flex-end;min-height:calc(var(--vvh,100vh) - 54px - 100px)}
- body.kbf.has-abar{padding-bottom:calc(var(--kbb,0px) + 72px)!important}
+ body.kbf.has-abar{padding-bottom:calc(var(--kbb,0px) + var(--abh,66px) + 6px)!important}
+ body.kbf .wrap{padding-bottom:0!important;margin-bottom:0!important}
 }
 .rp-tools .btn.audio,.shtools .btn.audio{padding:6px 14px;font-size:13px;border-radius:999px;gap:6px}.rp-tools .btn.audio svg,.shtools .btn.audio svg{width:16px;height:16px}
 .shtools{align-items:center}
@@ -546,7 +545,9 @@ body.cf-open #cf-ov,body.sc-open #sc-ov{opacity:1;pointer-events:auto}body.cf-op
 .sc-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:60vh;overflow-y:auto}
 .sc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:13px 14px;font-size:16px;color:var(--ink);cursor:pointer}
 .sc-row.on{background:var(--ink);color:#fff;border-color:var(--ink)}.sc-row i{font-style:normal;font-size:12px}
-.scen-pill{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;cursor:pointer;color:var(--ink)}
+.scen-row{display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.scen-lb{font-size:12px;color:var(--muted)}
+.scen-pill{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 10px 5px 12px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}.scen-pill svg{width:16px;height:16px;color:var(--muted)}
 .scen-pill small{display:block;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.03em}.scen-pill b{font-size:17px}.scen-pill .chev{color:var(--muted);font-size:18px}
 .cf-btns{display:flex;gap:10px;margin-top:16px}.cf-btns .btn{flex:1;padding:13px;white-space:nowrap}
 .abar,.exnav,.shnav{position:fixed;left:0;right:0;bottom:0;z-index:36;margin:0;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(246,244,239,.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px max(16px,calc((100% - 720px)/2)) calc(10px + env(safe-area-inset-bottom))}
@@ -2534,7 +2535,8 @@ window.addEventListener("hashchange",route);
 /* ô nhập nằm trong thanh đáy: thanh luôn nằm ngay trên bàn phím, nội dung dồn xuống sát thanh */
 (function(){
   const vv=window.visualViewport,R=document.documentElement.style;
-  const upd=()=>{const h=vv?vv.height:innerHeight,off=vv?vv.offsetTop:0;R.setProperty("--vvh",h+"px");R.setProperty("--kbb",Math.max(0,innerHeight-h-off)+"px")};
+  const upd=()=>{const h=vv?vv.height:innerHeight,off=vv?vv.offsetTop:0;R.setProperty("--vvh",h+"px");R.setProperty("--kbb",Math.max(0,innerHeight-h-off)+"px");
+    const bar=[...document.querySelectorAll(".abar,.shnav,.exnav")].find(x=>x.getClientRects().length);if(bar)R.setProperty("--abh",bar.offsetHeight+"px")};
   const fit=()=>{if(document.body.classList.contains("kbf"))requestAnimationFrame(()=>window.scrollTo(0,document.documentElement.scrollHeight))};
   const inBar=e=>e&&e.matches&&e.matches(".abar textarea,.abar input");
   if(vv){vv.addEventListener("resize",()=>{upd();fit()});vv.addEventListener("scroll",upd)}
@@ -4339,7 +4341,7 @@ document.getElementById("vs-redo").onclick=()=>{const t=document.getElementById(
 function scenScroll(){const box=document.getElementById("rp-scen"),on=box&&box.querySelector(".chip.on");if(on&&box.clientWidth)box.scrollLeft=Math.max(0,on.offsetLeft-box.offsetLeft-(box.clientWidth-on.offsetWidth)/2)}
 function renderScen(){
   const box=document.getElementById("rp-scen"),cur=SCEN.find(x=>x.k===S.rp.scen)||SCEN[0];
-  box.innerHTML=`<button class="scen-pill" id="rp-scen-btn" type="button" aria-label="Đổi tình huống"><span><small>Tình huống</small><b>${esc(cur.label)}</b></span><span class="chev">⇅</span></button>`;
+  box.innerHTML=`<div class="scen-row"><span class="scen-lb">Tình huống</span><button class="scen-pill" id="rp-scen-btn" type="button" aria-label="Đổi tình huống">${esc(cur.label)}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>`;
   document.getElementById("rp-scen-btn").onclick=openScen;
 }
 function openScen(){
