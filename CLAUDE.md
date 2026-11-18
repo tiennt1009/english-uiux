@@ -76,6 +76,7 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - Loại offline (không cần key): **Từ vựng** (soạn từ `VOCAB`, ưu tiên từ đã học/yếu; mức quyết định dạng câu: Dễ chọn nghĩa 3 lựa chọn → Vừa thêm chọn từ + điền chỗ trống → Khó tự gõ từ) và **Nghe chép** (câu ví dụ của `VOCAB`, mức = độ dài câu; cần giọng đọc `pxTtsOK()`). Loại AI: **Ngữ pháp** (phạm vi theo `WEEKS`: Dễ = tới tuần hiện tại, Vừa +1 tuần, Khó +2 tuần), **Dịch câu**, **Đọc hiểu**, **Tình huống**. Lời nhắc AI dùng `learnerCtx()` + dòng OVERRIDE (vì `learnerCtx()` ghi cứng "chỉ to be") + `tagList()`.
 - Chấm: câu chọn chấm ngay; câu gõ so đáp án/`accept`; câu Dịch khác đáp án mẫu thì để "chờ" và chấm 1 lượt bằng AI khi xem kết quả (`pxGradePend`, chấm lại được nếu mất mạng). Ngữ pháp/Dịch sai → `addErr` (vào hồ sơ lỗi + hàng ôn). Từ vựng/Đọc hiểu/Tình huống sai KHÔNG đụng `S.vocab` hay `S.errors`.
 - Dữ liệu: chỉ thêm `S.px={lv:{<loại>:1-3},hist:[{id,d,k,lv,n,ok}] (tối đa 40)}` (có trong `DEF` và `migrate()`). Đề đang làm KHÔNG lưu vào `S` (nằm ở `px.set`, mất khi tải lại trang). Mỗi đề +3 xp (`S.act`), mỗi câu +1/2 xp.
+- Màn chọn độ khó (`pxSetup`): khối tiêu đề nền tối + 3 thẻ màu theo mức (`.px-lvc.l1/l2/l3`: xanh lá/cam/đỏ, icon 🌱🔥⚡, cột cường độ, "🏆 Cao nhất #/#", nhãn "Đề xuất" từ `pxRec()`), nút Bắt đầu đổi màu theo mức. Vẫn giữ `#px-lv [data-lv]` cho test.
 - Mọi chuỗi mới đã có trong `I18N` (khối `Object.assign` cuối danh sách). Chuỗi động có tên mức (Dễ/Vừa/Khó) tách thành phần để `trCore` dịch được.
 
 ## Việc còn treo
