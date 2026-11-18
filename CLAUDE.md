@@ -64,6 +64,7 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - Mọi nút hành động trong màn học (Tiếp, Bắt đầu, Câu trước...) nằm trong thanh cố định ở đáy: class `.abar` (hoặc `.exnav`/`.shnav`). JS bật `body.has-abar` để chừa chỗ cuối trang và đẩy nút Lý thuyết lên.
 - Thanh đáy gọn: nghe chép = [ô chép][Kiểm tra]; nhại = [Tiếp]; Roleplay = [Nói] hoặc, khi bấm chip Nhập, [‹][ô nhập][↵][Nói]. Nút Nghe (`audioBtn`), chip Chậm/Gợi ý/Nhập nằm trong thẻ nội dung. Chữ ẩn: giữ nút "Giữ xem" mới hiện.
 - Bàn phím + ô nhập trong thanh đáy: JS đặt `body.kbf`, `--kbb` (chiều cao bàn phím), `--abh` (chiều cao thanh) để thanh nằm trên bàn phím và trang cuộn tới cuối. KHÔNG ẩn header hay kéo giãn thẻ (người dùng không thích). Roleplay: tình huống là 1 ô tiêu đề (`#rp-scen-btn`) mở sheet chọn (`openScen`).
+- Thanh tiến độ câu (`.exbar .bars i`, `.shbar i`, dùng ở ngữ pháp, nghe chép, dùng từ vựng, viết, luyện đề) là ô đánh số 1..n (số lấy bằng CSS counter, không đổi HTML): xám = chưa làm, xanh nhạt = đúng, đỏ nhạt = sai, vàng = chờ/gần đúng, đen = câu hiện tại. Màu phẳng, không gradient (style chung của app).
 - Chấm câu tự do (`checkFree`) dùng tầng nhanh (`{fast:true}`), không còn ghi chú "model chính hết lượt".
 
 ## Từ vựng theo chủ đề (16/11/2026, `APP_BUILD` 2026-11-16-a)
