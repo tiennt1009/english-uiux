@@ -55,6 +55,12 @@ Chưa phủ: luồng chấm bài chi tiết, giọng nói thật, bố cục t�
 - `overdue()` trả rỗng khi tuần hiện tại chưa bắt đầu (tránh hiện cả tuần "quá hạn" vào Chủ nhật trước tuần mới).
 - Quy trình thêm từ: viết hàng `["từ","nghĩa","ví dụ","emoji","nhóm",độ khó,[đồng nghĩa]]`, thêm vào cuối `VMORE`, chạy `npm test` (kiểm trùng + 174 từ gốc).
 
+## 7c. Thay đổi 18/11/2026 (APP_BUILD `2026-11-18-a`): tab "Luyện đề"
+- Thêm mục thứ 4 ở thanh nav (bên trái trên desktop, thanh dưới trên điện thoại) và `<section id="v-practice">`. Route `#practice`, `#practice/<loại>` (chọn độ khó), `#practice/<loại>/run` (làm đề + kết quả); setup/run dùng `body.deep` (có nút quay lại, ẩn nav) nên nút Back của Android hoạt động. Mở `/run` khi chưa có đề trong bộ nhớ → tự đưa về màn chọn độ khó.
+- Chi tiết thiết kế, cấu trúc câu hỏi, cách thêm loại mới: xem mục "Luyện đề" trong CLAUDE.md.
+- Trường mới `S.px` (độ khó theo loại + lịch sử ≤40 đề); `migrate()` tự thêm cho dữ liệu cũ; test [3] kiểm dữ liệu cũ không mất gì.
+- Đã test (Playwright, mock): mở màn, làm hết đề từ vựng 3 mức + nghe chép offline, ngữ pháp qua Gemini mock, dịch câu (chờ → AI chấm lượt cuối), đọc hiểu, tình huống, resume đề dở, đổi sang EN. Chưa test: điện thoại thật, Gemini thật, giọng đọc thật (headless dùng giọng giả).
+
 ## 8. Việc còn treo
 Xem danh sách trong CLAUDE.md (nguồn chính). Ghi chú thêm:
 - Thêm ~550 từ: nên chia 4 đợt ~150 từ; mỗi đợt chạy `npm test`, đổi `APP_BUILD`, kiểm tra không từ nào trùng `w` với từ cũ, và `vIdx()` vẫn hợp lý (`VDAILY=6` từ/ngày → 174 từ đủ ~25 ngày, 724 từ ~4 tháng).

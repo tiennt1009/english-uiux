@@ -37,6 +37,11 @@ const BASE = `http://127.0.0.1:${server.address().port}/`;
 const calls = { claude: [], gemini: [], github: [] };
 function mockText(prompt) {
   // lời nhắc JSON của app luôn kết thúc bằng "Return ONLY valid JSON"
+  // Luyện đề: đề ngữ pháp giả để thử luồng AI → làm bài → chấm
+  if (/PRACTICE SET \(grammar\)/.test(prompt)) {
+    const items = Array.from({ length: 10 }, (_, i) => ({ type: 'mcq', q: `She ___ my PM ${i}.`, options: ['am', 'is', 'are'], answer: 'is', explain_vi: 'She đi với is.', tag: 'to-be-agreement' }));
+    return JSON.stringify({ items });
+  }
   return /Return ONLY valid JSON/.test(prompt) ? '{"ok":true,"items":[],"msgs":[]}' : 'OK';
 }
 async function installMocks(context) {
@@ -101,6 +106,9 @@ const ROUTES = [
   ['#s-1-6', 'v-session', 'Sản phẩm tuần (T7)'],
   ['#review', 'v-review', 'Ôn lại câu sai'],
   ['#placement', 'v-placement', 'Bài xếp tuần'],
+  ['#practice', 'v-practice', 'Luyện đề'],
+  ['#practice/vocab', 'v-practice', 'Luyện đề: chọn độ khó'],
+  ['#practice/grammar', 'v-practice', 'Luyện đề: ngữ pháp'],
 ];
 
 async function visitAll(page, errors, label) {
@@ -193,6 +201,7 @@ try {
     if (lost.length) fail('Mất từ đã học sau khi tải: ' + lost.join(', ')); else ok('Giữ nguyên ' + words.length + ' từ đã học trong eng-ux-state');
     if (res.st && res.st.errors && res.st.errors.article && res.st.errors.article.count === 3) ok('Giữ hồ sơ lỗi cũ'); else fail('Hồ sơ lỗi cũ bị đổi/mất');
     if (res.st && res.st.sessions && res.st.sessions['w1-1']) ok('Giữ sessions cũ'); else fail('Sessions cũ bị mất');
+    if (res.st && res.st.px && res.st.px.lv && Array.isArray(res.st.px.hist)) ok('Dữ liệu cũ (chưa có S.px) được thêm trường px, không mất gì'); else fail('Thiếu S.px sau migrate');
     if (res.baks.some((k) => k.endsWith('-update'))) ok('APP_BUILD đổi → tự sao lưu (bakSave "update")'); else fail('Không thấy bản sao lưu "update" khi eng-build khác APP_BUILD');
     if (res.build === APP_BUILD) ok('eng-build được cập nhật = ' + APP_BUILD); else fail('eng-build không khớp APP_BUILD');
     if (errors.length) fail('Dữ liệu cũ gây lỗi JS: ' + errors.join(' || '));
@@ -270,6 +279,73 @@ try {
     if (m.t === 1 && m.od === 0 && m.start === '2026-11-16') ok('Thứ 2 16/11: hôm nay là buổi Ngữ pháp, không quá hạn'); else fail('Sáng thứ 2 sai: ' + JSON.stringify(m));
     if (errors.length) fail('Lỗi JS sau reset: ' + errors.join(' || '));
     await context.close();
+  }
+
+  // 7) Luyện đề: từ vựng + nghe chép chạy offline (không gọi Gemini), loại AI cần key, có key thì soạn đề → làm → chấm
+  console.log('\n[7] Luyện đề');
+  {
+    const STUB_VOICE = () => { try { speechSynthesis.getVoices = () => [{ lang: 'en-US', name: 'Google US English' }]; } catch (e) {} };
+    const doSet = async (page, type, lv) => { // làm hết đề: câu chọn thì chọn đúng/sai xen kẽ, câu gõ thì gõ đúng hoặc sai
+      await page.evaluate((t) => { location.hash = '#practice/' + t; }, type);
+      await page.waitForTimeout(150);
+      await page.click(`#px-lv [data-lv="${lv}"]`);
+      await page.click('#px-go');
+      await page.waitForFunction(() => location.hash.endsWith('/run') && !px.busy, null, { timeout: 8000 });
+      const n = await page.evaluate(() => px.set.qs.length);
+      for (let i = 0; i < n; i++) {
+        const q = await page.evaluate(() => { const s = px.set, q = s.qs[s.i]; return { f: q.f, ans: q.ans, k: q.opts ? q.opts.indexOf(q.ans) : -1, no: q.opts ? q.opts.length : 0 }; });
+        if (q.f === 'mcq') await page.click(`[data-oi="${i % 3 === 2 ? (q.k + 1) % q.no : q.k}"]`);
+        else { await page.fill('#px-in', i % 3 === 2 ? 'zzz qqq' : q.ans); await page.click('#px-chk'); }
+        await page.click('#px-next');
+      }
+      return n;
+    };
+    // 7a) không key: từ vựng ở cả 3 mức + nghe chép chạy được, 0 lần gọi Gemini
+    calls.gemini.length = 0;
+    {
+      const { context, page, errors } = await newPage();
+      await context.addInitScript(STUB_VOICE);
+      await page.goto(BASE, { waitUntil: 'load' });
+      await page.waitForTimeout(500);
+      errors.length = 0;
+      for (const lv of [1, 2, 3]) {
+        const n = await doSet(page, 'vocab', lv);
+        const txt = await page.evaluate(() => document.getElementById('px-box').innerText);
+        if (n >= 8 && /\/\d+/.test(txt) && /Đề mới/.test(txt)) ok(`Từ vựng mức ${lv}: làm hết ${n} câu, ra kết quả + nút Đề mới`); else fail(`Từ vựng mức ${lv}: kết quả lạ (n=${n}): ${txt.slice(0, 80)}`);
+      }
+      // đề mới: bộ câu khác bộ cũ
+      const a = await page.evaluate(() => px.set.qs.map((q) => q.q).join('|'));
+      await page.click('#px-new');
+      await page.waitForFunction(() => !px.busy && px.set && !px.set.done, null, { timeout: 5000 });
+      const b = await page.evaluate(() => px.set.qs.map((q) => q.q).join('|'));
+      if (a !== b) ok('Bấm "Đề mới" ra bộ câu khác'); else fail('Đề mới giống hệt đề cũ');
+      const n2 = await doSet(page, 'listen', 2);
+      if (n2 >= 8) ok('Nghe chép (offline) làm hết ' + n2 + ' câu'); else fail('Nghe chép chỉ có ' + n2 + ' câu');
+      const st = await page.evaluate(() => JSON.parse(localStorage.getItem('eng-ux-state')).px);
+      if (st.hist.length === 4 && st.lv.vocab === 3 && st.lv.listen === 2) ok('Lưu lịch sử 4 đề + độ khó từng loại vào S.px'); else fail('S.px sai: ' + JSON.stringify(st));
+      // loại cần AI mà chưa có key: nút Bắt đầu bị khóa, có hướng dẫn
+      await page.evaluate(() => { location.hash = '#practice/grammar'; });
+      await page.waitForTimeout(200);
+      const dis = await page.evaluate(() => ({ d: document.getElementById('px-go').disabled, t: document.getElementById('px-box').innerText }));
+      if (dis.d && /API key/.test(dis.t)) ok('Loại AI khi chưa có key: khóa nút Bắt đầu + chỉ dẫn dán key'); else fail('Loại AI chưa có key không bị khóa');
+      if (!calls.gemini.length) ok('Từ vựng/nghe chép không gọi Gemini lần nào'); else fail('Gọi Gemini ' + calls.gemini.length + ' lần ở loại offline');
+      if (errors.length) fail('Luyện đề (offline) lỗi JS: ' + errors.join(' || ')); else ok('Luyện đề (offline) không lỗi JS');
+      await context.close();
+    }
+    // 7b) có key (mock): ngữ pháp do AI soạn, làm xong, câu sai vào hồ sơ lỗi
+    calls.gemini.length = 0;
+    {
+      const { context, page, errors } = await newPage({ 'eng-gemini-key': 'AIzaMOCK' });
+      await page.goto(BASE, { waitUntil: 'load' });
+      await page.waitForTimeout(500);
+      errors.length = 0;
+      const n = await doSet(page, 'grammar', 2);
+      const r = await page.evaluate(() => ({ t: document.getElementById('px-box').innerText, tags: Object.keys(S.errors), rv: S.rv.length }));
+      if (n === 10 && calls.gemini.length >= 1) ok('Ngữ pháp: AI (mock) soạn ' + n + ' câu và làm xong'); else fail(`Ngữ pháp: n=${n}, gemini=${calls.gemini.length}`);
+      if (/7\/10/.test(r.t) && r.tags.includes('to-be-agreement') && r.rv >= 1) ok('Câu sai được ghi vào hồ sơ lỗi và hàng ôn'); else fail('Kết quả/hồ sơ lỗi sai: ' + r.t.slice(0, 60) + ' ' + r.tags + ' rv=' + r.rv);
+      if (errors.length) fail('Luyện đề (AI) lỗi JS: ' + errors.join(' || ')); else ok('Luyện đề (AI) không lỗi JS');
+      await context.close();
+    }
   }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));

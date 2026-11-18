@@ -677,6 +677,32 @@ body.offline #burst-card,body.offline #quick-card{opacity:.55}
 /* sheet đang đóng nằm ngay dưới mép màn hình: tắt bóng đổ để không hắt vệt tối lên đáy */
 .drawer:not(.on),.crit-sheet,.info-sheet,.cf-sheet{box-shadow:none}
 body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,body.sc-open #sc-sheet{box-shadow:0 -10px 30px rgba(31,29,26,.15)}
+/* Luyện đề */
+.px-last{font-size:12px;color:var(--muted);margin-top:4px}
+.px-ai{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--muted);margin-left:6px;vertical-align:middle}
+.px-lv{display:flex;background:var(--soft);border-radius:12px;padding:4px;margin:14px 0 8px}
+.px-lv button{flex:1;border:0;background:transparent;border-radius:9px;padding:10px 8px;font-size:15px;font-weight:500;color:var(--muted);cursor:pointer}
+.px-lv button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.px-lvd{font-size:14px;color:var(--muted);min-height:44px}
+.px-lab{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.2px}
+.px-q{font-size:20px;font-weight:600;line-height:1.45;margin:6px 0 14px;overflow-wrap:anywhere}
+.px-ctx{font-size:14px;color:var(--muted);margin-top:6px}
+.px-line{display:flex;gap:8px;align-items:flex-start;margin:6px 0 14px}.px-line .px-q{margin:0;flex:1}
+.px-opts{display:flex;flex-direction:column;gap:8px}
+.px-opts .opt{border-radius:12px;padding:12px 14px;text-align:left;font-size:16px;line-height:1.4;width:100%}
+.px-opts .opt[disabled]{opacity:.55;cursor:default}
+.px-opts .opt.right[disabled],.px-opts .opt.wrong[disabled]{opacity:1}
+.px-psg{background:var(--soft);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:15px;line-height:1.7}
+.px-psg b{display:block;margin-bottom:4px}
+.px-psg details{margin-top:8px;font-size:14px;color:var(--muted)}
+.px-psg summary{cursor:pointer}
+.px-hint{font-size:20px;letter-spacing:.25em;color:var(--muted);margin:-6px 0 10px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.px-score{font-size:44px;font-weight:700;line-height:1.1}
+.px-pend{background:#E6EEF6;color:#0C447C;border-radius:10px;padding:8px 12px;font-size:14px;margin-top:10px}
+.px-item{border-top:1px solid var(--line);padding:12px 0}.px-item:first-of-type{border-top:0}
+.px-item .px-q{font-size:17px;margin:2px 0 8px}
+.px-more{margin-top:10px}.px-more summary{cursor:pointer;font-size:14px;color:var(--muted);padding:6px 0}
+.px-tail{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 </style>
 </head>
 <body>
@@ -687,6 +713,7 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
       <a href="#today" data-v="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Hôm nay</span></a>
       <a href="#dashboard" data-v="dashboard"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></a>
       <a href="#lessons" data-v="lessons"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7M8 11h5"/></svg><span>Bài học</span></a>
+      <a href="#practice" data-v="practice"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/></svg><span>Luyện đề</span></a>
       <a href="#settings" data-v="settings"><svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Cài đặt</span></a>
     </nav>
     <div class="side-foot"><a class="nb-link" href="#notebook" data-v="notebook"><svg viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v16l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg><span>Sổ tay</span><span class="bmc"></span></a></div>
@@ -837,6 +864,9 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
     <div class="card" id="pl-box"></div>
   </section>
 
+  <!-- LUYỆN ĐỀ: làm thêm bài tập theo loại và độ khó -->
+  <section id="v-practice" class="hidden"><div id="px-box"></div></section>
+
   <!-- LESSONS -->
   <section id="v-lessons" class="hidden">
     <div id="ls-place"></div>
@@ -985,6 +1015,7 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
   <a href="#today" data-v="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Hôm nay</span></a>
   <a href="#dashboard" data-v="dashboard"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></a>
   <a href="#lessons" data-v="lessons"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7M8 11h5"/></svg><span>Bài học</span></a>
+  <a href="#practice" data-v="practice"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/></svg><span>Luyện đề</span></a>
   <a href="#settings" data-v="settings"><svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Cài đặt</span></a>
 </nav>
 <button class="fab hidden" id="theory-fab" aria-controls="drawer" aria-label="Xem lý thuyết" title="Xem lý thuyết">📖</button>
@@ -2163,12 +2194,12 @@ const SCEN=[
 ];
 
 /* ---------- state ---------- */
-const DEF={v:2,thDay:"",start:null,act:{},w:null,bm:[],notes:[],rv:[],placement:null,sessions:{},errors:{},vocab:{},history:[],ex:null,own:null,rp:{scen:"first",msgs:[]},write:null,product:null};
+const DEF={v:2,thDay:"",start:null,act:{},w:null,bm:[],notes:[],rv:[],placement:null,sessions:{},errors:{},vocab:{},history:[],ex:null,own:null,rp:{scen:"first",msgs:[]},write:null,product:null,px:{lv:{},hist:[]}};
 let S=JSON.parse(JSON.stringify(DEF));
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 try{const l=ls("eng-ux-state");if(l)S=Object.assign(JSON.parse(JSON.stringify(DEF)),JSON.parse(l))}catch(e){}
 /* ---- sao lưu tự động trong trình duyệt: lỡ cập nhật app, đồng bộ hay nhập dữ liệu làm mất tiến độ thì khôi phục được ---- */
-const BK="eng-bak-",APP_BUILD="2026-11-16-a";
+const BK="eng-bak-",APP_BUILD="2026-11-18-a";
 function prog(o){o=o||{};return Object.keys(o.sessions||{}).length*5+Object.keys(o.vocab||{}).length+(o.history||[]).length+(o.bm||[]).length+(o.notes||[]).length+Object.keys(o.errors||{}).length}
 function bakList(){try{return Object.keys(localStorage).filter(k=>k.startsWith(BK)).sort()}catch(e){return[]}}
 function bakSave(tag,o){o=o||S;if(prog(o)<5)return;
@@ -2181,7 +2212,9 @@ function migrate(){if(!S.v||S.v<2){S.sessions={};S.v=2;delete S.miles;delete S.s
   if(S.vset!==2){S.vset=2;const ok=new Set(VOCAB.map(c=>c.w));Object.keys(S.vocab||{}).forEach(w=>{if(!ok.has(w))delete S.vocab[w]});delete S.vu8;S.vu=-20;const u=vUnseen().length;S.vu=vIdx()-20+Math.max(0,6-u);S.vday=today()}
   if(S.v<3){const mp={2:5,4:2,5:4},ns={};Object.entries(S.sessions||{}).forEach(([k,v])=>{const m=k.match(/^w(\d+)-(\d)$/);ns[m?`w${m[1]}-${mp[m[2]]||m[2]}`:k]=v});S.sessions=ns;S.v=3}if(!S.start)S.start=iso(mondayOf(new Date()));if(!S.weekStarts)S.weekStarts={1:S.start};if(!S.act)S.act={};if(!Array.isArray(S.bm))S.bm=[];if(!Array.isArray(S.rv))S.rv=[];
   /* từ vựng theo chủ đề: S.vo = từ đã mở nhưng chưa học (từ đã học nằm ở S.vocab), S.vtp = chủ đề đang học */
-  if(!Array.isArray(S.vo)){S.vo=[];S.vtp=-1;S.vday=""}}
+  if(!Array.isArray(S.vo)){S.vo=[];S.vtp=-1;S.vday=""}
+  /* Luyện đề: độ khó đã chọn theo loại + lịch sử gọn (chỉ thêm trường mới) */
+  if(!S.px||typeof S.px!=="object")S.px={lv:{},hist:[]};if(!S.px.lv||typeof S.px.lv!=="object")S.px.lv={};if(!Array.isArray(S.px.hist))S.px.hist=[]}
 migrate();
 let dbRef=null,saveT=null,saving=false,dirty=false,syncBad="",lastSync=0;
 /* lưu: luôn ghi vào máy trước, rồi đồng bộ lên tài khoản; offline thì giữ cờ "chưa đồng bộ" và gửi lại khi có mạng */
@@ -2439,6 +2472,7 @@ Object.assign(I18N,{"Hôm nay học gì":"What to study today","Bấm vào từn
 Object.assign(I18N,{"Xem dạng thẻ":"Card view","Xem dạng dòng":"List view","Gần đúng":"Close","xem lại chính tả":"check the spelling","Xong":"Done","Cần sửa":"Needs a fix","Câu đúng":"Correct sentence","phần #":"part #","phần dịch":"translation part","khởi động":"warm-up","phần nghe chép và nhại":"dictation and shadowing part","buổi Viết.":"writing session."});
 Object.assign(I18N,{"Học lại từ đầu":"Start over","Bấm lần nữa để xóa hết tiến độ":"Tap again to erase all progress","Đã xóa tiến độ. Bản cũ nằm ở mục Bản sao lưu tự động. Bắt đầu học từ ngày mai.":"Progress erased. The old copy is in Automatic backups. Start learning tomorrow.","Đã xóa trên máy này nhưng chưa đồng bộ được. Giữ mạng, mở lại app sau ít phút.":"Erased on this device but not synced yet. Stay online and reopen the app in a few minutes."});
 Object.assign(I18N,{"Đang làm #/# việc":"In progress #/# tasks"});
+Object.assign(I18N,{"Luyện đề":"Practice sets","Làm thêm bài tập. Chọn loại bài, chọn độ khó, làm một đề. Xong thì tạo đề mới.":"Extra practice. Pick a type and a level, do one set. When you finish, make a new set.","Hôm nay: # đề · đúng #/# câu":"Today: # sets · # of # correct","Đang làm dở":"In progress","Dịch câu":"Translate","Nghe chép":"Dictation","Đọc hiểu":"Reading","Tình huống":"Situations","Chọn nghĩa, chọn từ, điền chỗ trống":"Pick the meaning, pick the word, fill the blank","Chọn đáp án đúng, chọn câu đúng":"Pick the right answer, pick the right sentence","Dịch từ tiếng Việt sang tiếng Anh":"Translate from Vietnamese to English","Nghe một câu rồi gõ lại":"Listen to a sentence and type it","Đọc đoạn ngắn rồi trả lời câu hỏi":"Read a short text and answer questions","Chọn câu trả lời hợp lý ở chỗ làm":"Pick a sensible reply at work","Gần nhất: #/#":"Latest: #/#","Loại có nhãn AI cần key Gemini (dán ở tab Cài đặt). Từ vựng và Nghe chép dùng được không cần key.":"Types marked AI need a Gemini key (paste it in Settings). Vocabulary and Dictation work without a key.","Độ khó":"Level","Nhìn từ tiếng Anh, chọn nghĩa. Mỗi câu 3 lựa chọn.":"See the English word, pick the meaning. 3 options each.","Chọn nghĩa, chọn từ, điền chỗ trống. Mỗi câu 4 lựa chọn, có gợi ý.":"Pick the meaning, pick the word, fill the blank. 4 options each, with hints.","Điền chỗ trống không gợi ý, rồi tự gõ từ. Có cả từ khó.":"Fill the blank without hints, then type the word yourself. Includes hard words.","Chỉ ngữ pháp đã học tới tuần hiện tại. Câu ngắn, 3 lựa chọn.":"Only grammar studied up to this week. Short sentences, 3 options.","Thêm ngữ pháp của tuần sau. Câu dài hơn, 4 lựa chọn.":"Adds next week's grammar. Longer sentences, 4 options.","Thêm ngữ pháp của # tuần sau. Câu dài, đáp án dễ nhầm.":"Adds grammar from the next # weeks. Long sentences, tricky options.","Câu ngắn, dùng ngữ pháp đã học.":"Short sentences, grammar you have studied.","Câu dài hơn, có phủ định và câu hỏi.":"Longer sentences, with negatives and questions.","Câu dài, ghép # ý, có ngữ pháp tuần sau.":"Long sentences joining # ideas, with next week's grammar.","Câu ngắn, tối đa # từ. Biết trước số từ.":"Short sentences, up to # words. You know the word count.","Câu vừa, # đến # từ. Không biết số từ.":"Medium sentences, # to # words. No word count.","Câu dài, từ # từ trở lên. Không biết số từ.":"Long sentences, # words or more. No word count.","Đoạn #-# câu, # câu hỏi dễ.":"Text of #-# sentences, # easy questions.","Đoạn #-# câu, # câu hỏi.":"Text of #-# sentences, # questions.","Đoạn #-# câu, # câu hỏi, có câu phải suy ra.":"Text of #-# sentences, # questions, some need inference.","Xã giao và việc quen thuộc. 3 lựa chọn.":"Small talk and familiar tasks. 3 options.","Họp, báo tiến độ, nhờ việc. 3 lựa chọn.":"Meetings, progress updates, asking for help. 3 options.","Từ chối, góp ý, phỏng vấn: chọn đúng sắc thái lịch sự. 4 lựa chọn.":"Declining, giving feedback, interviews: pick the right polite tone. 4 options.","Máy chưa có giọng đọc tiếng Anh nên chưa nghe chép được. Thử trên Chrome Android.":"This device has no English voice, so dictation is not available. Try Chrome on Android.","AI trả đề chưa đúng định dạng. Bấm Bắt đầu lại nhé.":"The AI returned the set in the wrong format. Tap Start to try again.","AI đang soạn đề, khoảng #-# giây...":"The AI is writing the set, about #-# seconds...","AI đang soạn đề mới, khoảng #-# giây...":"The AI is writing a new set, about #-# seconds...","Đang soạn đề...":"Preparing the set...","Chọn nghĩa đúng":"Pick the right meaning","Chọn từ tiếng Anh đúng":"Pick the right English word","Điền từ vào chỗ trống":"Fill in the blank","Gõ từ còn thiếu":"Type the missing word","Nghe và chép lại":"Listen and write it down","Chọn đáp án đúng":"Pick the right answer","Chọn câu đúng":"Pick the correct sentence","Dịch sang tiếng Anh":"Translate into English","Chọn câu trả lời phù hợp":"Pick the best reply","Trả lời theo đoạn văn":"Answer from the text","Câu nào đúng?":"Which sentence is correct?","Gợi ý nghĩa:":"Meaning hint:","Nghĩa:":"Meaning:","Không biết, xem đáp án":"I don't know, show the answer","# từ":"# words","Gõ từ":"Type the word","Đáp án mẫu":"Sample answer","Câu của bạn khác đáp án mẫu. AI sẽ chấm khi bạn xem kết quả.":"Your sentence differs from the sample. The AI will grade it when you see the results.","Lưu ý":"Note","Gần đúng, chú ý chính tả những từ được tô màu.":"Close, check the spelling of the highlighted words.","Từ khóa":"Keyword","Xem bản dịch tiếng Việt":"Show Vietnamese translation","Khá":"Fair","Cần luyện thêm":"Needs more practice","Đúng #/#. Thử mức khó hơn?":"# of # correct. Try a harder level?","Hơi khó? Thử mức dễ hơn cho chắc.":"A bit hard? Try an easier level to be sure.","Thử mức Dễ":"Try Easy","Thử mức Vừa":"Try Medium","Thử mức Khó":"Try Hard","AI đang chấm các câu còn lại...":"The AI is grading the remaining answers...","Còn # câu chưa được chấm.":"# answers are not graded yet.","Chấm bằng AI":"Grade with AI","Câu cần xem lại":"Questions to review","Không sai câu nào. Làm tốt lắm!":"No mistakes. Well done!","Chờ chấm":"Waiting to be graded","Câu đúng (#)":"Correct answers (#)","Chọn loại khác":"Choose another type","Đổi độ khó":"Change level","Đề mới":"New set"});
 Object.assign(I18N,{"Đã lưu token trên máy này (dán token mới nếu muốn đổi)":"Token saved on this device (paste a new one to change it)"});
 Object.assign(I18N,{"Máy chủ Gemini đang lỗi tạm thời (không phải lỗi của bạn). Đợi vài giây rồi bấm lại.":"Gemini's server is having a temporary error (not your fault). Wait a few seconds and try again."});
 Object.assign(I18N,{"Ngữ pháp tuần:":"This week's grammar:","Từ nên dùng:":"Words to use:","Dùng ít nhất # từ":"Use at least # words","Tuần #":"Week #"});
@@ -2508,13 +2542,14 @@ function route(){
   vTopUp();
   closeDrawer(true);
   let view,sess=null,nav,nbWant=false;
-  const m=h.match(/^s-(\d+)-(\d)$/),m2=h.match(/^d-(\d)$/);
+  const m=h.match(/^s-(\d+)-(\d)$/),m2=h.match(/^d-(\d)$/),mp=h.match(/^practice(?:\/([a-z]+)(\/run)?)?$/);
   if(m&&+m[1]===1&&+m[2]>0&&BODY[+m[2]]){sess={wk:1,dow:+m[2],fromToday:false};nav="lessons"}
   else if(h==="vocab"){sess={wk:W().n,dow:0,fromToday:false,daily:true};nav="today"}
   else if(h==="lessons"||h==="dashboard"||h==="settings"){view=h;nav=h}
   else if(h==="notebook"||h==="bookmarks"){nav="today";if(h==="bookmarks")nbTab="words";nbWant=true}
   else if(h==="review"){view="review";nav="today"}
   else if(h==="placement"){view="placement";nav="lessons"}
+  else if(mp&&(!mp[1]||PX_T[mp[1]])){view="practice";nav="practice";if(mp[2]&&!(px.set&&px.set.k===mp[1]))history.replaceState(null,"","#practice/"+mp[1]);pxRoute(mp[1]||"",!!mp[2])}
   else if(m2&&BODY[+m2[1]]&&W().n===1){sess={wk:1,dow:+m2[1],fromToday:false,back:"today"};nav="today"}
   else nav="today";
   if(sess)view="session";else if(!view)view="today";
@@ -2522,20 +2557,21 @@ function route(){
   hideSel();
   if(burst.stop)burst.stop();if(burst.state==="ask"||burst.state==="grading")burst.state="idle";
   if(quick.stop)quick.stop();if(quick.state==="ask"){quick.state="idle";quick.turns=[]}
-  ["today","session","lessons","dashboard","settings","review","placement"].forEach(x=>document.getElementById("v-"+x).classList.toggle("hidden",x!==view));
+  ["today","session","lessons","dashboard","settings","review","placement","practice"].forEach(x=>document.getElementById("v-"+x).classList.toggle("hidden",x!==view));
   document.querySelectorAll("#tabs a, .nb-link, #bnav a").forEach(a=>{a.classList.toggle("on",a.dataset.v===nav);if(a.dataset.v===nav)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
   const act=document.querySelector(`#tabs a[data-v="${nav}"] span, .side-foot .nb-link[data-v="${nav}"] span`);
   /* màn cấp 2 trên điện thoại: có nút quay lại */
-  const deep=(sess&&!sess.fromToday)?(sess.daily||sess.back==="today"?"#today":"#lessons"):view==="placement"?"#lessons":view==="review"?"#notebook":null;
+  const deep=(sess&&!sess.fromToday)?(sess.daily||sess.back==="today"?"#today":"#lessons"):view==="placement"?"#lessons":view==="review"?"#notebook":view==="practice"&&px.view!=="home"?(px.view==="run"?"#practice/"+px.type:"#practice"):null;
   BACK.parent=deep;document.body.classList.toggle("deep",!!deep);document.body.classList.toggle("in-session",view==="session");document.body.classList.toggle("has-info",view==="session"||view==="review"||view==="placement");document.getElementById("info-pop").classList.add("hidden");critSheet(false);infoSheet(false);
   const sname=sess?(sess.daily?DAILY:SESS.find(x=>x.dow===sess.dow)).name:"";
-  document.getElementById("mtitle").textContent=(sess&&!sess.fromToday)?sname:view==="placement"?"Bài xếp tuần":view==="review"?"Ôn lại câu sai":(act?act.textContent:"");
+  document.getElementById("mtitle").textContent=(sess&&!sess.fromToday)?sname:view==="placement"?"Bài xếp tuần":view==="review"?"Ôn lại câu sai":view==="practice"?pxTitle():(act?act.textContent:"");
   if(view==="today")renderTodayRest();
   if(view==="session")renderSession();
   if(view==="lessons")renderLessons();
   if(view==="dashboard")renderDashboard();
   if(view==="review")startReview();
   if(view==="placement"){plState="idle";renderPlacement()}
+  if(view==="practice")renderPractice();
   updateFab();
   window.scrollTo(0,0);
   if(nbWant)openNb(nbTab);else closeNb(true);
@@ -3733,6 +3769,302 @@ JSON shape: {"results":[{"i":0,"ok":true,"right":"corrected learner sentence","e
   S.placement={score,passed,results,d:today(),wk:W().n};xp(10);log("placement",`Bài xếp tuần: ${score}/10`);
   plState="idle";after();renderPlacement();window.scrollTo(0,0);
 }
+
+/* ---------- Luyện đề: làm thêm bài tập theo loại và độ khó ----------
+   Route: #practice (chọn loại) → #practice/<loại> (chọn độ khó) → #practice/<loại>/run (làm đề, xem kết quả).
+   Đề đang làm nằm trong bộ nhớ (px.set), không lưu vào S; chỉ lưu độ khó đã chọn và lịch sử gọn (S.px).
+   Từ vựng + Nghe chép tự soạn từ kho VOCAB, chạy offline. Ngữ pháp, Dịch câu, Đọc hiểu, Tình huống do AI soạn. */
+const PX_N=10;
+const PXT=[
+ {k:"vocab",ic:"📚",t:"Từ vựng",d:"Chọn nghĩa, chọn từ, điền chỗ trống"},
+ {k:"grammar",ic:"🧩",t:"Ngữ pháp",d:"Chọn đáp án đúng, chọn câu đúng",ai:1},
+ {k:"translate",ic:"✍️",t:"Dịch câu",d:"Dịch từ tiếng Việt sang tiếng Anh",ai:1},
+ {k:"listen",ic:"🎧",t:"Nghe chép",d:"Nghe một câu rồi gõ lại",tts:1},
+ {k:"read",ic:"📖",t:"Đọc hiểu",d:"Đọc đoạn ngắn rồi trả lời câu hỏi",ai:1},
+ {k:"talk",ic:"💬",t:"Tình huống",d:"Chọn câu trả lời hợp lý ở chỗ làm",ai:1}
+];
+const PX_T={};PXT.forEach(t=>PX_T[t.k]=t);
+const PXLV=["","Dễ","Vừa","Khó"];
+const PXD={
+ vocab:["","Nhìn từ tiếng Anh, chọn nghĩa. Mỗi câu 3 lựa chọn.","Chọn nghĩa, chọn từ, điền chỗ trống. Mỗi câu 4 lựa chọn, có gợi ý.","Điền chỗ trống không gợi ý, rồi tự gõ từ. Có cả từ khó."],
+ grammar:["","Chỉ ngữ pháp đã học tới tuần hiện tại. Câu ngắn, 3 lựa chọn.","Thêm ngữ pháp của tuần sau. Câu dài hơn, 4 lựa chọn.","Thêm ngữ pháp của 2 tuần sau. Câu dài, đáp án dễ nhầm."],
+ translate:["","Câu ngắn, dùng ngữ pháp đã học.","Câu dài hơn, có phủ định và câu hỏi.","Câu dài, ghép 2 ý, có ngữ pháp tuần sau."],
+ listen:["","Câu ngắn, tối đa 6 từ. Biết trước số từ.","Câu vừa, 6 đến 9 từ. Không biết số từ.","Câu dài, từ 8 từ trở lên. Không biết số từ."],
+ read:["","Đoạn 3-4 câu, 3 câu hỏi dễ.","Đoạn 5-6 câu, 4 câu hỏi.","Đoạn 7-9 câu, 5 câu hỏi, có câu phải suy ra."],
+ talk:["","Xã giao và việc quen thuộc. 3 lựa chọn.","Họp, báo tiến độ, nhờ việc. 3 lựa chọn.","Từ chối, góp ý, phỏng vấn: chọn đúng sắc thái lịch sự. 4 lựa chọn."]
+};
+const px={view:"home",type:"",set:null,busy:false,err:"",seen:{}};
+function pxS(){if(!S.px||typeof S.px!=="object")S.px={};const o=S.px;if(!o.lv||typeof o.lv!=="object")o.lv={};if(!Array.isArray(o.hist))o.hist=[];return o}
+function pxLv(k){const v=+pxS().lv[k];return v>=1&&v<=3?v:1}
+function pxKey(){try{return !!localStorage.getItem("eng-gemini-key")}catch(e){return false}}
+function pxTtsOK(){return voiceOK()||!!usVoice()}
+function pxShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pxRoute(type,run){
+  if(!type||!PX_T[type]){px.view="home";px.type="";px.err="";return}
+  px.type=type;px.err="";px.view=run&&px.set&&px.set.k===type?"run":"setup"}
+function pxTitle(){
+  if(px.view==="home")return "Luyện đề";
+  const t=PX_T[px.type].t;return px.view==="run"&&px.set?`${t} · ${PXLV[px.set.lv]}`:t}
+
+/* ----- từ vựng (không cần AI) ----- */
+function pxShort(s){const p=plain(s),t=p.replace(/\s*\([^)]*\)/g,"").trim();return t||p}
+function pxFindForm(c){
+  const w=c.w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),m=String(c.ex||"").match(new RegExp("(^|[^A-Za-z'])("+w+"(?:s|es|ed|d|ing|ly)?)(?![A-Za-z'])","i"));
+  return m?{at:m.index+m[1].length,s:m[2]}:null}
+/* xếp từ để ưu tiên: từ đã học (yếu trước), rồi từ đúng mức; từ vừa ra ở đề trước bị đẩy xuống cuối */
+function pxRank(lv,key,filter){
+  const seen=new Set(px.seen[key]||[]);
+  const rk=c=>{const st=S.vocab[c.w];return (st?((st.box||0)<=2?0:1):(c.lv===lv?2:3))+(seen.has(c.w)?10:0)};
+  return pxShuffle(VOCAB.filter(c=>c.vi&&c.ex&&(!filter||filter(c)))).sort((a,b)=>rk(a)-rk(b))}
+function pxDistract(c,n,field){
+  const bad=new Set([c.w,...(c.alt||[])].map(x=>String(x).toLowerCase())),right=pxShort(c.vi).toLowerCase(),talk=c.cat==="talk",multi=/\s/.test(c.w);
+  const all=VOCAB.filter(x=>x.w!==c.w&&!bad.has(x.w.toLowerCase())&&!(x.alt||[]).some(a=>bad.has(String(a).toLowerCase()))&&(x.cat==="talk")===talk);
+  const near=pxShuffle(all.filter(x=>x.cat===c.cat&&/\s/.test(x.w)===multi)),far=pxShuffle(all),out=[],seen=new Set([field==="vi"?right:c.w.toLowerCase()]);
+  for(const x of [...near,...far]){const t=field==="vi"?pxShort(x.vi):x.w,k=t.toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(t);if(out.length>=n)break}
+  return out}
+function pxQVocab(c,form,lv){
+  const no=lv===1?3:4,why=`${c.w} = ${plain(c.vi)}${c.ex?` · ${c.ex}`:""}`;
+  if(form==="en2vi"){const r=pxShort(c.vi);return {f:"mcq",lab:"Chọn nghĩa đúng",q:c.w,say:c.w,opts:pxShuffle([r,...pxDistract(c,no-1,"vi")]),ans:r,why}}
+  if(form==="vi2en")return {f:"mcq",lab:"Chọn từ tiếng Anh đúng",q:pxShort(c.vi),opts:pxShuffle([c.w,...pxDistract(c,no-1,"w")]),ans:c.w,why};
+  const m=pxFindForm(c),blank=c.ex.slice(0,m.at)+"_____"+c.ex.slice(m.at+m.s.length),hint=lv<3?{ctxL:"Gợi ý nghĩa:",ctx:pxShort(c.vi)}:{};
+  if(form==="cloze"){const cap=/^[A-Z]/.test(m.s),f=x=>cap?x[0].toUpperCase()+x.slice(1):x;
+    return Object.assign({f:"mcq",lab:"Điền từ vào chỗ trống",q:blank,opts:pxShuffle([m.s,...pxDistract(c,no-1,"w").map(f)]),ans:m.s,why},hint)}
+  return {f:"type",lab:"Gõ từ còn thiếu",q:blank,ctxL:"Nghĩa:",ctx:pxShort(c.vi),hint:m.s[0].toLowerCase()+" "+"_ ".repeat(m.s.length-1).trim(),ans:m.s,
+    accept:m.s.toLowerCase()===c.w.toLowerCase()?(c.alt||[]):[],why:m.s.toLowerCase()===c.w.toLowerCase()?why:`${m.s} (${c.w}) = ${plain(c.vi)} · ${c.ex}`}}
+function pxGenVocab(lv){
+  const comp=lv===1?["en2vi","en2vi","en2vi","en2vi","en2vi","en2vi","vi2en","vi2en","vi2en","vi2en"]
+    :lv===2?["en2vi","en2vi","en2vi","vi2en","vi2en","vi2en","cloze","cloze","cloze","cloze"]
+    :["vi2en","cloze","cloze","vi2en","cloze","cloze","type","type","type","type"];
+  const pool=pxRank(lv,"vocab"),used=new Set(),qs=[];
+  comp.forEach(f=>{
+    const need=f==="cloze"?c=>c.cat!=="talk"&&(m=>!!m&&m.s.toLowerCase()===c.w.toLowerCase())(pxFindForm(c)):f==="type"?c=>c.cat!=="talk"&&!!pxFindForm(c):()=>true;
+    let c=pool.find(x=>!used.has(x.w)&&need(x)),form=f;
+    if(!c){c=pool.find(x=>!used.has(x.w));form=f==="cloze"||f==="type"?"vi2en":f}
+    if(!c)return;used.add(c.w);qs.push(pxQVocab(c,form,lv))});
+  px.seen.vocab=(px.seen.vocab||[]).concat([...used]).slice(-80);
+  return qs}
+/* ----- nghe chép (không cần AI): lấy câu ví dụ của kho từ ----- */
+function pxGenListen(lv){
+  const wc=c=>c.ex.trim().split(/\s+/).length;
+  const fit=c=>lv===1?wc(c)<=6:lv===2?wc(c)>=6&&wc(c)<=9:wc(c)>=8&&wc(c)<=16;
+  const pool=pxRank(lv,"listen",c=>c.cat!=="talk"&&fit(c)).slice(0,PX_N);
+  px.seen.listen=(px.seen.listen||[]).concat(pool.map(c=>c.w)).slice(-80);
+  return pool.map(c=>({f:"dict",lab:"Nghe và chép lại",q:"",say:c.ex,ans:c.ex,hint:lv===1?`${wc(c)} từ`:"",why:`${c.w} = ${plain(c.vi)}`}))}
+function pxDict(v,target){
+  const nz=x=>capNorm(x).replace(/'/g,"").split(" ").filter(Boolean),A=nz(v),T=nz(target),m=A.length,n=T.length;
+  const eq=(x,y)=>x===y||(x.length>3&&y.length>3&&levF(x,y)<=1);
+  const L=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)L[i][j]=eq(T[i],A[j])?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  const ok=L[0][0]===n&&m===n,[da,db]=diffHTML(v,target);
+  return {ok,da,db,typo:ok&&A.join(" ")!==T.join(" ")}}
+
+/* ----- đề do AI soạn ----- */
+function pxScope(lv){
+  const cw=Math.min(curWeek(),WEEKS.length),to=Math.min(WEEKS.length,cw+lv-1),rows=[];
+  for(let i=1;i<=to;i++)rows.push(`- Week ${i}${i>cw?" (NOT studied yet: a small stretch, keep those sentences simple)":""}: ${WEEKS[i-1][0]}`);
+  return rows.slice(-6).join("\n")}
+const pxRecent=k=>JSON.stringify((px.seen[k]||[]).slice(-20));
+const pxOpts=x=>Array.isArray(x.options)?[...new Set(x.options.map(o=>String(o).trim()).filter(Boolean))]:[];
+const pxMcqOK=(x,min)=>{if(!x||!x.q||x.answer==null)return false;const o=pxOpts(x);return o.length>=min&&o.includes(String(x.answer).trim())};
+async function pxGenAI(k,lv){
+  const base=`${learnerCtx()}
+
+OVERRIDE for this task: ignore the "Current week / Grammar focus" line and the line "Do not use grammar beyond present simple of to be" above. Use ONLY the scope below.
+`;
+  const ask=p=>askJSON(base+p,{timeout:50000});
+  if(k==="grammar"){
+    const no=lv===1?3:4,sz=lv===1?"short sentences (max 7 words), very common words":lv===2?"sentences of 6-10 words in a work context":"sentences of 8-14 words in a work context; distractors must be close and tempting";
+    const v=await ask(`PRACTICE SET (grammar). Create ${PX_N} multiple-choice grammar questions for this learner.
+Grammar scope (spread the questions over these points, weight toward the learner's frequent mistakes):
+${pxScope(lv)}
+Level: ${sz}. Each question has exactly ${no} options.
+Two kinds, about half each:
+- "mcq": "q" is an English sentence with one blank "___"; "options" are ${no} words or short phrases; "answer" is the one that fits.
+- "pick": "q" is exactly "Which sentence is correct?"; "options" are ${no} full English sentences, exactly one grammatically correct, the others show typical Vietnamese-speaker mistakes (missing be, wrong agreement, wrong word order, missing article).
+Topics: UI/UX work (screens, buttons, team, deadlines, feedback) and office small talk. Do not reuse: ${pxRecent("grammar")}
+Every item: "type","q","options","answer" (must equal one option exactly),"explain_vi" (ONE short Vietnamese sentence),"tag" (one of ${tagList()}).
+JSON shape: {"items":[{"type":"mcq","q":"She ___ our PM.","options":["am","is","are"],"answer":"is","explain_vi":"...","tag":"to-be-agreement"}]}`);
+    const qs=(v.items||[]).filter(x=>pxMcqOK(x,2)&&(x.type==="pick"||/___/.test(x.q))).slice(0,PX_N).map(x=>{const pick=x.type==="pick";
+      return {f:"mcq",lab:pick?"Chọn câu đúng":"Chọn đáp án đúng",q:pick?"Câu nào đúng?":String(x.q),blank:!pick,opts:pxShuffle(pxOpts(x)),ans:String(x.answer).trim(),why:x.explain_vi||"",tag:x.tag||"other"}});
+    if(qs.length<6)throw{code:"bad"};
+    px.seen.grammar=(px.seen.grammar||[]).concat(qs.map(q=>q.q)).slice(-40);return {qs}}
+  if(k==="translate"){
+    const sz=lv===1?"short sentences (3-7 words)":lv===2?"sentences of 6-10 words, including some negatives and questions":"sentences of 9-15 words, joining two ideas (because, so, but, and) with a time or place";
+    const v=await ask(`PRACTICE SET (translation). Create ${PX_N} Vietnamese sentences for the learner to translate into English.
+Grammar scope (use these, weight toward the learner's frequent mistakes):
+${pxScope(lv)}
+Level: ${sz}. Order from easier to harder. Topics: UI/UX work (screens, buttons, team, deadlines, users, feedback) and office small talk. Do not reuse: ${pxRecent("translate")}
+Every item: "vi" (the Vietnamese sentence, natural, with full diacritics),"answer" (natural simple English),"accept" (array of other acceptable English answers: lowercase, no final punctuation, including contractions and word-order variants),"explain_vi" (ONE short Vietnamese sentence about the key point),"tag" (one of ${tagList()}).
+JSON shape: {"items":[{"vi":"...","answer":"...","accept":["..."],"explain_vi":"...","tag":"..."}]}`);
+    const qs=(v.items||[]).filter(x=>x&&x.vi&&x.answer).slice(0,PX_N).map(x=>({f:"type",ai:1,lab:"Dịch sang tiếng Anh",q:String(x.vi),ans:String(x.answer).trim(),accept:Array.isArray(x.accept)?x.accept.map(String):[],why:x.explain_vi||"",tag:x.tag||"other"}));
+    if(qs.length<6)throw{code:"bad"};
+    px.seen.translate=(px.seen.translate||[]).concat(qs.map(q=>q.q)).slice(-40);return {qs}}
+  if(k==="talk"){
+    const no=lv===3?4:3,sz=lv===1?"greetings, small talk, very common work requests":lv===2?"meetings, progress updates, asking for help or feedback":"declining politely, giving feedback, disagreeing, interview questions: the wrong options are grammatical but have the wrong tone or miss the point";
+    const v=await ask(`PRACTICE SET (workplace conversation). Create ${PX_N} mini-situations at a tech company. The learner must choose the best reply.
+Level: ${sz}. Replies use simple English. Exactly ${no} options per item: one natural, polite and correct; the others contain a grammar mistake, sound rude, or do not answer the question. Do not reuse: ${pxRecent("talk")}
+Every item: "ctx" (one short Vietnamese sentence describing who is talking and the situation),"line" (what the other person says, in English, 1 sentence),"options","answer" (must equal one option exactly),"explain_vi" (ONE short Vietnamese sentence).
+JSON shape: {"items":[{"ctx":"...","line":"...","options":["...","...","..."],"answer":"...","explain_vi":"..."}]}`);
+    const qs=(v.items||[]).filter(x=>x&&x.line&&pxMcqOK({q:x.line,options:x.options,answer:x.answer},2)).slice(0,PX_N).map(x=>({f:"mcq",lab:"Chọn câu trả lời phù hợp",ctx:String(x.ctx||""),q:String(x.line),say:String(x.line),opts:pxShuffle(pxOpts(x)),ans:String(x.answer).trim(),why:x.explain_vi||""}));
+    if(qs.length<6)throw{code:"bad"};
+    px.seen.talk=(px.seen.talk||[]).concat(qs.map(q=>q.q)).slice(-40);return {qs}}
+  if(k==="read"){
+    const nq=lv===1?3:lv===2?4:5,sz=lv===1?"3-4 short sentences, very simple words":lv===2?"5-6 sentences":"7-9 sentences; at least one question needs a small inference (not a word-for-word match)";
+    const v=await ask(`PRACTICE SET (reading comprehension). Write ONE short text for this learner and ${nq} multiple-choice questions about it. Pick one text type at random: a Slack message from a PM, a short work email, a standup update, a meeting note, a job post, a small-talk chat between colleagues. Topic: a tech company or UI/UX work. Do not reuse topics: ${pxRecent("read")}
+Level: ${sz}. Each question has 3 options, exactly one correct; questions are in English; wrong options are clearly wrong when the text is read.
+JSON shape: {"title":"short English title","text":"the text (use \\n between lines if needed)","tr":"Vietnamese translation of the text with full diacritics","items":[{"q":"...","options":["...","...","..."],"answer":"...","explain_vi":"ONE short Vietnamese sentence"}]}`);
+    const qs=(v.items||[]).filter(x=>pxMcqOK(x,2)).slice(0,nq).map(x=>({f:"mcq",lab:"Trả lời theo đoạn văn",q:String(x.q),opts:pxShuffle(pxOpts(x)),ans:String(x.answer).trim(),why:x.explain_vi||""}));
+    if(qs.length<3||!v.text||String(v.text).length<30)throw{code:"bad"};
+    px.seen.read=(px.seen.read||[]).concat([String(v.title||v.text).slice(0,60)]).slice(-10);
+    return {qs,psg:{title:String(v.title||""),text:String(v.text),tr:String(v.tr||"")}}}
+  throw{code:"bad"}}
+async function pxBuild(k,lv){
+  let qs,psg=null;
+  if(k==="vocab")qs=pxGenVocab(lv);else if(k==="listen")qs=pxGenListen(lv);else{const r=await pxGenAI(k,lv);qs=r.qs;psg=r.psg||null}
+  if(!qs.length)throw{code:"bad"};
+  const s={id:Date.now(),k,lv,qs,i:0,ans:[],done:false,d:today(),grading:false,gerr:null};if(psg)s.psg=psg;return s}
+async function pxStart(){
+  if(px.busy||!px.type)return;const k=px.type,lv=pxLv(k);
+  px.busy=true;px.err="";if(curView==="practice")renderPractice();
+  try{
+    const s=await pxBuild(k,lv);px.set=s;px.busy=false;
+    if(curView==="practice"&&px.type===k){if(px.view==="setup")location.hash="#practice/"+k+"/run";else renderPractice()}
+  }catch(e){px.busy=false;px.err=e&&e.code==="bad"?"AI trả đề chưa đúng định dạng. Bấm Bắt đầu lại nhé.":aiErrMsg(e);if(curView==="practice")renderPractice()}}
+
+/* ----- làm bài ----- */
+function pxAns(v,skip){
+  const s=px.set;if(!s)return;const i=s.i,q=s.qs[i];if(s.ans[i])return;
+  let a;
+  if(skip)a={v:"",ok:false,skip:true};
+  else if(q.f==="mcq")a={v,ok:v===q.ans};
+  else if(q.f==="dict"){const r=pxDict(v,q.ans);a={v,ok:r.ok,df:[r.da,r.db],typo:r.typo}}
+  else{const ok=[q.ans,...(q.accept||[])].map(norm).includes(norm(v));a={v,ok:ok?true:(q.ai?null:false)}}
+  s.ans[i]=a;xp(a.ok?2:1);
+  if(a.ok===false&&!a.skip)pxErr(q,a);
+  save();renderPractice()}
+function pxErr(q,a){if(!q.tag)return;const sub=x=>q.blank?q.q.replace("___",x):x;addErr(q.tag,sub(a.v),sub(q.ans),q.f==="type"?q.q:"")}
+function pxNext(){
+  const s=px.set;if(!s)return;
+  if(s.i+1<s.qs.length){s.i++;renderPractice();window.scrollTo(0,0);return}
+  s.done=true;window.scrollTo(0,0);
+  if(s.ans.some(a=>a&&a.ok===null)&&pxKey()&&navigator.onLine)pxGradePend();else{pxRecord();renderPractice()}}
+function pxRecord(){
+  const s=px.set;if(!s)return;const o=pxS(),n=s.qs.length,ok=s.ans.filter(a=>a&&a.ok===true).length,e={id:s.id,d:s.d,k:s.k,lv:s.lv,n,ok},j=o.hist.findIndex(x=>x.id===s.id);
+  if(j>=0)o.hist[j]=e;else{o.hist.unshift(e);xp(3);log("practice",`Luyện đề ${PX_T[s.k].t} (${PXLV[s.lv]}): ${ok}/${n}`)}
+  o.hist=o.hist.slice(0,40);save()}
+/* các câu tự viết mà đáp án khác đáp án mẫu: chấm một lượt bằng AI khi nộp bài */
+async function pxGradePend(){
+  const s=px.set;if(!s||s.grading)return;
+  const idx=s.ans.map((a,i)=>a&&a.ok===null?i:-1).filter(i=>i>=0);
+  if(!idx.length){pxRecord();renderPractice();return}
+  s.grading=true;s.gerr=null;if(curView==="practice")renderPractice();
+  try{
+    const v=await askJSON(`${learnerCtx()}
+
+PRACTICE SET: translation exercise. Grade ${idx.length} answers at once. An answer is correct if it is grammatical and has the same meaning as the Vietnamese sentence. Accept natural alternatives and contractions; ignore capitalization, final punctuation and small spelling mistakes in names. An empty answer is wrong.
+${idx.map(i=>`${i}. Vietnamese: "${s.qs[i].q}" | model: "${s.qs[i].ans}" | learner: "${s.ans[i].v}"`).join("\n")}
+JSON shape: {"results":[{"i":0,"ok":true,"right":"the learner's sentence corrected minimally, or the model answer","explain_vi":"one short Vietnamese sentence","tag":"one of ${tagList()}"}]}`,{fast:true,timeout:30000});
+    idx.forEach(i=>{
+      const r0=(v.results||[]).find(x=>x&&+x.i===i);if(!r0)return;
+      const a=s.ans[i],q=s.qs[i],r=capOk(r0,a.v);
+      a.ok=!!r.ok;a.right=r.right||q.ans;a.why=r.explain_vi||q.why;
+      xp(a.ok?1:0);if(!a.ok)addErr(r.tag||q.tag||"other",a.v,a.right,q.q)});
+  }catch(e){s.gerr=e}
+  s.grading=false;
+  pxRecord();if(curView==="practice")renderPractice()}
+
+/* ----- giao diện ----- */
+function renderPractice(){
+  const box=document.getElementById("px-box");if(!box)return;
+  if(px.view==="home")pxHome(box);else if(px.view==="setup")pxSetup(box);else pxRun(box)}
+function pxHome(box){
+  const o=pxS(),dn=o.hist.filter(x=>x.d===today()),cont=px.set&&!px.set.done?px.set:null;
+  box.innerHTML=`<div class="card"><p class="h-big">Luyện đề</p><p class="muted" style="margin:0">Làm thêm bài tập. Chọn loại bài, chọn độ khó, làm một đề. Xong thì tạo đề mới.</p>${dn.length?`<p class="small muted" style="margin:8px 0 0">Hôm nay: ${dn.length} đề · đúng ${dn.reduce((a,x)=>a+x.ok,0)}/${dn.reduce((a,x)=>a+x.n,0)} câu</p>`:""}</div>`
+  +(cont?`<a class="tcard" href="#practice/${cont.k}/run" style="margin-bottom:12px"><span class="tc-ic">▶️</span><div class="tc-b"><div class="tc-k">Đang làm dở</div><div class="tc-t">${esc(PX_T[cont.k].t)} · ${PXLV[cont.lv]}</div><div class="tc-p">Câu ${cont.i+1}/${cont.qs.length}</div></div><span class="tc-go">›</span></a>`:"")
+  +`<div class="tcards">`+PXT.map(t=>{const last=o.hist.find(x=>x.k===t.k);
+    return `<a class="tcard" href="#practice/${t.k}"><span class="tc-ic">${t.ic}</span><div class="tc-b"><div class="tc-t">${esc(t.t)}${t.ai?`<span class="px-ai">AI</span>`:""}</div><div class="tc-p">${esc(t.d)}</div>${last?`<div class="px-last">Gần nhất: ${last.ok}/${last.n} · ${PXLV[last.lv]}</div>`:""}</div><span class="tc-go">›</span></a>`}).join("")+`</div>`
+  +(pxKey()?"":`<div class="note">Loại có nhãn AI cần key Gemini (dán ở tab Cài đặt). Từ vựng và Nghe chép dùng được không cần key.</div>`)}
+function pxSetup(box){
+  const T=PX_T[px.type],lv=pxLv(px.type),needKey=T.ai&&!pxKey(),noVoice=T.tts&&!pxTtsOK();
+  box.innerHTML=`<div class="card"><div class="row" style="flex-wrap:nowrap;gap:12px"><span style="font-size:34px;line-height:1">${T.ic}</span><div><p class="h-big" style="margin:0;font-size:22px">${esc(T.t)}</p><p class="muted small" style="margin:0">${esc(T.d)}</p></div></div>
+    <h3>Độ khó</h3><div class="px-lv" id="px-lv">${[1,2,3].map(n=>`<button type="button" data-lv="${n}" class="${n===lv?"on":""}">${PXLV[n]}</button>`).join("")}</div>
+    <div class="px-lvd" id="px-lvd">${esc(PXD[T.k][lv])}</div>
+    ${needKey?`<div class="err-inline">${aiErrMsg({code:"no_key"})}</div>`:noVoice?`<div class="err-inline">Máy chưa có giọng đọc tiếng Anh nên chưa nghe chép được. Thử trên Chrome Android.</div>`:""}
+    ${px.err?`<div class="err-inline">${px.err}</div>`:""}
+    ${px.busy?`<div style="margin-top:10px">${loadingHTML(T.ai?"AI đang soạn đề, khoảng 15-20 giây...":"Đang soạn đề...")}</div>`:""}</div>
+    <div class="abar"><button class="btn pri" id="px-go" ${needKey||noVoice||px.busy?"disabled":""}>Bắt đầu</button></div>`;
+  box.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>{pxS().lv[px.type]=+b.dataset.lv;px.err="";save();renderPractice()});
+  document.getElementById("px-go").onclick=pxStart}
+function pxQHTML(s,q,a){
+  let h=`<div class="px-lab">${esc(q.lab)}</div>`;
+  if(q.ctx)h+=`<div class="px-ctx">${q.ctxL?`<b>${esc(q.ctxL)}</b> `:""}<span class="raw">${esc(q.ctx)}</span></div>`;
+  if(q.f==="dict")h+=`<div class="chips shtools" style="margin:14px 0 6px">${audioBtn(q.say)}${slowChip(q.say)}</div>${q.hint?`<div class="small muted" style="margin-bottom:8px">${esc(q.hint)}</div>`:""}`;
+  else h+=`<div class="px-line"><div class="px-q raw">${esc(q.q)}</div>${q.say?speakBtn(q.say):""}</div>`;
+  if(q.f==="type"&&q.hint)h+=`<div class="px-hint">${esc(q.hint)}</div>`;
+  if(q.f==="mcq")h+=`<div class="px-opts">${q.opts.map((o,j)=>{let c="opt";if(a){if(o===q.ans)c+=" right";else if(o===a.v)c+=" wrong"}return `<button type="button" class="${c}" data-oi="${j}" ${a?"disabled":""}>${esc(o)}</button>`}).join("")}</div>`;
+  if(!a&&q.f!=="mcq")h+=`<div style="margin-top:6px"><button type="button" class="lnk small" id="px-skip" style="color:var(--muted)">Không biết, xem đáp án</button></div>`;
+  if(a)h+=`<div class="result rsw" style="margin-top:12px">${pxFbHTML(q,a)}</div>`;
+  return h}
+function pxFbHTML(q,a){
+  if(q.f==="mcq")return resBlk({ans:a.v,ok:a.ok,right:q.ans,hideRight:a.ok,why:q.why})+svBtn({w:a.v||q.ans,r:q.ans,why:q.why,src:"Luyện đề",q:q.q});
+  if(a.ok===null)return `<div class="rs"><div class="rs-w"><span class="rs-l">Câu của bạn</span><span class="raw">${esc(a.v)}</span></div><div class="rs-r"><span class="rs-l">Đáp án mẫu</span><div class="rs-t">${esc(q.ans)}</div></div></div><div class="px-pend">Câu của bạn khác đáp án mẫu. AI sẽ chấm khi bạn xem kết quả.</div>`;
+  if(q.f==="dict"){
+    const bd=`<span class="rs-b ${a.ok?"ok":"no"}">${a.ok?"Đúng":"Sai"}</span>`;
+    return `<div class="rs"><div class="rs-a ${a.ok?"ok":"no"}"><div class="rs-h"><span class="rs-l">Câu của bạn</span>${bd}</div><div class="rs-t raw">${a.skip?"":a.df[0]}</div></div>
+      <div class="rs-r"><span class="rs-l">Câu đúng</span><div class="rs-t raw">${a.ok&&!a.typo?esc(q.ans):a.df[1]||esc(q.ans)}</div></div>
+      ${a.ok&&a.typo?`<div class="rs-w"><span class="rs-l">Lưu ý</span>Gần đúng, chú ý chính tả những từ được tô màu.</div>`:""}
+      ${q.why?`<div class="rs-w"><span class="rs-l">Từ khóa</span>${esc(q.why)}</div>`:""}</div>`+svBtn({w:a.v||q.ans,r:q.ans,why:q.why,src:"Luyện đề",q:q.q})}
+  return resBlk({ans:a.skip?"":a.v,ok:a.ok,right:a.right||q.ans,hideRight:a.ok&&!a.right,why:a.why||q.why})+svBtn({w:a.v||q.ans,r:a.right||q.ans,why:a.why||q.why,src:"Luyện đề",q:q.q})}
+function pxRun(box){
+  const s=px.set;
+  if(px.busy){box.innerHTML=`<div class="card">${loadingHTML(PX_T[px.type]&&PX_T[px.type].ai?"AI đang soạn đề mới, khoảng 15-20 giây...":"Đang soạn đề...")}</div>`;return}
+  if(px.err&&(!s||s.done)){box.innerHTML=`<div class="card"><div class="err-inline">${px.err}</div></div><div class="abar"><button class="btn" id="px-change">Đổi độ khó</button><button class="btn pri" id="px-new">Thử lại</button></div>`;pxWireEnd(box);return}
+  if(!s){box.innerHTML="";return}
+  if(s.done)return pxResult(box);
+  const n=s.qs.length,i=s.i,q=s.qs[i],a=s.ans[i];
+  const bars=`<div class="exbar"><div class="bars">${s.qs.map((_,j)=>{const x=s.ans[j];return `<i class="${x?(x.ok===true?"ok":x.ok===false?"no":"half"):""} ${j===i?"cur":""}"></i>`}).join("")}</div><span class="n">Câu ${i+1}/${n}</span></div>`;
+  const psg=s.psg?`<div class="px-psg"><b class="raw">${esc(s.psg.title)}</b><span class="raw">${esc(s.psg.text).replace(/\n/g,"<br>")}</span>${s.psg.tr?`<details><summary>Xem bản dịch tiếng Việt</summary>${esc(s.psg.tr).replace(/\n/g,"<br>")}</details>`:""}</div>`:"";
+  let bar="";
+  if(a)bar=`<div class="exnav"><span></span><button class="btn pri" id="px-next">${i+1<n?"Tiếp ›":"Xem kết quả ›"}</button></div>`;
+  else if(q.f!=="mcq")bar=`<div class="abar kbin shin"><textarea class="tin" rows="1" id="px-in" placeholder="${q.f==="dict"?"Chép lại câu":q.ai?"Viết câu tiếng Anh":"Gõ từ"}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea><button class="btn pri" id="px-chk">Kiểm tra</button></div>`;
+  box.innerHTML=bars+psg+`<div class="card">${pxQHTML(s,q,a)}</div>`+bar;
+  box.querySelectorAll("[data-oi]").forEach(b=>b.onclick=()=>pxAns(q.opts[+b.dataset.oi]));
+  const nx=document.getElementById("px-next");if(nx){nx.onclick=pxNext;nx.focus({preventScroll:true})}
+  const sk=document.getElementById("px-skip");if(sk)sk.onclick=()=>pxAns("",true);
+  const inp=document.getElementById("px-in"),chk=document.getElementById("px-chk");
+  if(chk){const go=()=>{const v=inp.value.trim();if(!v){inp.focus();return}pxAns(v)};chk.onclick=go;inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go()}})}
+  if(q.f==="dict"&&!a)setTimeout(()=>{const b=box.querySelector("[data-aud]");if(b)b.click()},250)}
+function pxItemHTML(s,i){
+  const q=s.qs[i],a=s.ans[i]||{ok:false,skip:true,v:""};
+  const qt=q.f==="dict"?`<div class="chips" style="margin:2px 0 8px">${audioBtn(q.say)}</div>`:`<div class="px-q raw">${esc(q.q)}</div>`;
+  return `<div class="px-item"><div class="px-lab">${esc(q.lab)}${q.ctx&&!q.ctxL?` · <span class="raw">${esc(q.ctx)}</span>`:""}</div>${qt}<div class="result rsw">${pxFbHTML(q,a)}</div></div>`}
+function pxResult(box){
+  const s=px.set,T=PX_T[s.k],n=s.qs.length,ok=s.ans.filter(a=>a&&a.ok===true).length,pend=s.ans.filter(a=>a&&a.ok===null).length,pct=n-pend?ok/(n-pend):0;
+  const tier=pct>=.8?["ok","Tốt"]:pct>=.6?["mid","Khá"]:["no","Cần luyện thêm"];
+  const idx=s.qs.map((_,i)=>i),bad=idx.filter(i=>!s.ans[i]||s.ans[i].ok===false),wait=idx.filter(i=>s.ans[i]&&s.ans[i].ok===null),good=idx.filter(i=>s.ans[i]&&s.ans[i].ok===true);
+  let up="";
+  if(!pend&&!s.grading){
+    if(pct>=.8&&s.lv<3)up=`<div class="note">Đúng ${ok}/${n}. Thử mức khó hơn? <button type="button" class="btn small" id="px-up" style="margin-left:6px">Thử mức ${PXLV[s.lv+1]}</button></div>`;
+    else if(pct<.4&&s.lv>1)up=`<div class="note">Hơi khó? Thử mức dễ hơn cho chắc. <button type="button" class="btn small" id="px-down" style="margin-left:6px">Thử mức ${PXLV[s.lv-1]}</button></div>`}
+  box.innerHTML=`<div class="card"><div class="px-lab">${esc(T.t)} · ${PXLV[s.lv]}</div><div class="px-score">${ok}/${n}</div>
+    ${pend||s.grading?"":`<span class="bdg ${tier[0]}">${tier[1]}</span>`}
+    ${s.grading?`<div style="margin-top:10px">${loadingHTML("AI đang chấm các câu còn lại...")}</div>`:""}
+    ${pend&&!s.grading?`<div class="px-pend">${s.gerr?aiErrMsg(s.gerr)+" ":""}Còn ${pend} câu chưa được chấm. <button type="button" class="btn small" id="px-regrade" style="margin-left:6px">Chấm bằng AI</button></div>`:""}
+    ${up}</div>`
+  +(bad.length?`<div class="card"><h2>Câu cần xem lại</h2>${bad.map(i=>pxItemHTML(s,i)).join("")}</div>`:(pend||s.grading?"":`<div class="note">Không sai câu nào. Làm tốt lắm!</div>`))
+  +(wait.length?`<div class="card"><h2>Chờ chấm</h2>${wait.map(i=>pxItemHTML(s,i)).join("")}</div>`:"")
+  +(good.length?`<details class="px-more card"><summary>Câu đúng (${good.length})</summary>${good.map(i=>pxItemHTML(s,i)).join("")}</details>`:"")
+  +`<div class="px-tail" style="margin-bottom:8px"><a class="btn ghost" href="#practice" style="text-decoration:none">Chọn loại khác</a></div>
+    <div class="abar"><button class="btn" id="px-change">Đổi độ khó</button><button class="btn pri" id="px-new">Đề mới</button></div>`;
+  pxWireEnd(box);
+  const rg=document.getElementById("px-regrade");if(rg)rg.onclick=pxGradePend;
+  const up1=document.getElementById("px-up");if(up1)up1.onclick=()=>{pxS().lv[s.k]=s.lv+1;save();pxStart()};
+  const dn=document.getElementById("px-down");if(dn)dn.onclick=()=>{pxS().lv[s.k]=s.lv-1;save();pxStart()}}
+function pxWireEnd(box){
+  const nw=document.getElementById("px-new"),ch=document.getElementById("px-change");
+  if(nw)nw.onclick=()=>{px.err="";pxStart()};
+  if(ch)ch.onclick=()=>{location.hash="#practice/"+px.type}}
+try{speechSynthesis.addEventListener("voiceschanged",()=>{if(curView==="practice"&&px.view==="setup")renderPractice()})}catch(e){}
 
 /* ---------- free sentence grading (shared) ---------- */
 async function grade({sentences,task,target,store}){

@@ -41,7 +41,7 @@ Lịch sử chi tiết, ghi chú kiến trúc, cạm bẫy: xem [HANDOFF.md](HAN
 | Đồng bộ (~1327-1371) | Gist riêng tư: `gapi`, `gistRef`, `pullSync()` (bên có `upd` mới hơn hoặc "giàu" hơn thắng), `syncOn` |
 | Prompt helper (~1375-1440) | `learnerCtx()`, `tagList()`, `VIRULE`, `askJSON`/`askJSON0` (JSON, tự thêm field `_en`), `askText`, `aiErrMsg` |
 | I18N (~1483-1598) | `LANG`, `I18N` (nhiều `Object.assign(I18N,…)`), `trTree`, `setLang` |
-| Router (~1599-1640) | `route()`; hash: `#today #dashboard #lessons #settings #vocab #s-1-{1,2,4,5,6} #review #placement #notebook` |
+| Router | `route()`; hash: `#today #dashboard #lessons #settings #vocab #s-1-{1,2,4,5,6} #review #placement #notebook #practice #practice/<loại> #practice/<loại>/run` |
 | Màn hình | `renderTodayRest`, `renderSession` (theo `BODY`), `renderLessons`, `renderDashboard`, `renderVocab`, `renderWrite`, `renderProduct`, `startReview` |
 | Từ vựng (~2830-2880) | `vIdx`/`vPool`/`vTopUp` (mở 6 từ/ngày, `VDAILY`), `dueCards`, `weekWords()` |
 | Giọng nói (~3025-3110) | `recStart` → `srRun` (Web Speech), `myRecStart` (ghi âm nghe lại, **tắt trên Android**), `pronScore` |
@@ -54,6 +54,7 @@ localStorage khác: `eng-gemini-key/model`, `eng-gist-token/id`, `eng-build`, `e
 ## Test
 `tests/smoke.mjs` (Playwright-core + Chrome hệ thống, headless, 390px, Android UA). Gemini/GitHub là **mock** qua `context.route`.
 Kiểm: tải không lỗi JS; 12 màn + sổ tay mở được; gọi Gemini mock, không còn gọi Anthropic, key Claude cũ bị dọn; dữ liệu cũ (`eng-ux-state`) còn nguyên và tự sao lưu khi `APP_BUILD` đổi; Gist sync (mock).
+Mục [7]: Luyện đề (từ vựng 3 mức + nghe chép chạy offline không gọi Gemini, loại AI bị khóa khi chưa có key, ngữ pháp qua Gemini mock → làm hết đề → câu sai vào hồ sơ lỗi, lưu `S.px`). Dữ liệu cũ chưa có `S.px` vẫn tải được.
 Cũng kiểm: `VOCAB` ≥720 từ, không trùng, 174 từ gốc (`tests/vocab-original.json`) còn đúng vị trí đầu danh sách; nút "Học lại từ đầu" (`restartAll`, sao lưu `-reset`, đặt `S.rst`, tuần 1 từ thứ 2 sau ngày mai).
 KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi tiết, điện thoại thật.
 
@@ -69,7 +70,17 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - Mở từ: `S.vo` (từ đã mở nhưng chưa học) + `S.vtp` (chủ đề đang học); `vOpenN(k)` lấy hết chủ đề rồi sang chủ đề kế (từ dễ trước). `S.vu`/`vIdx` chỉ còn dùng cho migrate cũ. Pool = từ trong `S.vo` ∪ từ có trong `S.vocab`.
 - Thêm từ mới: nhớ thêm tên từ vào một chủ đề trong `VTOP`, nếu không `tp=-1` (hiện nhãn nhóm cũ, không bao giờ được mở).
 
+## Luyện đề (18/11/2026, `APP_BUILD` 2026-11-18-a)
+- Tab thứ 4 ở thanh nav (`#practice`, mục "Luyện đề"): chọn loại → chọn độ khó Dễ/Vừa/Khó → làm 1 đề → "Đề mới" (cùng loại + mức), "Đổi độ khó", "Chọn loại khác". Gợi ý đổi mức khi đúng ≥80% / <40%.
+- Mã nằm trong khối "Luyện đề" (script 2, ngay trước "free sentence grading"): `PXT` (6 loại), `PXD` (mô tả theo mức), `px` (trạng thái trong bộ nhớ), `pxBuild`, `pxGen*`, `pxAns`, `renderPractice`/`pxHome`/`pxSetup`/`pxRun`/`pxResult`. Thêm loại mới = thêm vào `PXT` + `PXD` + 1 nhánh trong `pxBuild`/`pxGenAI` (mỗi câu là `{f:"mcq"|"type"|"dict",lab,q,opts,ans,accept,why,tag,say,ctx,hint}`).
+- Loại offline (không cần key): **Từ vựng** (soạn từ `VOCAB`, ưu tiên từ đã học/yếu; mức quyết định dạng câu: Dễ chọn nghĩa 3 lựa chọn → Vừa thêm chọn từ + điền chỗ trống → Khó tự gõ từ) và **Nghe chép** (câu ví dụ của `VOCAB`, mức = độ dài câu; cần giọng đọc `pxTtsOK()`). Loại AI: **Ngữ pháp** (phạm vi theo `WEEKS`: Dễ = tới tuần hiện tại, Vừa +1 tuần, Khó +2 tuần), **Dịch câu**, **Đọc hiểu**, **Tình huống**. Lời nhắc AI dùng `learnerCtx()` + dòng OVERRIDE (vì `learnerCtx()` ghi cứng "chỉ to be") + `tagList()`.
+- Chấm: câu chọn chấm ngay; câu gõ so đáp án/`accept`; câu Dịch khác đáp án mẫu thì để "chờ" và chấm 1 lượt bằng AI khi xem kết quả (`pxGradePend`, chấm lại được nếu mất mạng). Ngữ pháp/Dịch sai → `addErr` (vào hồ sơ lỗi + hàng ôn). Từ vựng/Đọc hiểu/Tình huống sai KHÔNG đụng `S.vocab` hay `S.errors`.
+- Dữ liệu: chỉ thêm `S.px={lv:{<loại>:1-3},hist:[{id,d,k,lv,n,ok}] (tối đa 40)}` (có trong `DEF` và `migrate()`). Đề đang làm KHÔNG lưu vào `S` (nằm ở `px.set`, mất khi tải lại trang). Mỗi đề +3 xp (`S.act`), mỗi câu +1/2 xp.
+- Mọi chuỗi mới đã có trong `I18N` (khối `Object.assign` cuối danh sách). Chuỗi động có tên mức (Dễ/Vừa/Khó) tách thành phần để `trCore` dịch được.
+
 ## Việc còn treo
+- [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
+- [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).
 - [x] 15/11/2026: từ mức Dễ (lv 1, 167 từ) bị ẩn khỏi pool (`vEasy`, `vPool`, `vLeft`, `vAdv`); đã thêm 168 từ Vừa/Khó vào cuối `VMORE` (tổng 895, dùng được 728; `APP_BUILD` 2026-11-15-b). Từ mới chưa có IPA, nên soát nghĩa/ví dụ.
 - [x] Kho từ vựng đã thêm sẵn lên **727** từ (15/11/2026, 553 từ mới, chưa có IPA). Người dùng sẽ tự chỉnh độ dễ/khó sau; từ mới luôn thêm vào CUỐI `VMORE`. Nên soát lại nghĩa/ví dụ do AI soạn.
 - [ ] Người dùng cần bấm **Cài đặt → "Học lại từ đầu"** (2 lần) trên điện thoại để đặt lại tiến độ, tuần 1 bắt đầu thứ 2 16/11/2026. Bản cũ nằm ở "Bản sao lưu tự động" (tối đa 8 bản).
