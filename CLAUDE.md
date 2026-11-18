@@ -8,6 +8,7 @@ Lịch sử chi tiết, ghi chú kiến trúc, cạm bẫy: xem [HANDOFF.md](HAN
 - Repo `github.com/tiennt1009/english-uiux` (public), nhánh `main`. Pages: `tiennt1009.github.io/english-uiux`.
 - Deploy = `git push origin HEAD:main`; Pages cập nhật sau ~1 phút. Không có bước build.
 - Trước khi push: `cd tests && npm install && npm test` (cần Chrome). Chỉ push khi PASS, không lỗi JS.
+- Từ 18/11/2026 người dùng đã cho phép **tự đẩy lên `main`** sau mỗi thay đổi (khi test PASS), không cần hỏi lại. Vẫn nói rõ trong câu trả lời là đã đẩy.
 
 ## Quy tắc bắt buộc — BẢO VỆ DỮ LIỆU HỌC (ưu tiên cao nhất)
 - Tiến độ nằm ở localStorage `eng-ux-state` (+ Gist nếu bật đồng bộ). **Không đổi tên key này.**
