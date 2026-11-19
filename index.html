@@ -5059,19 +5059,19 @@ function wrFb(cfg,k,r,items){
     if(r.better&&capNorm(r.better)!==capNorm(r.txt))h+=row("Tự nhiên hơn",`<b>${esc(r.better)}</b> ${speakBtn(r.better)}`);
   }else if(r.ok){
     h+=`<div class="fbh">! <span>Ngữ pháp ổn nhưng chưa hợp ý</span></div>${row("Bạn viết",esc(r.txt))}`;
-    if(r.fit_vi)h+=`<div class="why">${esc(r.fit_vi)}</div>`+svBtn({w:r.txt,r:r.better,why:r.fit_vi,src:"Viết"});
+    if(r.fit_vi)h+=`<div class="why">${esc(r.fit_vi)}</div>`+svBtn({w:r.txt,r:r.better,why:r.fit_vi,src:"Viết",noq:true});
     if(r.better)h+=row("Nên trả lời",`<b>${esc(r.better)}</b> ${speakBtn(r.better)}`);
   }else{
     const fx=r.corrected||r.better,[da,db]=fx?diffHTML(r.txt,fx):[esc(r.txt),""];
     h+=`<div class="fbh"><span class="bdg no">Chưa đúng</span></div>${row("Bạn viết",da)}${fx?row("Nên viết",`${db} ${speakBtn(fx)}`):""}`;
     const cg=r.changes||[];
-    if(cg.length)h+=cg.map(c=>`<div class="why"><b>${esc(c.from||"+")} → ${esc(c.to||"(bỏ)")}</b><div style="margin-top:2px">${esc(c.why_vi)}</div></div>`).join("")+svBtn({w:r.txt,r:fx,why:cg.map(c=>`${c.from||"+"} → ${c.to||"(bỏ)"}: ${c.why_vi}`).join(" · "),src:"Viết"});
+    if(cg.length)h+=cg.map(c=>`<div class="why"><b>${esc(c.from||"+")} → ${esc(c.to||"(bỏ)")}</b><div style="margin-top:2px">${esc(c.why_vi)}</div></div>`).join("")+svBtn({w:r.txt,r:fx,why:cg.map(c=>`${c.from||"+"} → ${c.to||"(bỏ)"}: ${c.why_vi}`).join(" · "),src:"Viết",noq:true});
     else if(r.explain_vi)h+=`<div class="why">${esc(r.explain_vi)}</div>`+svBtn({w:r.txt,r:fx,why:r.explain_vi,src:"Viết",noq:true});
   }
   h+=`${flagBtn({P:cfg.title[0]==="1"?1:cfg.title[0]==="2"?2:3,txt:r.txt,ok:!!cfg.ok(r),corrected:r.corrected||"",why:(r.changes||[]).map(c=>`${c.from||"+"} -> ${c.to||"(bo)"}: ${c.why_vi}`).join(" | ")||r.explain_vi||""})}${cfg.ok(r)?"":`<button class="icon-btn sm savebtn whybtn" data-why title="Giải thích kỹ hơn" aria-label="Giải thích kỹ hơn">?</button>`}</div><div id="wr-deep">${!cfg.ok(r)&&r.deep?wrDeepHTML(r):""}</div>`;
   const prev=`<button class="lnk small" id="wr-prev" ${k?"":"style='visibility:hidden'"}>‹ Câu trước</button>`;
   if(!ok){
-    h+=`<div class="exnav">${prev}<button class="btn pri" id="wr-retry">Làm lại</button><button class="lnk small" id="wr-next">${last?"Bỏ qua, xem kết quả ›":"Bỏ qua ›"}</button></div>`;
+    h+=`<div style="text-align:center;margin-top:10px"><button class="lnk small" id="wr-next">${last?"Bỏ qua, xem kết quả ›":"Bỏ qua ›"}</button></div><div class="exnav">${prev}<button class="btn pri" id="wr-retry">Làm lại</button></div>`;
   }else{
     const P3=cfg.title[0]==="3",nw=P3&&items>wrGet().cs.length&&k===wrGet().cs.length-1;
     h+=`<div class="exnav">${prev}<button class="btn pri" id="wr-next">${nw?"Viết câu tiếp ›":last?"Xem kết quả ›":"Câu tiếp ›"}</button></div>`;
