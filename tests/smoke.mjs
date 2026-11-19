@@ -367,6 +367,27 @@ try {
     if (errors.length) fail('Lỗi JS ở bài Viết: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 9) Mục tiêu 30 phút/ngày: đo thời gian học thật, hiện ở Hôm nay, gợi ý Luyện đề; dữ liệu cũ chưa có S.tm vẫn tải được
+  console.log('\n[9] Mục tiêu 30 phút');
+  {
+    const old = { v: 3, vset: 2, start: '2026-11-09', weekStarts: { 1: '2026-11-09' }, act: {}, bm: [], notes: [], rv: [], sessions: {}, errors: {}, vocab: {}, history: [], rp: { scen: 'first', msgs: [] }, upd: Date.now() };
+    const { context, page, errors } = await newPage({ 'eng-ux-state': JSON.stringify(old), 'eng-build': APP_BUILD, 'eng-gemini-key': 'AIzaMOCK' });
+    await page.clock.install({ time: new Date('2026-11-18T10:00:00') }); // Thứ 4: không có buổi bắt buộc
+    await page.goto(BASE + '#today', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    await page.mouse.click(10, 300);
+    await page.clock.runFor(30000);
+    const r = await page.evaluate(() => ({ tm: Math.round(S.tm[today()] || 0), goal: !!document.querySelector('#t-cards .daygoal'), sg: document.querySelectorAll('#t-cards a[href^="#practice/"]').length }));
+    if (r.tm >= 20 && r.tm <= 40) ok('Đo thời gian học thật: ' + r.tm + ' giây sau 30 giây có thao tác'); else fail('Đo thời gian sai: ' + r.tm);
+    if (r.goal) ok('Màn Hôm nay có thẻ mục tiêu 30 phút'); else fail('Thiếu thẻ mục tiêu ở Hôm nay');
+    if (r.sg >= 2) ok('Ngày nghỉ gợi ý ' + r.sg + ' loại Luyện đề để lấp thời gian'); else fail('Không gợi ý Luyện đề (' + r.sg + ')');
+    await page.clock.runFor(70000); // không thao tác quá 60 giây: không tính thêm
+    const t2 = await page.evaluate(() => Math.round(S.tm[today()]));
+    if (t2 - r.tm <= 35) ok('Nghỉ quá 60 giây thì ngừng tính giờ'); else fail('Vẫn tính giờ khi không thao tác: ' + (t2 - r.tm));
+    if (errors.length) fail('Mục tiêu 30 phút gây lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {

@@ -714,6 +714,7 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
 .px-item .px-q{font-size:17px;margin:2px 0 8px}
 .px-more{margin-top:10px}.px-more summary{cursor:pointer;font-size:14px;color:var(--muted);padding:6px 0}
 .px-tail{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.daygoal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}.daygoal.done{background:var(--ok-bg);border-color:#C0DD97}
 /* Luyện đề: chọn độ khó dạng thẻ */
 .px-hero{display:flex;gap:14px;align-items:center;border-radius:20px;padding:18px;margin-bottom:16px;background:#1F1D1A;color:#fff;position:relative;overflow:hidden}
 .px-hic{font-size:30px;line-height:1;width:58px;height:58px;flex:none;border-radius:16px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
@@ -2229,12 +2230,12 @@ const SCEN=[
 ];
 
 /* ---------- state ---------- */
-const DEF={v:2,thDay:"",start:null,act:{},w:null,bm:[],notes:[],rv:[],placement:null,sessions:{},errors:{},vocab:{},history:[],ex:null,own:null,rp:{scen:"first",msgs:[]},write:null,product:null,px:{lv:{},hist:[]}};
+const DEF={v:2,thDay:"",start:null,act:{},w:null,bm:[],notes:[],rv:[],placement:null,sessions:{},errors:{},vocab:{},history:[],ex:null,own:null,rp:{scen:"first",msgs:[]},write:null,product:null,px:{lv:{},hist:[]},tm:{}};
 let S=JSON.parse(JSON.stringify(DEF));
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 try{const l=ls("eng-ux-state");if(l)S=Object.assign(JSON.parse(JSON.stringify(DEF)),JSON.parse(l))}catch(e){}
 /* ---- sao lưu tự động trong trình duyệt: lỡ cập nhật app, đồng bộ hay nhập dữ liệu làm mất tiến độ thì khôi phục được ---- */
-const BK="eng-bak-",APP_BUILD="2026-11-18-a";
+const BK="eng-bak-",APP_BUILD="2026-11-19-a";
 function prog(o){o=o||{};return Object.keys(o.sessions||{}).length*5+Object.keys(o.vocab||{}).length+(o.history||[]).length+(o.bm||[]).length+(o.notes||[]).length+Object.keys(o.errors||{}).length}
 function bakList(){try{return Object.keys(localStorage).filter(k=>k.startsWith(BK)).sort()}catch(e){return[]}}
 function bakSave(tag,o){o=o||S;if(prog(o)<5)return;
@@ -2249,7 +2250,9 @@ function migrate(){if(!S.v||S.v<2){S.sessions={};S.v=2;delete S.miles;delete S.s
   /* từ vựng theo chủ đề: S.vo = từ đã mở nhưng chưa học (từ đã học nằm ở S.vocab), S.vtp = chủ đề đang học */
   if(!Array.isArray(S.vo)){S.vo=[];S.vtp=-1;S.vday=""}
   /* Luyện đề: độ khó đã chọn theo loại + lịch sử gọn (chỉ thêm trường mới) */
-  if(!S.px||typeof S.px!=="object")S.px={lv:{},hist:[]};if(!S.px.lv||typeof S.px.lv!=="object")S.px.lv={};if(!Array.isArray(S.px.hist))S.px.hist=[]}
+  if(!S.px||typeof S.px!=="object")S.px={lv:{},hist:[]};if(!S.px.lv||typeof S.px.lv!=="object")S.px.lv={};if(!Array.isArray(S.px.hist))S.px.hist=[];
+  /* S.tm = giây học thật theo ngày {"2026-11-19":1234}, chỉ giữ 60 ngày gần nhất */
+  if(!S.tm||typeof S.tm!=="object"||Array.isArray(S.tm))S.tm={};const tk=Object.keys(S.tm).sort();while(tk.length>60)delete S.tm[tk.shift()]}
 migrate();
 let dbRef=null,saveT=null,saving=false,dirty=false,syncBad="",lastSync=0;
 /* lưu: luôn ghi vào máy trước, rồi đồng bộ lên tài khoản; offline thì giữ cờ "chưa đồng bộ" và gửi lại khi có mạng */
@@ -2507,6 +2510,7 @@ Object.assign(I18N,{"Hôm nay học gì":"What to study today","Bấm vào từn
 Object.assign(I18N,{"Xem dạng thẻ":"Card view","Xem dạng dòng":"List view","Gần đúng":"Close","xem lại chính tả":"check the spelling","Xong":"Done","Cần sửa":"Needs a fix","Câu đúng":"Correct sentence","phần #":"part #","phần dịch":"translation part","khởi động":"warm-up","phần nghe chép và nhại":"dictation and shadowing part","buổi Viết.":"writing session."});
 Object.assign(I18N,{"Học lại từ đầu":"Start over","Bấm lần nữa để xóa hết tiến độ":"Tap again to erase all progress","Đã xóa tiến độ. Bản cũ nằm ở mục Bản sao lưu tự động. Bắt đầu học từ ngày mai.":"Progress erased. The old copy is in Automatic backups. Start learning tomorrow.","Đã xóa trên máy này nhưng chưa đồng bộ được. Giữ mạng, mở lại app sau ít phút.":"Erased on this device but not synced yet. Stay online and reopen the app in a few minutes."});
 Object.assign(I18N,{"Đang làm #/# việc":"In progress #/# tasks"});
+Object.assign(I18N,{"Mục tiêu hôm nay":"Today's goal","Đủ rồi, làm tốt lắm!":"Done, well done!","#/# phút":"#/# min","Còn # phút. Làm bài bên dưới hoặc vào Luyện đề cho đủ.":"# min left. Do the lessons below, or open Practice sets to fill the time.","Làm thêm nếu bạn muốn, càng nhiều càng nhớ lâu.":"Do more if you like, the more you practice the longer you remember.","Luyện thêm cho đủ # phút":"Practice more to reach # minutes","Luyện đề":"Practice sets","Khoảng # phút":"About # min","Khoảng # phút · Gần nhất: #/#":"About # min · Latest: #/#","Khoảng # phút · Dễ":"About # min · Easy","Khoảng # phút · Vừa":"About # min · Medium","Khoảng # phút · Khó":"About # min · Hard"});
 Object.assign(I18N,{"Chọn độ khó":"Choose a level","Đề xuất":"Suggested","Cao nhất #/#":"Best #/#","Chưa làm":"Not done yet"});
 Object.assign(I18N,{"Luyện đề":"Practice sets","Làm thêm bài tập. Chọn loại bài, chọn độ khó, làm một đề. Xong thì tạo đề mới.":"Extra practice. Pick a type and a level, do one set. When you finish, make a new set.","Hôm nay: # đề · đúng #/# câu":"Today: # sets · # of # correct","Đang làm dở":"In progress","Dịch câu":"Translate","Nghe chép":"Dictation","Đọc hiểu":"Reading","Tình huống":"Situations","Chọn nghĩa, chọn từ, điền chỗ trống":"Pick the meaning, pick the word, fill the blank","Chọn đáp án đúng, chọn câu đúng":"Pick the right answer, pick the right sentence","Dịch từ tiếng Việt sang tiếng Anh":"Translate from Vietnamese to English","Nghe một câu rồi gõ lại":"Listen to a sentence and type it","Đọc đoạn ngắn rồi trả lời câu hỏi":"Read a short text and answer questions","Chọn câu trả lời hợp lý ở chỗ làm":"Pick a sensible reply at work","Gần nhất: #/#":"Latest: #/#","Loại có nhãn AI cần key Gemini (dán ở tab Cài đặt). Từ vựng và Nghe chép dùng được không cần key.":"Types marked AI need a Gemini key (paste it in Settings). Vocabulary and Dictation work without a key.","Độ khó":"Level","Nhìn từ tiếng Anh, chọn nghĩa. Mỗi câu # lựa chọn.":"See the English word, pick the meaning. # options each.","Chọn nghĩa, chọn từ, điền chỗ trống. Mỗi câu # lựa chọn, có gợi ý.":"Pick the meaning, pick the word, fill the blank. # options each, with hints.","Điền chỗ trống không gợi ý, rồi tự gõ từ. Có cả từ khó.":"Fill the blank without hints, then type the word yourself. Includes hard words.","Chỉ ngữ pháp đã học tới tuần hiện tại. Câu ngắn, # lựa chọn.":"Only grammar studied up to this week. Short sentences, # options.","Thêm ngữ pháp của tuần sau. Câu dài hơn, # lựa chọn.":"Adds next week's grammar. Longer sentences, # options.","Thêm ngữ pháp của # tuần sau. Câu dài, đáp án dễ nhầm.":"Adds grammar from the next # weeks. Long sentences, tricky options.","Câu ngắn, dùng ngữ pháp đã học.":"Short sentences, grammar you have studied.","Câu dài hơn, có phủ định và câu hỏi.":"Longer sentences, with negatives and questions.","Câu dài, ghép # ý, có ngữ pháp tuần sau.":"Long sentences joining # ideas, with next week's grammar.","Câu ngắn, tối đa # từ. Biết trước số từ.":"Short sentences, up to # words. You know the word count.","Câu vừa, # đến # từ. Không biết số từ.":"Medium sentences, # to # words. No word count.","Câu dài, từ # từ trở lên. Không biết số từ.":"Long sentences, # words or more. No word count.","Đoạn #-# câu, # câu hỏi dễ.":"Text of #-# sentences, # easy questions.","Đoạn #-# câu, # câu hỏi.":"Text of #-# sentences, # questions.","Đoạn #-# câu, # câu hỏi, có câu phải suy ra.":"Text of #-# sentences, # questions, some need inference.","Xã giao và việc quen thuộc. # lựa chọn.":"Small talk and familiar tasks. # options.","Họp, báo tiến độ, nhờ việc. # lựa chọn.":"Meetings, progress updates, asking for help. # options.","Từ chối, góp ý, phỏng vấn: chọn đúng sắc thái lịch sự. # lựa chọn.":"Declining, giving feedback, interviews: pick the right polite tone. # options.","Máy chưa có giọng đọc tiếng Anh nên chưa nghe chép được. Thử trên Chrome Android.":"This device has no English voice, so dictation is not available. Try Chrome on Android.","AI trả đề chưa đúng định dạng. Bấm Bắt đầu lại nhé.":"The AI returned the set in the wrong format. Tap Start to try again.","AI đang soạn đề, khoảng #-# giây...":"The AI is writing the set, about #-# seconds...","AI đang soạn đề mới, khoảng #-# giây...":"The AI is writing a new set, about #-# seconds...","Đang soạn đề...":"Preparing the set...","Chọn nghĩa đúng":"Pick the right meaning","Chọn từ tiếng Anh đúng":"Pick the right English word","Điền từ vào chỗ trống":"Fill in the blank","Gõ từ còn thiếu":"Type the missing word","Nghe và chép lại":"Listen and write it down","Chọn đáp án đúng":"Pick the right answer","Chọn câu đúng":"Pick the correct sentence","Dịch sang tiếng Anh":"Translate into English","Chọn câu trả lời phù hợp":"Pick the best reply","Trả lời theo đoạn văn":"Answer from the text","Câu nào đúng?":"Which sentence is correct?","Gợi ý nghĩa:":"Meaning hint:","Nghĩa:":"Meaning:","Không biết, xem đáp án":"I don't know, show the answer","# từ":"# words","Gõ từ":"Type the word","Đáp án mẫu":"Sample answer","Câu của bạn khác đáp án mẫu. AI sẽ chấm khi bạn xem kết quả.":"Your sentence differs from the sample. The AI will grade it when you see the results.","Lưu ý":"Note","Gần đúng, chú ý chính tả những từ được tô màu.":"Close, check the spelling of the highlighted words.","Từ khóa":"Keyword","Xem bản dịch tiếng Việt":"Show Vietnamese translation","Khá":"Fair","Cần luyện thêm":"Needs more practice","Đúng #/#. Thử mức khó hơn?":"# of # correct. Try a harder level?","Hơi khó? Thử mức dễ hơn cho chắc.":"A bit hard? Try an easier level to be sure.","Thử mức Dễ":"Try Easy","Thử mức Vừa":"Try Medium","Thử mức Khó":"Try Hard","AI đang chấm các câu còn lại...":"The AI is grading the remaining answers...","Còn # câu chưa được chấm.":"# answers are not graded yet.","Chấm bằng AI":"Grade with AI","Câu cần xem lại":"Questions to review","Không sai câu nào. Làm tốt lắm!":"No mistakes. Well done!","Chờ chấm":"Waiting to be graded","Câu đúng (#)":"Correct answers (#)","Chọn loại khác":"Choose another type","Đổi độ khó":"Change level","Đề mới":"New set"});
 Object.assign(I18N,{"Đã lưu token trên máy này (dán token mới nếu muốn đổi)":"Token saved on this device (paste a new one to change it)"});
@@ -2689,6 +2693,24 @@ function weekProgHTML(){const n=curWeek(),d=weekDoneCount(n);return `Tuần ${n}
 function dm(d){return d.getDate()+"/"+(d.getMonth()+1)}
 function W(){const n=curWeek();if(!S.w||S.w.n!==n)S.w={n,vocabRated:0,vocabCleared:false,rpTurns:0,story:false,grammarSeen:false,burstStreak:0,burstBest:0,quickBest:0};return S.w}
 function xp(n){const t=today();S.act[t]=(S.act[t]||0)+n}
+/* ---------- mục tiêu 30 phút mỗi ngày: đo thời gian học thật ----------
+   Tính giây khi trang đang mở, có chạm/gõ trong 60 giây gần nhất, và không ở Dashboard/Cài đặt. */
+const GOAL_MIN=30;
+function tmSec(){return Math.round(S.tm&&S.tm[today()]||0)}
+function tmMin(){return Math.floor(tmSec()/60)}
+function goalHTML(){
+  const m=tmMin(),p=Math.min(100,Math.round(tmSec()/(GOAL_MIN*60)*100)),dn=m>=GOAL_MIN;
+  return `<div class="daygoal ${dn?"done":""}" data-goal><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${dn?"Đủ rồi, làm tốt lắm!":"Mục tiêu hôm nay"}</b><span class="small" style="color:var(--muted);white-space:nowrap">${m}/${GOAL_MIN} phút</span></div><div class="vbar" style="margin-top:8px;max-width:none"><i style="width:${p}%"></i></div><div class="small muted" style="margin-top:6px">${dn?"Làm thêm nếu bạn muốn, càng nhiều càng nhớ lâu.":`Còn ${GOAL_MIN-m} phút. Làm bài bên dưới hoặc vào Luyện đề cho đủ.`}</div></div>`}
+function goalSync(){document.querySelectorAll("[data-goal]").forEach(e=>{if(e.offsetParent!==null){const t=document.createElement("div");t.innerHTML=goalHTML();e.replaceWith(t.firstChild)}})}
+(function(){
+  let last=Date.now(),act=Date.now(),acc=0;
+  ["pointerdown","keydown","touchstart","scroll","input"].forEach(ev=>addEventListener(ev,()=>{act=Date.now()},{passive:true,capture:true}));
+  setInterval(()=>{
+    const now=Date.now(),dt=Math.min(5,(now-last)/1000);last=now;
+    if(document.visibilityState!=="visible"||now-act>60000||curView==="dashboard"||curView==="settings")return;
+    const t=today();S.tm[t]=(S.tm[t]||0)+dt;acc+=dt;
+    if(acc>=20){acc=0;save();goalSync()}},1000);
+})();
 function pct(a,b){return Math.max(0,Math.min(100,Math.round(a/b*100)))}
 
 function tasksFor(dow){
@@ -2837,6 +2859,9 @@ function renderTodayRest(){
     const ss=SESS.find(x=>x.dow===tg),rq=tasksFor(tg).filter(x=>!x.opt),dn=rq.filter(x=>x.d).length,fin=!!S.sessions[`w1-${tg}`]||(rq.length>0&&dn===rq.length);
     cards+=`<a class="tcard ${fin?"done":""}" href="#d-${tg}"><span class="tc-ic">${["","📖","🎧","💬","✍️","🗣️","🎤"][tg]||"📖"}</span><div class="tc-b"><div class="tc-k">${tg===dow?ss.day:"Bù buổi "+ss.day}</div><div class="tc-t">${esc(ss.name)}</div><div class="tc-p">${esc(ss.desc)} · ${esc(ss.min)}</div>${fin?"":`<div class="tc-bar"><i style="width:${rq.length?Math.round(100*dn/rq.length):0}%"></i></div>`}</div>${fin?`<span class="bdg ok">Xong</span>`:`<span class="tc-go">›</span>`}</a>`;
   }
+  /* mục tiêu 30 phút: thẻ tiến độ ở đầu, và gợi ý Luyện đề để lấp phần còn thiếu (ngày nghỉ gợi ý nhiều hơn) */
+  const left=GOAL_MIN-tmMin(),sg=left>0?pxSuggest(tg!==null||study?2:3):[];
+  cards=goalHTML()+cards+(sg.length?`<div class="small muted" style="margin:4px 2px 0">Luyện thêm cho đủ ${GOAL_MIN} phút</div>`+sg.map(t=>`<a class="tcard" href="#practice/${t.k}"><span class="tc-ic">${t.ic}</span><div class="tc-b"><div class="tc-k">Luyện đề</div><div class="tc-t">${esc(t.t)}</div><div class="tc-p">Khoảng ${t.m} phút · ${PXLV[pxLv(t.k)]}</div></div><span class="tc-go">›</span></a>`).join(""):"");
   document.getElementById("t-cards").innerHTML=cards;
   if(wk>1){
     title.textContent=`Nội dung tuần ${wk} chưa có`;
@@ -3812,12 +3837,12 @@ JSON shape: {"results":[{"i":0,"ok":true,"right":"corrected learner sentence","e
    Từ vựng + Nghe chép tự soạn từ kho VOCAB, chạy offline. Ngữ pháp, Dịch câu, Đọc hiểu, Tình huống do AI soạn. */
 const PX_N=10;
 const PXT=[
- {k:"vocab",ic:"📚",t:"Từ vựng",d:"Chọn nghĩa, chọn từ, điền chỗ trống"},
- {k:"grammar",ic:"🧩",t:"Ngữ pháp",d:"Chọn đáp án đúng, chọn câu đúng",ai:1},
- {k:"translate",ic:"✍️",t:"Dịch câu",d:"Dịch từ tiếng Việt sang tiếng Anh",ai:1},
- {k:"listen",ic:"🎧",t:"Nghe chép",d:"Nghe một câu rồi gõ lại",tts:1},
- {k:"read",ic:"📖",t:"Đọc hiểu",d:"Đọc đoạn ngắn rồi trả lời câu hỏi",ai:1},
- {k:"talk",ic:"💬",t:"Tình huống",d:"Chọn câu trả lời hợp lý ở chỗ làm",ai:1}
+ {k:"vocab",ic:"📚",t:"Từ vựng",d:"Chọn nghĩa, chọn từ, điền chỗ trống",m:6},
+ {k:"grammar",ic:"🧩",t:"Ngữ pháp",d:"Chọn đáp án đúng, chọn câu đúng",ai:1,m:8},
+ {k:"translate",ic:"✍️",t:"Dịch câu",d:"Dịch từ tiếng Việt sang tiếng Anh",ai:1,m:10},
+ {k:"listen",ic:"🎧",t:"Nghe chép",d:"Nghe một câu rồi gõ lại",tts:1,m:8},
+ {k:"read",ic:"📖",t:"Đọc hiểu",d:"Đọc đoạn ngắn rồi trả lời câu hỏi",ai:1,m:7},
+ {k:"talk",ic:"💬",t:"Tình huống",d:"Chọn câu trả lời hợp lý ở chỗ làm",ai:1,m:8}
 ];
 const PX_T={};PXT.forEach(t=>PX_T[t.k]=t);
 const PXLV=["","Dễ","Vừa","Khó"];
@@ -3835,6 +3860,10 @@ function pxLv(k){const v=+pxS().lv[k];return v>=1&&v<=3?v:1}
 function pxKey(){try{return !!localStorage.getItem("eng-gemini-key")}catch(e){return false}}
 function pxTtsOK(){return voiceOK()||!!usVoice()}
 function pxShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+/* gợi ý loại đề để lấp thời gian còn thiếu: loại chưa làm hôm nay trước, rồi loại điểm thấp nhất */
+function pxSuggest(n){
+  const h=pxS().hist,td=today(),key=pxKey();
+  return PXT.filter(t=>(!t.ai||key)&&(!t.tts||pxTtsOK())).map(t=>{const l=h.find(x=>x.k===t.k);return {t,sc:(h.some(x=>x.k===t.k&&x.d===td)?10:0)+(l?l.ok/Math.max(1,l.n)*2:0)}}).sort((a,b)=>a.sc-b.sc).slice(0,n).map(x=>x.t)}
 function pxRoute(type,run){
   if(!type||!PX_T[type]){px.view="home";px.type="";px.err="";return}
   px.type=type;px.err="";px.view=run&&px.set&&px.set.k===type?"run":"setup"}
@@ -4015,10 +4044,10 @@ function renderPractice(){
   if(px.view==="home")pxHome(box);else if(px.view==="setup")pxSetup(box);else pxRun(box)}
 function pxHome(box){
   const o=pxS(),dn=o.hist.filter(x=>x.d===today()),cont=px.set&&!px.set.done?px.set:null;
-  box.innerHTML=`<div class="card"><p class="h-big">Luyện đề</p><p class="muted" style="margin:0">Làm thêm bài tập. Chọn loại bài, chọn độ khó, làm một đề. Xong thì tạo đề mới.</p>${dn.length?`<p class="small muted" style="margin:8px 0 0">Hôm nay: ${dn.length} đề · đúng ${dn.reduce((a,x)=>a+x.ok,0)}/${dn.reduce((a,x)=>a+x.n,0)} câu</p>`:""}</div>`
+  box.innerHTML=goalHTML()+`<div class="card"><p class="h-big">Luyện đề</p><p class="muted" style="margin:0">Làm thêm bài tập. Chọn loại bài, chọn độ khó, làm một đề. Xong thì tạo đề mới.</p>${dn.length?`<p class="small muted" style="margin:8px 0 0">Hôm nay: ${dn.length} đề · đúng ${dn.reduce((a,x)=>a+x.ok,0)}/${dn.reduce((a,x)=>a+x.n,0)} câu</p>`:""}</div>`
   +(cont?`<a class="tcard" href="#practice/${cont.k}/run" style="margin-bottom:12px"><span class="tc-ic">▶️</span><div class="tc-b"><div class="tc-k">Đang làm dở</div><div class="tc-t">${esc(PX_T[cont.k].t)} · ${PXLV[cont.lv]}</div><div class="tc-p">Câu ${cont.i+1}/${cont.qs.length}</div></div><span class="tc-go">›</span></a>`:"")
   +`<div class="tcards">`+PXT.map(t=>{const last=o.hist.find(x=>x.k===t.k);
-    return `<a class="tcard" href="#practice/${t.k}"><span class="tc-ic">${t.ic}</span><div class="tc-b"><div class="tc-t">${esc(t.t)}${t.ai?`<span class="px-ai">AI</span>`:""}</div><div class="tc-p">${esc(t.d)}</div>${last?`<div class="px-last">Gần nhất: ${last.ok}/${last.n} · ${PXLV[last.lv]}</div>`:""}</div><span class="tc-go">›</span></a>`}).join("")+`</div>`
+    return `<a class="tcard" href="#practice/${t.k}"><span class="tc-ic">${t.ic}</span><div class="tc-b"><div class="tc-t">${esc(t.t)}${t.ai?`<span class="px-ai">AI</span>`:""}</div><div class="tc-p">${esc(t.d)}</div><div class="px-last">Khoảng ${t.m} phút${last?` · Gần nhất: ${last.ok}/${last.n}`:""}</div></div><span class="tc-go">›</span></a>`}).join("")+`</div>`
   +(pxKey()?"":`<div class="note">Loại có nhãn AI cần key Gemini (dán ở tab Cài đặt). Từ vựng và Nghe chép dùng được không cần key.</div>`)}
 const PXLI=["","🌱","🔥","⚡"];
 /* mức nên làm: theo kết quả đề gần nhất của loại này */
@@ -4096,7 +4125,7 @@ function pxResult(box){
     ${pend||s.grading?"":`<span class="bdg ${tier[0]}">${tier[1]}</span>`}
     ${s.grading?`<div style="margin-top:10px">${loadingHTML("AI đang chấm các câu còn lại...")}</div>`:""}
     ${pend&&!s.grading?`<div class="px-pend">${s.gerr?aiErrMsg(s.gerr)+" ":""}Còn ${pend} câu chưa được chấm. <button type="button" class="btn small" id="px-regrade" style="margin-left:6px">Chấm bằng AI</button></div>`:""}
-    ${up}</div>`
+    ${up}</div>`+goalHTML()
   +(bad.length?`<div class="card"><h2>Câu cần xem lại</h2>${bad.map(i=>pxItemHTML(s,i)).join("")}</div>`:(pend||s.grading?"":`<div class="note">Không sai câu nào. Làm tốt lắm!</div>`))
   +(wait.length?`<div class="card"><h2>Chờ chấm</h2>${wait.map(i=>pxItemHTML(s,i)).join("")}</div>`:"")
   +(good.length?`<details class="px-more card"><summary>Câu đúng (${good.length})</summary>${good.map(i=>pxItemHTML(s,i)).join("")}</details>`:"")

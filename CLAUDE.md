@@ -81,6 +81,13 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - Màn chọn độ khó (`pxSetup`): khối tiêu đề nền tối + 3 thẻ màu theo mức (`.px-lvc.l1/l2/l3`: xanh lá/cam/đỏ, icon 🌱🔥⚡, cột cường độ, "🏆 Cao nhất #/#", nhãn "Đề xuất" từ `pxRec()`), nút Bắt đầu đổi màu theo mức. Vẫn giữ `#px-lv [data-lv]` cho test.
 - Mọi chuỗi mới đã có trong `I18N` (khối `Object.assign` cuối danh sách). Chuỗi động có tên mức (Dễ/Vừa/Khó) tách thành phần để `trCore` dịch được.
 
+## Mục tiêu 30 phút mỗi ngày (19/11/2026, `APP_BUILD` 2026-11-19-a)
+- Lý do: người dùng làm xong buổi học trong ~5 phút (nhãn "45/30 phút" ở `SESS` chỉ là ước tính), Thứ 4 và Chủ nhật không có buổi. Thay vì viết lại nội dung từng buổi, app **đo thời gian học thật** và lấp phần thiếu bằng Luyện đề.
+- `S.tm={"YYYY-MM-DD":giây}` (mới, có trong `DEF`/`migrate()`, giữ 60 ngày). Bộ đếm (IIFE sau `xp()`): mỗi giây cộng nếu tab đang hiện, có chạm/gõ/cuộn trong 60 giây gần nhất, và không ở Dashboard/Cài đặt; lưu mỗi 20 giây (`save()`).
+- `GOAL_MIN=30`, `goalHTML()` (class `.daygoal`, KHÔNG dùng `.goal` vì trùng CSS của Dashboard), `goalSync()` cập nhật tại chỗ. Hiện ở: đầu màn Hôm nay, đầu màn Luyện đề, màn kết quả Luyện đề.
+- Màn Hôm nay: dưới các thẻ bắt buộc có "Luyện thêm cho đủ 30 phút" = 2 thẻ Luyện đề (3 thẻ vào ngày không có buổi), chọn bởi `pxSuggest()` (loại chưa làm hôm nay trước, rồi loại điểm thấp nhất; bỏ loại AI nếu chưa có key). Mỗi loại có `m` = số phút ước tính/đề trong `PXT`.
+- Chưa làm: viết lại nội dung dài hơn cho từng buổi `SESS`; cho chọn số câu mỗi đề; hiện phút học trên Dashboard.
+
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
 - [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).
