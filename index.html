@@ -184,6 +184,11 @@ table.tb td{padding:8px 10px;border-bottom:1px solid var(--line)}
 .result .why{color:var(--ink);font-size:14px;margin-top:4px}
 .why-box{margin-top:8px;display:flex;gap:6px}
 .wchips{margin:0 0 10px}.wchips .chips{margin-top:4px}.wchips .chip{cursor:default}
+/* từ gợi ý: nhãn nhỏ không bấm được (khác tab/nút): chưa dùng = xám nhạt, đã dùng = xanh nhạt có dấu ✓ */
+.wchips .chips{gap:6px;margin-top:8px}
+.wchips .chip{border:0;border-radius:8px;padding:5px 10px;font-size:14px;background:var(--soft);color:var(--muted);pointer-events:none}
+.wchips .chip.on{background:var(--ok-bg);color:var(--ok);font-weight:600;border:0}
+.wchips .chip.on:before{content:"✓ ";font-weight:700}
 .wmsg{border-top:1px solid var(--line);padding:12px 0}.wmsg:first-child{border-top:0;padding-top:0}
 .wfrom{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;margin-bottom:6px}
 .wbub{background:var(--soft);border-radius:12px 12px 12px 4px;padding:9px 12px;font-size:15px;margin-bottom:4px}
