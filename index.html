@@ -565,6 +565,8 @@ body.cf-open #cf-ov,body.sc-open #sc-ov{opacity:1;pointer-events:auto}body.cf-op
 .abar .btn,.exnav .btn,.shnav .btn{white-space:nowrap;flex:1;min-width:0;margin:0;padding:13px 14px;font-size:16px;align-self:stretch}
 .abar .btn.pri,.exnav .btn.pri,.shnav .btn.pri{flex:2}
 .abar .lnk,.exnav .lnk,.shnav .lnk{flex:none;padding:10px 4px}
+/* link "Câu trước" bị ẩn (câu đầu) và span rỗng không được chiếm chỗ: nút chính giãn hết chiều ngang */
+.exnav .lnk[style*="visibility:hidden"],.exnav>span:empty,.shnav>span:empty{display:none}
 @media(min-width:701px){.abar,.exnav,.shnav{left:var(--side)}}
 body.has-abar{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
 body.has-abar .fab{bottom:calc(90px + env(safe-area-inset-bottom))!important}
