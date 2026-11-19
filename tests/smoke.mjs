@@ -409,6 +409,24 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 11) Thẻ cụm câu ở mức 2 không bắt "đặt câu" bằng chính câu đang hiện: chuyển sang nghe rồi gõ, không hiện chữ tiếng Anh
+  console.log('\n[11] Thẻ cụm câu mức 2');
+  {
+    const { context, page, errors } = await newPage({ 'eng-gemini-key': 'AIzaMOCK' });
+    await context.addInitScript(() => { try { speechSynthesis.getVoices = () => [{ lang: 'en-US', name: 'Google US English' }]; } catch (e) {} });
+    await page.goto(BASE, { waitUntil: 'load' });
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(() => {
+      const ph = VOCAB.find((c) => c.ph), w = VOCAB.find((c) => !c.ph && c.cat !== 'talk');
+      S.vocab[ph.w] = { box: 2, due: '2020-01-01', first: today() }; S.vocab[w.w] = { box: 2, due: '2020-01-01', first: today() };
+      return { phrase: cardMode(ph), word: cardMode(w), ph: ph.w };
+    });
+    if (r.phrase === 'listen') ok('Thẻ cụm câu mức 2 → nghe rồi gõ'); else fail('Thẻ cụm câu vẫn là: ' + r.phrase);
+    if (r.word === 'use') ok('Thẻ từ đơn mức 2 vẫn là đặt câu'); else fail('Thẻ từ đơn đổi sai: ' + r.word);
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
