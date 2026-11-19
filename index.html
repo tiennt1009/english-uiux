@@ -860,7 +860,7 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
     </div>
 
     <div id="b-write" class="sbody hidden">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px"><span></span><button class="btn ghost small" id="wr-new">↻ Đổi đề</button></div>
+      <div class="sheet-acts"><button class="btn ghost small" id="wr-new">↻ Đổi đề</button></div>
       <div class="shtop" id="wr-steps"></div>
       <div id="wr-words"></div>
       <div class="card" id="wr-card">
@@ -5048,9 +5048,8 @@ async function wrDo(){
   renderWrite();
 }
 function wrTa(cfg,k,val,btn){
-  return `<textarea id="wr-ta" rows="${cfg.rows}" placeholder="${cfg.ph}" autocomplete="off" spellcheck="false">${esc(val)}</textarea>
-    <div class="small muted" id="wr-cnt"></div><div class="err-inline" id="wr-err"></div><div id="wr-load"></div>
-    <button class="btn pri full" id="wr-go" style="margin-top:8px">${btn}</button>`;
+  return `<div class="small muted" id="wr-cnt"></div><div class="err-inline" id="wr-err"></div><div id="wr-load"></div>
+    <div class="abar kbin shin"><textarea class="tin" id="wr-ta" rows="1" placeholder="${cfg.ph}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">${esc(val)}</textarea><button class="btn pri" id="wr-go">${btn}</button></div>`;
 }
 function wrFb(cfg,k,r,items){
   const ok=cfg.ok(r),last=k>=items-1;let h=`<div class="fb ${ok?"ok":"no"}">`;
@@ -5122,7 +5121,7 @@ function renderWrite(){
     const r=cfg.rs(k),re=wrRetry&&wrRetry.P===P&&wrRetry.k===k;if(P===3)h+=wrBrief(wrMain(x),k);h+=`<div class="wmsg" style="border:0;padding:0">${cfg.prompt(k)}</div>`;
     if(!r||re){
       h+=wrTa(cfg,k,r?r.txt:cfg.tx(k),"Kiểm tra");
-      h+=`<div class="exnav"><button class="lnk small" id="wr-prev" ${k?"":"style='visibility:hidden'"}>‹ Câu trước</button>${P===3&&x.cs.length>=4?`<button class="lnk small" id="wr-fin">Kết thúc bài, xem kết quả</button>`:"<span></span>"}</div>`;
+      h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><button class="lnk small" id="wr-prev" ${k?"":"style='visibility:hidden'"}>‹ Câu trước</button>${P===3&&x.cs.length>=4?`<button class="lnk small" id="wr-fin">Kết thúc bài, xem kết quả</button>`:"<span></span>"}</div>`;
     }else h+=wrFb(cfg,k,r,items);
   }
   document.getElementById("wr-body").innerHTML=h;
@@ -5146,7 +5145,7 @@ function renderWrite(){
       if(cfg.lim){const n=cfg.lim(k);cnt.textContent=`${c}/${n} từ`;cnt.style.color=c>n?"var(--bad)":""}else cnt.textContent="";
       er0();wrWords()},er0=()=>{const e=q("#wr-err");if(e)e.textContent=""};
     ta.oninput=()=>{cfg.set(k,ta.value);save();upd()};upd();
-    ta.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();wrDo()}};
+    ta.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();wrDo()}};tinFit(ta);
   }
   wrWords();
 }
