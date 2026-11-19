@@ -56,6 +56,7 @@ body.has-info .info-btn{display:flex}
 @media(max-width:899px){
  :root{--top:54px;--bnav:62px}
  body{padding-left:0;padding-bottom:calc(var(--bnav) + env(safe-area-inset-bottom) + 8px)}
+ .wrap{padding-bottom:0}/* khoảng đệm cuối trang đã nằm ở body: không cộng dồn, nếu không trang ngắn vẫn cuộn được */
  .side{display:none}
  .mtop{display:flex;position:sticky;top:0;z-index:30;height:54px;align-items:center;gap:8px;background:var(--bg);border-bottom:1px solid var(--line);padding:0 12px;margin:0 -16px 10px}
  .mtop .mt{font-weight:600;font-size:17px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -568,7 +569,7 @@ body.cf-open #cf-ov,body.sc-open #sc-ov{opacity:1;pointer-events:auto}body.cf-op
 /* link "Câu trước" bị ẩn (câu đầu) và span rỗng không được chiếm chỗ: nút chính giãn hết chiều ngang */
 .exnav .lnk[style*="visibility:hidden"],.exnav>span:empty,.shnav>span:empty{display:none}
 @media(min-width:701px){.abar,.exnav,.shnav{left:var(--side)}}
-body.has-abar{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
+body.has-abar{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important}
 body.has-abar .fab{bottom:calc(90px + env(safe-area-inset-bottom))!important}
 body.kb .abar,body.kb .exnav,body.kb .shnav{display:none!important}
 body.kb .abar.kbin.hidden{display:none!important}
