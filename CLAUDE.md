@@ -89,6 +89,9 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - **Đề Luyện đề bắt buộc theo buổi (19/11/2026)**: `PXREQ` = {dow:[[loại,số đề]]} (T2: 2 Ngữ pháp; T3: Nghe chép + Tình huống; T5: Dịch câu + Đọc hiểu; T6: 2 Từ vựng + Đọc hiểu; T7: Nghe chép + Tình huống). `tasksFor(dow)` = `tasksBase(dow)` + `pxTasks(dow)` (việc có `link:true`, bấm vào đi tới `#practice/<loại>`). Đề tính cho buổi nào do `pxAttrib(loại)` quyết định lúc làm xong (ưu tiên buổi hôm nay chưa đủ đề loại đó), lưu `sd` (dow) + `wk` vào `S.px.hist`; đạt khi đúng ≥`PX_PASS`=60%. `pxRecord()` gọi `after()` nên buổi tự hoàn thành. Buổi T2 đã qua bài xếp tuần thì không thêm đề. Muốn đổi khối lượng: sửa `PXREQ`.
 - Chưa làm: viết nội dung tay dài hơn cho từng buổi `SESS` (đang dùng Luyện đề thay); cho chọn số câu mỗi đề; hiện phút học trên Dashboard; buổi riêng cho Thứ 4/Chủ nhật (hiện chỉ có gợi ý Luyện đề).
 
+## Nghĩa của cụm câu (19/11/2026, `APP_BUILD` 2026-11-19-b)
+- 127 cụm câu (`cat:"talk"`, `ph:1`) dùng làm bài "nhớ lại" (xem nghĩa Việt, gõ cả câu tiếng Anh). Nghĩa tiếng Việt phải **sát cấu trúc câu tiếng Anh** để người học suy ra được (vd "Do you mind if I sit here?" = "Bạn có phiền không nếu tôi ngồi đây?", không phải "Tôi ngồi đây được không?") và **không trùng nhau** giữa các cụm. 39 cụm đã viết lại; câu đồng nghĩa được chấp nhận đáp án của nhau qua trường `alt` (cột 7 của hàng `VMORE`). Khi thêm cụm mới: viết nghĩa sát nghĩa, kiểm tra không trùng `vi` với cụm khác.
+
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
 - [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).
