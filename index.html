@@ -863,8 +863,6 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
       <div class="shtop" id="wr-steps"></div>
       <div id="wr-words"></div>
       <div class="card" id="wr-card">
-        <h2 id="wr-h"></h2>
-        <p class="muted small" style="margin:0 0 10px" id="wr-intro"></p>
         <div id="wr-body"></div>
       </div>
     </div>
@@ -5116,9 +5114,8 @@ function renderWrite(){
   const steps=[[1,"Tin nhắn",st.aPass,st.aDone?`Đạt ${st.aOk}/3`:`${st.aN}/3 tin`],[2,"UX writing",st.uPass,st.uDone?`Đạt ${st.uOk}/2`:`${st.uN}/2 câu`],[3,"Bài chính",st.cPass,st.cn?`${st.cn} câu`:"4-5 câu"]];
   document.getElementById("wr-steps").innerHTML=steps.map(([n,t,d,s])=>`<div class="wrstep ${d?"dn":""} ${n===P?"sel":""}" data-wp="${n}"><b>${d?"✓ ":""}${n} · ${t}</b>${s}</div>`).join("");
   document.querySelectorAll("[data-wp]").forEach(e=>e.onclick=()=>{wrGoPart(+e.dataset.wp);document.getElementById("wr-steps").scrollIntoView({block:"start",behavior:"smooth"})});
-  document.getElementById("wr-h").textContent=cfg.title;document.getElementById("wr-intro").textContent=cfg.intro;
   const segs=Math.max(items,P===3?4:0);
-  let h=`<div class="exbar" style="margin:0 0 10px"><div class="bars">${Array.from({length:segs},(_,j)=>{const r=j<items?cfg.rs(j):null;return `<i data-wi="${j}" class="${r?(cfg.ok(r)?"ok":"no"):""} ${j===k?"cur":""}"></i>`}).join("")}</div><span class="n">${k>=items?"Kết quả":P===3?`Câu ${k+1} · cần 4-5 câu`:`${k+1}/${items}`}</span></div>`;
+  let h=`<div class="exbar" style="margin:0 0 10px"><div class="bars">${Array.from({length:segs},(_,j)=>{const r=j<items?cfg.rs(j):null;return `<i data-wi="${j}" class="${r?(cfg.ok(r)?"ok":"no"):""} ${j===k?"cur":""}"></i>`}).join("")}</div><span class="n">${k>=items?"Kết quả":P===3?`Câu ${k+1} · cần 4-5 câu`:`${k+1}/${items}`}</span></div><h2 style="margin:0 0 10px">${esc(cfg.title)}</h2>`;
   if(k>=items)h+=wrSummary(P,cfg,st,items);
   else{
     const r=cfg.rs(k),re=wrRetry&&wrRetry.P===P&&wrRetry.k===k;if(P===3)h+=wrBrief(wrMain(x),k);h+=`<div class="wmsg" style="border:0;padding:0">${cfg.prompt(k)}</div>`;
