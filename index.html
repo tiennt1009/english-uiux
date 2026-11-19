@@ -4970,7 +4970,7 @@ function wrStat(){
   const aN=ra.filter(Boolean).length,aOk=ra.filter(wrOkA).length,uN=ru.filter(Boolean).length,uOk=ru.filter(r=>r&&r.ok).length;
   const cn=cs.length,cok=cs.filter(r=>r.ok).length,cNeed=Math.min(2,w.length),cUsed=usedWords(cs.map(r=>r.txt).join(" "),w).length;
   return {aN,aDone:aN===3,aOk,aPass:aN===3&&aOk>=2,uN,uDone:uN===2,uOk,uPass:uN===2&&uOk===2,
-    cn,cok,cNeed,cUsed,c:cn?{}:null,cPass:!!x.cfin&&cn>=4&&cok>=cn-1&&cUsed>=cNeed};
+    cn,cok,cNeed,cUsed,c:cn?{}:null,cPass:(!!x.cfin||cn>=WMAX)&&cn>=4&&cok>=cn-1&&cUsed>=cNeed};
 }
 /* Viết: mỗi lần 1 câu, chấm ngay, xong mới sang câu sau */
 let wrPart=null,wrBusy=false,wrRetry=null;const wrI={1:0,2:0,3:0},WMAX=5;
@@ -5150,7 +5150,7 @@ function renderWrite(){
   wrWords();
 }
 function wrWords(){const x=wrGet(),el=document.getElementById("wr-words");if(!el)return;if(wrPart!==3){el.innerHTML="";return}
-  const ta=document.getElementById("wr-ta"),all=[...x.a.m,...x.a.u,...x.cs.map(r=>r.txt),x.cdraft||"",ta?ta.value:""].join(" ");
+  const ta=document.getElementById("wr-ta"),all=[...x.cs.map(r=>r.txt),ta?ta.value:(x.cdraft||"")].join(" ");/* chỉ tính câu của phần 3 (giống điều kiện đạt), không tính phần 1-2 */
   const L=wrVocab();el.innerHTML=L.length?`<div class="card" style="padding:12px 14px">${wordChips(all,`Dùng ít nhất ${Math.min(2,L.length)} từ`,L)}</div>`:""}
 document.getElementById("wr-new").onclick=()=>{
   const b=document.getElementById("wr-new");

@@ -347,6 +347,26 @@ try {
       await context.close();
     }
   }
+
+  // 8) Viết phần 3: đủ 5 câu đúng thì đạt dù chưa bấm "Kết thúc"; từ của phần 1-2 không tính là đã dùng ở phần 3
+  console.log('\n[8] Viết phần 3');
+  {
+    const { context, page, errors } = await newPage();
+    await page.goto(BASE + '#s-1-4', { waitUntil: 'load' });
+    await page.waitForTimeout(600);
+    const r = await page.evaluate(() => {
+      const x = wrGet(), w = wrVocab(), ok = (t) => ({ txt: t, ok: true, tries: 1, tags: [], changes: [] });
+      x.a.m = ['I am a ' + w[0] + ' and ' + w[1], '', ''];
+      x.cs = []; wrPart = 3; wrI[3] = 0; renderWrite();
+      const used0 = document.getElementById('wr-words').querySelectorAll('.chip.on').length;
+      x.cs = ['hi', "i'm a " + w[0], "i'm from " + w[1] + ' ' + w[2], 'i like it', 'i am happy'].map(ok); x.cfin = false;
+      return { used0, pass: wrStat().cPass };
+    });
+    if (r.used0 === 0) ok('Phần 3 chưa viết: không tô từ đã dùng ở phần 1-2'); else fail('Từ phần 1-2 bị tính vào phần 3: ' + r.used0);
+    if (r.pass) ok('5 câu đúng, chưa bấm Kết thúc vẫn Đạt phần 3'); else fail('5 câu đúng mà vẫn Chưa đạt phần 3');
+    if (errors.length) fail('Lỗi JS ở bài Viết: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
