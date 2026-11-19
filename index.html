@@ -863,6 +863,7 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
     <div id="b-write" class="sbody hidden">
       <div class="sheet-acts"><button class="btn ghost small" id="wr-new">↻ Đổi đề</button></div>
       <div class="shtop" id="wr-steps"></div>
+      <h2 id="wr-h" style="margin:14px 2px 10px"></h2>
       <div class="card" id="wr-card">
         <div id="wr-body"></div>
       </div>
@@ -5143,7 +5144,8 @@ function renderWrite(){
   document.getElementById("wr-steps").innerHTML=steps.map(([n,t,d,s])=>`<div class="wrstep ${d?"dn":""} ${n===P?"sel":""}" data-wp="${n}"><b>${d?"✓ ":""}${n} · ${t}</b>${s}</div>`).join("");
   document.querySelectorAll("[data-wp]").forEach(e=>e.onclick=()=>{wrGoPart(+e.dataset.wp);document.getElementById("wr-steps").scrollIntoView({block:"start",behavior:"smooth"})});
   const segs=Math.max(items,P===3?4:0);
-  let h=`<div class="exbar" style="margin:0 0 10px"><div class="bars">${Array.from({length:segs},(_,j)=>{const r=j<items?cfg.rs(j):null;return `<i data-wi="${j}" class="${r?(cfg.ok(r)?"ok":"no"):""} ${j===k?"cur":""}"></i>`}).join("")}</div><span class="n">${k>=items?"Kết quả":P===3?`Câu ${k+1} · cần 4-5 câu`:`${k+1}/${items}`}</span></div><h2 style="margin:0 0 10px">${esc(cfg.title)}</h2><div id="wr-words"></div>`;
+  let h=`<div class="exbar" style="margin:0 0 10px"><div class="bars">${Array.from({length:segs},(_,j)=>{const r=j<items?cfg.rs(j):null;return `<i data-wi="${j}" class="${r?(cfg.ok(r)?"ok":"no"):""} ${j===k?"cur":""}"></i>`}).join("")}</div><span class="n">${k>=items?"Kết quả":P===3?`Câu ${k+1} · cần 4-5 câu`:`${k+1}/${items}`}</span></div><div id="wr-words"></div>`;
+  document.getElementById("wr-h").textContent=cfg.title;
   if(k>=items)h+=wrSummary(P,cfg,st,items);
   else{
     const r=cfg.rs(k),re=wrRetry&&wrRetry.P===P&&wrRetry.k===k;if(P===3)h+=wrBrief(wrMain(x),k);h+=`<div class="wmsg" style="border:0;padding:0">${cfg.prompt(k)}</div>`;
