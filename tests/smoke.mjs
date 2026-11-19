@@ -388,6 +388,27 @@ try {
     if (errors.length) fail('Mục tiêu 30 phút gây lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 10) Mỗi buổi có thêm đề Luyện đề bắt buộc: đề làm trong ngày được tính cho đúng buổi; chưa làm đủ thì buổi chưa xong
+  console.log('\n[10] Luyện đề bắt buộc theo buổi');
+  {
+    const { context, page, errors } = await newPage({ 'eng-gemini-key': 'AIzaMOCK' });
+    await page.clock.install({ time: new Date('2026-11-17T10:00:00') }); // Thứ 3 = buổi Nghe & nói
+    await page.goto(BASE + '#today', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => {
+      const ex = () => tasksFor(2).filter((t) => t.link).map((t) => ({ k: t.go, d: t.d }));
+      const before = ex(), sd = pxAttrib('listen');
+      pxS().hist.unshift({ id: 1, d: today(), k: 'listen', lv: 1, n: 10, ok: 8, sd, wk: 1 });
+      pxS().hist.unshift({ id: 2, d: today(), k: 'talk', lv: 1, n: 10, ok: 3, sd: pxAttrib('talk'), wk: 1 }); // điểm thấp: không tính
+      return { before, sd, after: ex() };
+    });
+    if (r.before.length === 2 && r.before.every((t) => !t.d)) ok('Buổi Nghe & nói có 2 đề Luyện đề bắt buộc (chưa làm)'); else fail('Thiếu đề bắt buộc: ' + JSON.stringify(r.before));
+    if (r.sd === 2) ok('Đề Nghe chép làm hôm nay được gắn vào buổi Thứ 3'); else fail('Gắn buổi sai: ' + r.sd);
+    if (r.after.find((t) => t.k === 'practice/listen').d && !r.after.find((t) => t.k === 'practice/talk').d) ok('Đề đạt ≥60% được tính, đề điểm thấp thì chưa'); else fail('Tính đề sai: ' + JSON.stringify(r.after));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {

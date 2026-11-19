@@ -86,7 +86,8 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - `S.tm={"YYYY-MM-DD":giây}` (mới, có trong `DEF`/`migrate()`, giữ 60 ngày). Bộ đếm (IIFE sau `xp()`): mỗi giây cộng nếu tab đang hiện, có chạm/gõ/cuộn trong 60 giây gần nhất, và không ở Dashboard/Cài đặt; lưu mỗi 20 giây (`save()`).
 - `GOAL_MIN=30`, `goalHTML()` (class `.daygoal`, KHÔNG dùng `.goal` vì trùng CSS của Dashboard), `goalSync()` cập nhật tại chỗ. Hiện ở: đầu màn Hôm nay, đầu màn Luyện đề, màn kết quả Luyện đề.
 - Màn Hôm nay: dưới các thẻ bắt buộc có "Luyện thêm cho đủ 30 phút" = 2 thẻ Luyện đề (3 thẻ vào ngày không có buổi), chọn bởi `pxSuggest()` (loại chưa làm hôm nay trước, rồi loại điểm thấp nhất; bỏ loại AI nếu chưa có key). Mỗi loại có `m` = số phút ước tính/đề trong `PXT`.
-- Chưa làm: viết lại nội dung dài hơn cho từng buổi `SESS`; cho chọn số câu mỗi đề; hiện phút học trên Dashboard.
+- **Đề Luyện đề bắt buộc theo buổi (19/11/2026)**: `PXREQ` = {dow:[[loại,số đề]]} (T2: 2 Ngữ pháp; T3: Nghe chép + Tình huống; T5: Dịch câu + Đọc hiểu; T6: 2 Từ vựng + Đọc hiểu; T7: Nghe chép + Tình huống). `tasksFor(dow)` = `tasksBase(dow)` + `pxTasks(dow)` (việc có `link:true`, bấm vào đi tới `#practice/<loại>`). Đề tính cho buổi nào do `pxAttrib(loại)` quyết định lúc làm xong (ưu tiên buổi hôm nay chưa đủ đề loại đó), lưu `sd` (dow) + `wk` vào `S.px.hist`; đạt khi đúng ≥`PX_PASS`=60%. `pxRecord()` gọi `after()` nên buổi tự hoàn thành. Buổi T2 đã qua bài xếp tuần thì không thêm đề. Muốn đổi khối lượng: sửa `PXREQ`.
+- Chưa làm: viết nội dung tay dài hơn cho từng buổi `SESS` (đang dùng Luyện đề thay); cho chọn số câu mỗi đề; hiện phút học trên Dashboard; buổi riêng cho Thứ 4/Chủ nhật (hiện chỉ có gợi ý Luyện đề).
 
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
