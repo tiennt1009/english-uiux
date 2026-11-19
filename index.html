@@ -862,7 +862,6 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
     <div id="b-write" class="sbody hidden">
       <div class="sheet-acts"><button class="btn ghost small" id="wr-new">↻ Đổi đề</button></div>
       <div class="shtop" id="wr-steps"></div>
-      <div id="wr-words"></div>
       <div class="card" id="wr-card">
         <div id="wr-body"></div>
       </div>
@@ -5115,7 +5114,7 @@ function renderWrite(){
   document.getElementById("wr-steps").innerHTML=steps.map(([n,t,d,s])=>`<div class="wrstep ${d?"dn":""} ${n===P?"sel":""}" data-wp="${n}"><b>${d?"✓ ":""}${n} · ${t}</b>${s}</div>`).join("");
   document.querySelectorAll("[data-wp]").forEach(e=>e.onclick=()=>{wrGoPart(+e.dataset.wp);document.getElementById("wr-steps").scrollIntoView({block:"start",behavior:"smooth"})});
   const segs=Math.max(items,P===3?4:0);
-  let h=`<div class="exbar" style="margin:0 0 10px"><div class="bars">${Array.from({length:segs},(_,j)=>{const r=j<items?cfg.rs(j):null;return `<i data-wi="${j}" class="${r?(cfg.ok(r)?"ok":"no"):""} ${j===k?"cur":""}"></i>`}).join("")}</div><span class="n">${k>=items?"Kết quả":P===3?`Câu ${k+1} · cần 4-5 câu`:`${k+1}/${items}`}</span></div><h2 style="margin:0 0 10px">${esc(cfg.title)}</h2>`;
+  let h=`<div class="exbar" style="margin:0 0 10px"><div class="bars">${Array.from({length:segs},(_,j)=>{const r=j<items?cfg.rs(j):null;return `<i data-wi="${j}" class="${r?(cfg.ok(r)?"ok":"no"):""} ${j===k?"cur":""}"></i>`}).join("")}</div><span class="n">${k>=items?"Kết quả":P===3?`Câu ${k+1} · cần 4-5 câu`:`${k+1}/${items}`}</span></div><h2 style="margin:0 0 10px">${esc(cfg.title)}</h2><div id="wr-words"></div>`;
   if(k>=items)h+=wrSummary(P,cfg,st,items);
   else{
     const r=cfg.rs(k),re=wrRetry&&wrRetry.P===P&&wrRetry.k===k;if(P===3)h+=wrBrief(wrMain(x),k);h+=`<div class="wmsg" style="border:0;padding:0">${cfg.prompt(k)}</div>`;
@@ -5151,7 +5150,7 @@ function renderWrite(){
 }
 function wrWords(){const x=wrGet(),el=document.getElementById("wr-words");if(!el)return;if(wrPart!==3){el.innerHTML="";return}
   const ta=document.getElementById("wr-ta"),all=[...x.cs.map(r=>r.txt),ta?ta.value:(x.cdraft||"")].join(" ");/* chỉ tính câu của phần 3 (giống điều kiện đạt), không tính phần 1-2 */
-  const L=wrVocab();el.innerHTML=L.length?`<div class="card" style="padding:12px 14px">${wordChips(all,`Dùng ít nhất ${Math.min(2,L.length)} từ`,L)}</div>`:""}
+  const L=wrVocab();el.innerHTML=L.length?`<div style="margin:0 0 12px">${wordChips(all,`Dùng ít nhất ${Math.min(2,L.length)} từ`,L)}</div>`:""}
 document.getElementById("wr-new").onclick=()=>{
   const b=document.getElementById("wr-new");
   if(!b.dataset.arm){b.dataset.arm="1";b.textContent="Bấm lần nữa: đổi đề và xóa bài đang làm";setTimeout(()=>{b.dataset.arm="";b.textContent="↻ Đổi đề"},4000);return}
