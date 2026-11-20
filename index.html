@@ -930,6 +930,12 @@ a.pnode:active{background:var(--hov)}
 /* chế độ tập trung trong màn học: không banner chung (bài cần AI tự nhắc tại chỗ), không nút lý thuyết nổi trên điện thoại (đã có bước Lý thuyết) */
 body.deep #ai-banner{display:none!important}
 @media(max-width:899px){#theory-fab{display:none!important}}
+/* điều hướng chương trong Sổ tay (Cẩm nang/Sách giáo khoa): nằm trong khung sổ tay, không tràn; tên dài thì rút gọn "…" */
+.dr-body .exnav{position:sticky;left:auto;right:auto;bottom:-40px;margin:14px -16px -40px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));gap:10px;z-index:3}
+.dr-body .exnav .btn,.dr-body .exnav .lnk{flex:1 1 0;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;padding:12px 14px;font-size:14px}
+.dr-body .exnav .lnk{text-align:left;padding-left:2px}
+.dr-body .exnav .btn.pri{min-width:0;margin-left:0}
+.dr-body .exnav>span:empty{flex:1 1 0}
 
 </style>
 </head>
