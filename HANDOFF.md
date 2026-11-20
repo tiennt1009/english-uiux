@@ -61,6 +61,12 @@ Chưa phủ: luồng chấm bài chi tiết, giọng nói thật, bố cục t�
 - Trường mới `S.px` (độ khó theo loại + lịch sử ≤40 đề); `migrate()` tự thêm cho dữ liệu cũ; test [3] kiểm dữ liệu cũ không mất gì.
 - Đã test (Playwright, mock): mở màn, làm hết đề từ vựng 3 mức + nghe chép offline, ngữ pháp qua Gemini mock, dịch câu (chờ → AI chấm lượt cuối), đọc hiểu, tình huống, resume đề dở, đổi sang EN. Chưa test: điện thoại thật, Gemini thật, giọng đọc thật (headless dùng giọng giả).
 
+## 7d. Thay đổi 20/11/2026: giao diện mới (tím) + chế độ tối
+- Người dùng đưa 3 ảnh mẫu: ảnh 1 (app học ngôn ngữ màu xanh lá: thanh trên có nút tròn + viên streak/gems, 3 ô thống kê, thẻ tối "Continue learning" có thanh %, "Today's Goal", "Quick Practice" cuộn ngang, thanh dưới dạng viên nổi, màn "Learning Path" nút tròn 3D) là concept chính; ảnh 2-3 (tím) chỉ tham khảo. Yêu cầu: làm lại toàn bộ UI theo ảnh 1 nhưng **màu chính tím**, dùng icon được, **không dùng hình minh họa**, có cả sáng và tối.
+- Cách làm: viết lại bộ biến màu (`:root` + `html[data-theme=dark]`), sửa tại chỗ các quy tắc CSS dùng chung (thẻ, nút, chip, tab, ô nhập, sheet, drawer, thanh đáy), thêm khối CSS mới cuối `<style>` (Hôm nay, lộ trình Bài học, lưới Luyện đề). Viết lại `renderTodayRest`, `renderLessons`, `pxHome`, `goalHTML`, phần ô thống kê/dải tuần của `renderDashboard`; thêm `renderHstat()`, `xpTotal()`, `SESS_IC`, `IC_CLOCK/IC_CHECK/IC_LOCK`. Không đụng `S`/`VOCAB`/`migrate()` nên không đổi `APP_BUILD`.
+- Sửa kèm: dấu `}` thừa sau khối `@media(max-width:899px)` (làm mất quy tắc `.lang`); biến `--t-bg/--bad-bg` tự tham chiếu (lỗi của bản giao diện tối đầu tiên, đã sửa nóng trước đó).
+- Đã kiểm (Playwright, mock): `npm test` PASS; chụp 320/360/390px và 1280px, sáng + tối, tiếng Việt + English: không tràn ngang, tiêu đề màn học không bị cắt từ 320px. Chưa kiểm: điện thoại thật (độ mượt của `backdrop-filter` trên 3 lớp: thanh trên, thanh dưới, thanh nút).
+
 ## 8. Việc còn treo
 Xem danh sách trong CLAUDE.md (nguồn chính). Ghi chú thêm:
 - Thêm ~550 từ: nên chia 4 đợt ~150 từ; mỗi đợt chạy `npm test`, đổi `APP_BUILD`, kiểm tra không từ nào trùng `w` với từ cũ, và `vIdx()` vẫn hợp lý (`VDAILY=6` từ/ngày → 174 từ đủ ~25 ngày, 724 từ ~4 tháng).
