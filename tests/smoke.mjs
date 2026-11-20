@@ -379,12 +379,14 @@ try {
     await page.mouse.click(10, 300);
     await page.clock.runFor(30000);
     const r = await page.evaluate(() => ({ tm: Math.round(S.tm[today()] || 0), goal: !!document.querySelector('#t-cards .daygoal'), sg: document.querySelectorAll('#t-cards a[href^="#practice/"]').length }));
-    if (r.tm >= 20 && r.tm <= 40) ok('Đo thời gian học thật: ' + r.tm + ' giây sau 30 giây có thao tác'); else fail('Đo thời gian sai: ' + r.tm);
+    if (r.tm >= 15 && r.tm <= 25) ok('Đo thời gian học thật: ' + r.tm + ' giây (một lần chạm chỉ tính tối đa ~20 giây)'); else fail('Đo thời gian sai: ' + r.tm);
     if (r.goal) ok('Màn Hôm nay có thẻ mục tiêu 30 phút'); else fail('Thiếu thẻ mục tiêu ở Hôm nay');
     if (r.sg >= 2) ok('Ngày nghỉ gợi ý ' + r.sg + ' loại Luyện đề để lấp thời gian'); else fail('Không gợi ý Luyện đề (' + r.sg + ')');
-    await page.clock.runFor(70000); // không thao tác quá 60 giây: không tính thêm
+    await page.clock.runFor(70000); // không thao tác: không tính thêm
     const t2 = await page.evaluate(() => Math.round(S.tm[today()]));
-    if (t2 - r.tm <= 35) ok('Nghỉ quá 60 giây thì ngừng tính giờ'); else fail('Vẫn tính giờ khi không thao tác: ' + (t2 - r.tm));
+    if (t2 - r.tm <= 3) ok('Treo máy / không thao tác thì ngừng tính giờ'); else fail('Vẫn tính giờ khi không thao tác: ' + (t2 - r.tm));
+    const st = await page.evaluate(() => document.querySelector('[data-goal-st]').textContent);
+    if (/Tạm dừng/.test(st)) ok('Thẻ mục tiêu báo "Tạm dừng" khi không thao tác'); else fail('Trạng thái sai: ' + st);
     if (errors.length) fail('Mục tiêu 30 phút gây lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
@@ -557,6 +559,10 @@ try {
     await page.waitForTimeout(500);
     await page.click('#nb-seg [data-t="theory"]');
     await page.waitForTimeout(300);
+    const segs = await page.evaluate(() => [...document.querySelectorAll('#th-seg .chip')].map((x) => x.textContent));
+    if (segs.join() === 'Cẩm nang,Sách giáo khoa') ok('Lý thuyết chia 2 tab: Cẩm nang | Sách giáo khoa'); else fail('Tab Lý thuyết sai: ' + segs);
+    await page.click('#th-seg [data-th="ref"]');
+    await page.waitForTimeout(200);
     const r = await page.evaluate(() => {
       const n0 = document.querySelectorAll('#rf-list [data-rf]').length;
       const q = document.getElementById('rf-q'); q.value = 'trạng từ'; q.dispatchEvent(new Event('input'));
@@ -595,6 +601,25 @@ try {
     if (w.length === 1 && w[0] === 'suggest') ok('Từ đã lưu: tìm theo nghĩa tiếng Việt'); else fail('Tìm từ đã lưu sai: ' + JSON.stringify(w));
     if (left.join() === 'backlog,suggest') ok('Xóa khi đang lọc xóa đúng từ'); else fail('Xóa nhầm: ' + left);
     if (n === 1 && keep.join() === 'b') ok('Ghi chú: tìm trong nội dung và xóa đúng mục'); else fail('Ghi chú sai: ' + n + ' ' + keep);
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
+
+  // 19) Sổ tay có nút mở rộng: phủ kín màn hình nhưng vẫn là drawer; nhớ lựa chọn
+  console.log('\n[19] Sổ tay mở rộng');
+  {
+    const { context, page, errors } = await newPage();
+    await page.goto(BASE + '#notebook', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const m = () => page.evaluate(() => { const d = document.getElementById('nb-drawer'), r = d.getBoundingClientRect(); return { full: d.classList.contains('full'), h: Math.round(r.height), w: Math.round(r.width), vh: innerHeight, vw: innerWidth, drawer: d.classList.contains('on'), saved: localStorage.getItem('eng-nbfull') }; });
+    const a = await m();
+    await page.click('#nb-expand');
+    const b2 = await m();
+    if (!a.full && b2.full && b2.h >= b2.vh - 1 && b2.w >= b2.vw - 1 && b2.drawer) ok('Bấm mở rộng: sổ tay phủ kín màn hình (vẫn là drawer)'); else fail('Mở rộng sai: ' + JSON.stringify([a, b2]));
+    if (b2.saved === '1') ok('Nhớ lựa chọn mở rộng'); else fail('Không lưu lựa chọn: ' + b2.saved);
+    await page.click('#nb-expand');
+    const c2 = await m();
+    if (!c2.full && c2.h < c2.vh) ok('Bấm lần nữa: thu nhỏ lại'); else fail('Thu nhỏ sai: ' + JSON.stringify(c2));
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
