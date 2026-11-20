@@ -106,6 +106,9 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 ## Sổ tay: tab Từ vựng (20/11/2026)
 - Tab đầu của sổ tay (`#nb-vocab`, `renderNbVocab()`/`nbvList()`, trạng thái `nbvQ/nbvF/nbvN`): toàn bộ `VOCAB` (cả từ chưa học, cả mức Dễ và cụm câu), ô tìm theo từ hoặc nghĩa, lọc Tất cả/Đã học/Chưa học, hiện 80 dòng mỗi lần + "Xem thêm". Bấm dòng để xem ví dụ; từ đã học hiện độ nhớ, từ chưa học hiện "Chưa học". Chỉ đọc, không đổi `S`.
 
+## Lưu hỏi đáp với AI vào Ghi chú (20/11/2026)
+- Dưới mỗi câu trả lời của AI trong khung hỏi đáp (nút "?" của `svBtn`, `qaRender`) và trong "Giải thích kỹ hơn" của bài Viết (`wrDeepHTML`) có nút đánh dấu `qaSaveBtn(hỏi, đáp)`; dùng chung bộ xử lý `[data-sv]`, lưu vào `S.notes` dạng `{k, r:"", why:<câu trả lời>, ask:<câu hỏi>}` (trường `ask` mới, tùy chọn). Tab Ghi chú của sổ tay hiện dòng "Hỏi: …" trên câu trả lời. Câu trả lời lỗi (mất mạng, hết lượt) không có nút lưu.
+
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
 - [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).

@@ -525,6 +525,29 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 16) Lưu câu hỏi–đáp với AI (nút "?") vào Ghi chú để xem lại
+  console.log('\n[16] Lưu hỏi đáp vào Ghi chú');
+  {
+    const { context, page, errors } = await newPage({ 'eng-gemini-key': 'AIzaMOCK' });
+    await page.goto(BASE + '#practice', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    await page.evaluate(() => { document.getElementById('px-box').innerHTML = '<div id="t">' + svBtn({ w: 'I add', r: 'I adding', why: 'Sau suggest cần -ing', src: 'Test', q: 'q' }) + '</div>'; });
+    await page.click('#t [data-qa]');
+    await page.fill('#t .qa-in', 'những từ nào cần -ing?');
+    await page.click('#t [data-qago]');
+    await page.waitForSelector('#t .qa-a + .savebtn', { timeout: 5000 });
+    await page.click('#t .qa-a + .savebtn');
+    const n = await page.evaluate(() => S.notes[0]);
+    if (n && n.ask === 'những từ nào cần -ing?' && n.why) ok('Bấm nút lưu dưới câu trả lời AI → vào Ghi chú (kèm câu hỏi)'); else fail('Ghi chú không lưu hỏi đáp: ' + JSON.stringify(n));
+    await page.evaluate(() => { location.hash = '#notebook'; });
+    await page.waitForTimeout(300);
+    await page.click('#nb-seg [data-t="notes"]');
+    const t = await page.evaluate(() => document.getElementById('nt-list').innerText);
+    if (t.includes('những từ nào cần -ing?')) ok('Tab Ghi chú hiện lại câu hỏi và câu trả lời đã lưu'); else fail('Ghi chú không hiện: ' + t.slice(0, 80));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
