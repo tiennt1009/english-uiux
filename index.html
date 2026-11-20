@@ -2532,6 +2532,7 @@ Object.assign(I18N,{"↻ Làm lại phần Đặt câu":"↻ Redo the Make-sente
 Object.assign(I18N,{"Sang phần 2 · Kể chuyện ›":"Go to part 2 · Story ›","Sang Luyện đề ›":"Go to Practice sets ›","Thử lại":"Try again"});
 Object.assign(I18N,{"Tìm từ tiếng Anh hoặc nghĩa":"Search an English word or meaning","Tất cả #":"All #","Đã học #":"Learned #","Chưa học #":"Not learned #","Chưa học":"Not learned","Xem thêm # từ":"Show # more","Không có từ nào khớp.":"No matching words."});
 Object.assign(I18N,{"Chưa có ghi chú. Khi gặp lời giải thích hay, bấm biểu tượng đánh dấu để lưu vào đây, kể cả câu trả lời của AI khi bạn bấm \"?\" để hỏi thêm.":"No notes yet. When you see a useful explanation, tap the bookmark icon to save it here, including the AI's answers when you tap \"?\" to ask more."});
+Object.assign(I18N,{"Nguyên âm và phụ âm (vowels, consonants)":"Vowels and consonants","5 chữ cái nguyên âm, 44 âm, âm câm, đuôi -s/-ed, a hay an":"The 5 vowel letters, 44 sounds, silent letters, -s/-ed endings, a or an"});
 Object.assign(I18N,{"Các loại từ: tổng quan":"Parts of speech: overview","Danh từ, động từ, tính từ, trạng từ, giới từ... là gì và đứng ở đâu":"Nouns, verbs, adjectives, adverbs, prepositions... what they are and where they go","Danh từ (noun)":"Nouns","Đếm được, không đếm được, số nhiều":"Countable, uncountable, plurals","Đại từ (pronoun)":"Pronouns","I/me, my/mine, this/that: dùng thế nào":"I/me, my/mine, this/that: how to use them","Động từ (verb)":"Verbs","to be, động từ thường, trợ động từ, can/should/must; 5 dạng của động từ":"to be, regular verbs, auxiliaries, can/should/must; the 5 verb forms","Tính từ (adjective)":"Adjectives","Vị trí, thứ tự, so sánh, -ed và -ing":"Position, order, comparisons, -ed vs -ing","Trạng từ (adverb)":"Adverbs","Các nhóm trạng từ, cách tạo, vị trí trong câu":"Types of adverbs, how to form them, where they go","Giới từ (preposition)":"Prepositions","at/on/in, nơi chốn, thời gian, cụm hay đi với giới từ":"at/on/in, place, time, common combinations","Liên từ (conjunction)":"Conjunctions","and, but, so, because, if, when, before, after":"and, but, so, because, if, when, before, after","Mạo từ và số lượng":"Articles and quantities","a/an/the, some/any, much/many, a few/a little":"a/an/the, some/any, much/many, a few/a little","Sau động từ: -ing hay to?":"After a verb: -ing or to?","suggest + -ing, decide + to; giới từ + -ing":"suggest + -ing, decide + to; preposition + -ing","Từ để hỏi (what, where, why...)":"Question words (what, where, why...)","what, who, where, when, why, how và cách đặt câu hỏi":"what, who, where, when, why, how and how to ask questions","Cụm động từ trong công việc":"Phrasal verbs at work","set up, log in, roll back, follow up...":"set up, log in, roll back, follow up...","Các thì: bảng tra nhanh":"Tenses: quick table","Khi nào dùng thì nào, dạng câu, từ báo hiệu":"When to use which tense, sentence forms, signal words","Sở hữu cách 's và viết tắt":"Possessive 's and contractions","user's, users', it's/its, I'm, don't":"user's, users', it's/its, I'm, don't","Tra cứu nhanh":"Quick reference","Loại từ và khái niệm ngữ pháp: trạng từ, giới từ, -ing hay to... Gõ để tìm.":"Parts of speech and grammar ideas: adverbs, prepositions, -ing or to... Type to search.","Tìm: trạng từ, giới từ, suggest...":"Search: adverb, preposition, suggest...","‹ Tra cứu":"‹ Reference","Không tìm thấy.":"Nothing found."});
 Object.assign(I18N,{"Tìm trong từ đã lưu":"Search saved words","Tìm trong ghi chú":"Search notes"});
 Object.assign(I18N,{"Cẩm nang":"Handbook","‹ Cẩm nang":"‹ Handbook","Mở rộng":"Expand","Thu nhỏ":"Collapse"});
@@ -3444,6 +3445,40 @@ const REF=[
  _s("Mẹo nhận biết loại từ bằng chỗ đứng",
   _x([["the / a / my + <b>___</b>","danh từ: <i>the button</i>"],["is / very + <b>___</b>","tính từ: <i>is clear</i> · <i>very clear</i>"],["I / you / they + <b>___</b>","động từ: <i>I design</i>"],["động từ + <b>___</b>","trạng từ: <i>works quickly</i>"],["<b>___</b> + the / a / danh từ","giới từ: <i>in the folder</i>"]]),
   _n("Đuôi từ cũng gợi ý: <i>-tion, -ment, -er</i> thường là danh từ (<i>design<b>er</b></i>, <i>improve<b>ment</b></i>); <i>-ful, -able, -ive, -al</i> thường là tính từ; <i>-ly</i> thường là trạng từ."))]},
+{k:"sounds",t:"Nguyên âm và phụ âm (vowels, consonants)",s:"5 chữ cái nguyên âm, 44 âm, âm câm, đuôi -s/-ed, a hay an",kw:"nguyên âm phụ âm vowel consonant âm câm silent a an phát âm sound ipa đuôi s ed",b:[
+ _s("Chữ cái và âm là hai thứ khác nhau",
+  _p("Tiếng Anh có <b>26 chữ cái</b> nhưng khoảng <b>44 âm</b>. Chữ viết không luôn khớp với cách đọc, nên cần phân biệt <b>chữ cái</b> (letter) và <b>âm</b> (sound)."),
+  _t(["","Chữ cái","Âm (khoảng)"],[
+   ["<b>Nguyên âm</b><br><span class='muted small'>vowel</span>","5: <i>a, e, i, o, u</i>","20 (12 đơn + 8 đôi)"],
+   ["<b>Phụ âm</b><br><span class='muted small'>consonant</span>","21 chữ còn lại: <i>b, c, d, f, g...</i>","24"]]),
+  _n("Nguyên âm: luồng hơi đi ra tự do, miệng mở (<i>/a/, /i/</i>). Phụ âm: luồng hơi bị chặn hoặc ép lại bằng môi, lưỡi, răng (<i>/p/, /s/</i>). Chữ <i>y</i> thường là phụ âm (<i>yes</i>) nhưng đọc như nguyên âm trong <i>my, UX</i>.")),
+ _s("Nguyên âm dài và ngắn",
+  _p("Cùng một chữ có thể đọc nhiều cách. Độ dài của nguyên âm làm đổi nghĩa từ, nên đây là lỗi hay gặp của người Việt."),
+  _t(["Ngắn","Dài"],[
+   ["/ɪ/ · <i>ship, sit, live</i>","/iː/ · <i>sheep, seat, leave</i>"],
+   ["/ʊ/ · <i>full, pull</i>","/uː/ · <i>fool, pool</i>"],
+   ["/e/ · <i>bed, pen</i>","/æ/ · <i>bad, pan</i>"]]),
+  _n("Trong sổ tay, bấm nút nghe rồi nhại lại để quen tai. Ký hiệu trong ngoặc / / là IPA, dùng để tra cách đọc trong từ điển.")),
+ _s("Phụ âm: các âm người Việt dễ thiếu",
+  _l(["<b>Âm cuối</b>: đọc rõ <i>/t/, /d/, /s/, /k/, /p/</i> ở cuối từ. <i>Product</i> không phải “prô-đức”; <i>design</i> cần có /n/ cuối.","<b>/θ/ và /ð/</b> (<i>th</i>): đặt lưỡi giữa hai hàm răng. <i>think, three</i> (không rung) · <i>this, that</i> (rung).","<b>/ʃ/ và /s/</b>: <i>sheet</i> khác <i>seat</i>.","<b>/r/ và /l/</b>: <i>right</i> khác <i>light</i>.","<b>Cụm phụ âm</b>: <i>st, str, sk, pr, bl</i> đọc liền, không chèn nguyên âm: <i>screen, prototype</i>."])),
+ _s("Đuôi -s và -ed đọc thế nào?",
+  _t(["Đuôi","Sau âm...","Đọc","Ví dụ"],[
+   ["<b>-s / -es</b>","/s/ /ʃ/ /tʃ/ /dʒ/ /z/","/ɪz/","boxes · changes · pages"],
+   ["","phụ âm không rung (p, t, k, f)","/s/","clicks · apps · drafts"],
+   ["","còn lại (nguyên âm, b, d, g, m, n...)","/z/","users · designs · tools"],
+   ["<b>-ed</b>","/t/ hoặc /d/","/ɪd/","wanted · needed · tested"],
+   ["","phụ âm không rung (p, k, f, s, ch, sh)","/t/","worked · helped · checked"],
+   ["","còn lại","/d/","designed · played · changed"]])),
+ _s("Chữ viết có mà âm không có (âm câm)",
+  _x([["<b>k</b> trong <i>know, knife</i>","đọc /n/"],["<b>b</b> trong <i>debt, subtle</i>","đọc /d/, /sʌtl/"],["<b>w</b> trong <i>write, answer</i>","đọc /raɪt/, /ˈænsər/"],["<b>l</b> trong <i>walk, half</i>","đọc /wɔːk/, /hæf/"],["<b>h</b> trong <i>hour, honest</i>","đọc /aʊər/, /ˈɒnɪst/"],["<b>e</b> cuối từ: <i>make, code, save</i>","không đọc, nhưng làm nguyên âm trước dài ra"]]) ),
+ _s("A hay an? Nhìn vào âm, không nhìn vào chữ",
+  _p("Dùng <b>an</b> trước <b>âm nguyên âm</b>, dùng <b>a</b> trước <b>âm phụ âm</b>."),
+  _t(["Từ","Mạo từ","Vì sao"],[
+   ["<i>idea, error, icon, app</i>","<b>an</b> idea · <b>an</b> app","bắt đầu bằng nguyên âm"],
+   ["<i>hour, honest</i>","<b>an</b> hour","h câm, nghe như nguyên âm"],
+   ["<i>user, UX, unit, one</i>","<b>a</b> user · <b>a</b> unit","đọc như /j/ hoặc /w/ (phụ âm)"],
+   ["<i>UI, MVP, FAQ, SVG</i>","<b>a</b> UI · <b>an</b> MVP · <b>an</b> FAQ · <b>an</b> SVG","theo tên chữ cái đầu: U /juː/ (phụ âm), M, F, S đọc bắt đầu bằng nguyên âm /em, ef, es/"]]),
+  _m("a hour · an user · a MVP","<b>an</b> hour · <b>a</b> user · <b>an</b> MVP","Chọn theo cách đọc, không theo chữ cái đầu."))]},
 {k:"noun",t:"Danh từ (noun)",s:"Đếm được, không đếm được, số nhiều",kw:"danh từ noun số nhiều đếm được không đếm được countable uncountable plural feedback information",b:[
  _s("Danh từ là gì?",
   _p("Danh từ gọi tên người, vật, nơi chốn, ý tưởng. Trong công việc: <i>user, screen, button, color, team, deadline, feedback</i>."),
