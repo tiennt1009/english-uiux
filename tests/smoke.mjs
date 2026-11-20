@@ -574,6 +574,30 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 18) Sổ tay: ô tìm trong "Từ đã lưu" và "Ghi chú"; xóa khi đang lọc vẫn xóa đúng mục
+  console.log('\n[18] Tìm trong Từ đã lưu và Ghi chú');
+  {
+    const st = { v: 3, vset: 2, bm: [{ t: 'deploy', vi: 'triển khai' }, { t: 'backlog', vi: 'tồn đọng' }, { t: 'suggest', vi: 'gợi ý' }], notes: [{ k: 'a', r: '', why: 'Sau suggest cần -ing', ask: 'những từ nào cần ing' }, { k: 'b', r: 'I am a designer.', why: 'Cần có to be' }] };
+    const { context, page, errors } = await newPage({ 'eng-ux-state': JSON.stringify(st), 'eng-build': APP_BUILD });
+    await page.goto(BASE + '#notebook', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    await page.click('#nb-seg [data-t="words"]');
+    await page.fill('#bm-q', 'gợi ý');
+    const w = await page.evaluate(() => [...document.querySelectorAll('#bm-list .bt')].map((x) => x.textContent));
+    await page.fill('#bm-q', 'deploy'); await page.click('#bm-list [data-bdel]');
+    const left = await page.evaluate(() => S.bm.map((b) => b.t));
+    await page.click('#nb-seg [data-t="notes"]');
+    await page.fill('#nt-q', 'to be');
+    const n = await page.evaluate(() => document.querySelectorAll('#nt-list .bmrow').length);
+    await page.fill('#nt-q', 'ing'); await page.click('#nt-list [data-ndel]');
+    const keep = await page.evaluate(() => S.notes.map((x) => x.k));
+    if (w.length === 1 && w[0] === 'suggest') ok('Từ đã lưu: tìm theo nghĩa tiếng Việt'); else fail('Tìm từ đã lưu sai: ' + JSON.stringify(w));
+    if (left.join() === 'backlog,suggest') ok('Xóa khi đang lọc xóa đúng từ'); else fail('Xóa nhầm: ' + left);
+    if (n === 1 && keep.join() === 'b') ok('Ghi chú: tìm trong nội dung và xóa đúng mục'); else fail('Ghi chú sai: ' + n + ' ' + keep);
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
