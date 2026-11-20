@@ -586,6 +586,7 @@ body.kb .abar.kbin{display:flex!important;position:static;border:0;background:no
 .corr.okc{background:none;padding:0 0 0 4px;margin-top:-6px}
 .tcards{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
 .tcard{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;text-decoration:none;color:inherit}
+.tcard .bdg.nt{flex:none;margin-right:-6px}
 .tcard:active{background:var(--soft)}.tcard.done{background:var(--ok-bg);border-color:#C0DD97}
 .tc-ic{font-size:30px;line-height:1}.tc-b{flex:1;min-width:0}.tc-k{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.2px}
 .tc-t{font-size:18px;font-weight:600;margin:2px 0}.tc-p{font-size:14px;color:var(--muted)}.tc-go{font-size:24px;color:var(--faint)}
@@ -2896,7 +2897,7 @@ function renderTodayRest(){
   let cards=`<a class="tcard ${vdn?"done":""}" href="#vocab"><span class="tc-ic">📚</span><div class="tc-b"><div class="tc-k">${vTopicNow()?`<span>Chủ đề</span> · <span>${esc(vTopicNow())}</span>`:"Từ mới"}</div><div class="tc-t">Từ mới hôm nay</div><div class="tc-p">${vdn?`Đã xong · ${S.vd.n} lượt`:`${vi0.nw} từ mới · ${vi0.rv} thẻ ôn · khoảng ${Math.max(3,Math.ceil(vi0.all/2))} phút`}</div></div>${vdn?`<span class="bdg ok">Xong</span>`:`<span class="tc-go">›</span>`}</a>`;
   if(tg!==null){
     const ss=SESS.find(x=>x.dow===tg),rq=tasksFor(tg).filter(x=>!x.opt),dn=rq.filter(x=>x.d).length,fin=!!S.sessions[`w1-${tg}`]||(rq.length>0&&dn===rq.length);
-    cards+=`<a class="tcard ${fin?"done":""}" href="#d-${tg}"><span class="tc-ic">${["","📖","🎧","💬","✍️","🗣️","🎤"][tg]||"📖"}</span><div class="tc-b"><div class="tc-k">${tg===dow?ss.day:"Bù buổi "+ss.day}</div><div class="tc-t">${esc(ss.name)}</div><div class="tc-p">${esc(ss.desc)} · ${esc(ss.min)}</div>${fin?"":`<div class="tc-bar"><i style="width:${rq.length?Math.round(100*dn/rq.length):0}%"></i></div>`}</div>${fin?`<span class="bdg ok">Xong</span>`:`<span class="tc-go">›</span>`}</a>`;
+    cards+=`<a class="tcard ${fin?"done":""}" href="#d-${tg}"><span class="tc-ic">${["","📖","🎧","💬","✍️","🗣️","🎤"][tg]||"📖"}</span><div class="tc-b"><div class="tc-k">${tg===dow?ss.day:"Bù buổi "+ss.day}</div><div class="tc-t">${esc(ss.name)}</div><div class="tc-p">${esc(ss.desc)} · ${esc(ss.min)}</div>${fin?"":`<div class="tc-bar"><i style="width:${rq.length?Math.round(100*dn/rq.length):0}%"></i></div>`}</div>${fin?`<span class="bdg ok">Xong</span>`:`${rq.length?`<span class="bdg nt">${dn}/${rq.length}</span>`:""}<span class="tc-go">›</span>`}</a>`;
   }
   /* mục tiêu 30 phút: thẻ tiến độ ở đầu, và gợi ý Luyện đề để lấp phần còn thiếu (ngày nghỉ gợi ý nhiều hơn) */
   const left=GOAL_MIN-tmMin(),sg=left>0?pxSuggest(tg!==null||study?2:3):[];
