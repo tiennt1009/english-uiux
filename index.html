@@ -519,7 +519,7 @@ body.offline #vs-check,body.offline #vu-chk{opacity:.4;pointer-events:none}
 .tiles .k{font-size:12px;font-weight:500;color:var(--muted);line-height:1.3}
 .tiles .n{font-size:22px;font-weight:700;line-height:1.25;color:var(--ink);font-variant-numeric:tabular-nums}
 .tiles .c{font-size:11px;color:var(--faint);line-height:1.3}
-@media(min-width:700px){.tiles.t5{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(min-width:700px){.tiles.t5{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .lrow{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit}
 .lrow:first-child{border-top:0}
 .lrow .ld{width:44px;flex-shrink:0;font-size:13px;color:var(--muted)}
@@ -3141,7 +3141,7 @@ function renderTodayRest(){
   const missed=wk===1?overdue():[];
   const tg=wk===1?todayTarget():null,vdn=vDailyDone(),vi0=vDailyInfo(),vMin=Math.max(3,Math.ceil(vi0.all/2));
   /* 3 ô thống kê */
-  let h=`<div class="tiles"><a href="#dashboard"><span class="ti">🔥</span><span class="k">Chuỗi</span><span class="n">${st}</span><span class="c">ngày</span></a><a href="#dashboard"><span class="ti">⚡</span><span class="k">XP</span><span class="n">${xpTotal()}</span><span class="c">tổng</span></a><a href="#notebook" data-nbt="vocab"><span class="ti">📚</span><span class="k">Từ đã học</span><span class="n">${Object.keys(S.vocab||{}).length}</span><span class="c">từ</span></a></div>`;
+  let h=``;
   /* thẻ tối "học tiếp": buổi hôm nay → Từ mới hôm nay → nghỉ/đã xong (gợi ý Luyện đề) */
   const vocabHero=tg===null&&!vdn;
   if(tg!==null){
@@ -3218,7 +3218,7 @@ function renderDashboard(){
   let xw=0;for(let i=0;i<7;i++){xw+=S.act[iso(calDate(i))]||0}
   const days=Object.values(S.act).filter(v=>v>0).length;
   document.getElementById("dash-stats").innerHTML=[
-    ["🔥","Chuỗi buổi học",streak()],["⚡","XP tuần này",xw],["✅",`Buổi tuần ${wk}`,`${doneW}/5`],["📅","Ngày có học",days],["🔁","Câu sai chờ ôn",(S.rv||[]).length]
+    ["🔥","Chuỗi buổi học",streak()],["⚡","XP tuần này",xw],["✅",`Buổi tuần ${wk}`,`${doneW}/5`],["📅","Ngày có học",days],["📚","Từ đã học",Object.keys(S.vocab||{}).length],["🔁","Câu sai chờ ôn",(S.rv||[]).length]
   ].map(([i,k,n])=>`<div><span class="ti">${i}</span><div class="k">${k}</div><div class="n">${n}</div></div>`).join("");
   document.getElementById("ws-title").textContent=`Tuần ${wk}`;
   document.getElementById("ws-topic").textContent=(WEEKS[wk-1]?WEEKS[wk-1].join(" · ")+" · ":"")+weekProgHTML();
