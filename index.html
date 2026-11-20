@@ -573,7 +573,7 @@ body.cf-open #cf-ov,body.sc-open #sc-ov{opacity:1;pointer-events:auto}body.cf-op
 .abar .lnk,.exnav .lnk,.shnav .lnk{flex:none;padding:10px 4px}
 /* link "Câu trước" bị ẩn (câu đầu) và span rỗng không được chiếm chỗ: nút chính giãn hết chiều ngang */
 .exnav .lnk[style*="visibility:hidden"],.exnav>span:empty,.shnav>span:empty{display:none}
-@media(min-width:701px){.abar,.exnav,.shnav{left:var(--side)}}
+@media(min-width:900px){.abar,.exnav,.shnav{left:var(--side)}}/* chỉ chừa chỗ cho thanh menu bên khi nó hiện (từ 900px) */
 body.has-abar{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important}
 body.has-abar .fab{bottom:calc(90px + env(safe-area-inset-bottom))!important}
 body.kb .abar,body.kb .exnav,body.kb .shnav{display:none!important}
