@@ -2780,7 +2780,7 @@ Object.assign(I18N,{"Chào buổi sáng!":"Good morning!","Chào buổi chiều!
 /* khung buổi học (UX 21/11/2026): thanh bước, thanh báo đúng/sai, thẻ hoàn thành, bảng chúc mừng */
 Object.assign(I18N,{"Nghe chép & nhại":"Dictation & shadowing","Tin nhắn":"Messages","Bài chính":"Main writing","Đặt câu":"Sentences","Kể chuyện":"Story",
 "Đúng #/# câu":"# of # correct","Nhại đạt #/# câu":"Shadowed #/#","Nhại đạt #/# câu.":"Shadowed #/#.","cần ít nhất # câu để tính xong.":"need at least # to finish.","Chưa có từ":"No words yet","Từ tiếp":"Next word",
-"Chính xác!":"Correct!","Gần đúng!":"Almost!","Chưa hợp ý":"Doesn't fit",
+"Chính xác!":"Correct!","Chấm lại":"Grade again","Gần đúng!":"Almost!","Chưa hợp ý":"Doesn't fit",
 "Xong phần Khởi động":"Warm-up done","Đạt phần Dịch":"Translation passed","Chưa đạt phần Dịch":"Translation not passed yet","Sang phần Dịch":"Go to Translate","Sang phần Bộc phát":"Go to Speak-now",
 "Đạt phần nghe chép và nhại":"Dictation & shadowing passed","Bấm Nhại theo ở dưới, đọc to câu trên.":"Tap Shadow below and read the sentence aloud.",
 "Đạt phần #":"Part # passed","Chưa đạt phần #":"Part # not passed yet","Đạt phần Đặt câu":"Sentences passed","Chưa đạt phần Đặt câu":"Sentences not passed yet",
@@ -5291,7 +5291,9 @@ function vuTabs(){
   const b=tasksBase(5),sl=b[0],sy=b[1],v8=vu8Get(),n=v8.words.length,dn=Object.keys(v8.res).length,st=vstoryStat(),nd=storyNeed();
   document.getElementById("vu-steps").innerHTML=stepsHTML("data-vt",[{k:"sent",t:"Đặt câu",done:sl.d,p:n?100*dn/n:0,sub:n?`${dn}/${n} từ`:"Chưa có từ"},{k:"story",t:"Kể chuyện",done:sy.d,p:st?100*Math.min(st.n,4)/4:0,sub:st?`${st.n} câu`:"Chưa viết"}],vuTab);
   document.querySelectorAll("[data-vt]").forEach(e=>e.onclick=()=>{vuTab=e.dataset.vt;vuTabs()});
-  const vb=document.getElementById("vs-bar");if(vb)vb.classList.toggle("hidden",!!sy.d);
+  /* nút Chấm bài: đã chấm đúng bản đang viết thì ẩn (đạt rồi → nút đi tiếp; chưa đạt → sửa bài thì nút hiện lại là "Chấm lại") */
+  const vb=document.getElementById("vs-bar"),vt=document.getElementById("vs-text"),vc=document.getElementById("vs-check"),gd=S.vstory&&S.vstory.ws===mon()&&S.vstory.v&&S.vstory.text&&vt&&vt.value.trim()===S.vstory.text.trim();
+  if(vb){vb.classList.toggle("hidden",!!gd||!!sy.d);if(vc)vc.textContent=S.vstory&&S.vstory.ws===mon()&&S.vstory.v?"Chấm lại":"Chấm bài"}
   document.getElementById("vu-card1").classList.toggle("hidden",vuTab!=="sent");document.getElementById("vu-card2").classList.toggle("hidden",vuTab!=="story");vuNext(sl.d,sy.d)}
 /* sau khi xong một phần: nút hành động ở thanh đáy (sang phần kể chuyện, rồi sang đề Luyện đề còn thiếu, rồi về Hôm nay) */
 function vuNext(slDone,syDone){
