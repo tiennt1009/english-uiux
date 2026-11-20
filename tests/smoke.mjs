@@ -548,6 +548,32 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 17) Sổ tay → Lý thuyết → Tra cứu nhanh: loại từ và khái niệm ngữ pháp (trạng từ, giới từ, -ing hay to...)
+  console.log('\n[17] Tra cứu loại từ');
+  {
+    const { context, page, errors } = await newPage();
+    await page.goto(BASE + '#notebook', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    await page.click('#nb-seg [data-t="theory"]');
+    await page.waitForTimeout(300);
+    const r = await page.evaluate(() => {
+      const n0 = document.querySelectorAll('#rf-list [data-rf]').length;
+      const q = document.getElementById('rf-q'); q.value = 'trạng từ'; q.dispatchEvent(new Event('input'));
+      const first = document.querySelector('#rf-list [data-rf] b').textContent;
+      q.value = 'suggest'; q.dispatchEvent(new Event('input'));
+      const sug = [...document.querySelectorAll('#rf-list [data-rf] b')].map((x) => x.textContent);
+      const empties = []; for (let i = 0; i < REF.length; i++) { nbRef = i; renderNbTheory(); const t = document.getElementById('nb-theory').innerText; if (t.length < 400) empties.push(REF[i].k); }
+      nbRef = null; renderNbTheory();
+      return { n0, first, sug, empties, keys: REF.map((x) => x.k) };
+    });
+    if (r.n0 >= 14) ok('Tra cứu có ' + r.n0 + ' mục (loại từ, giới từ, trạng từ, -ing hay to, cụm động từ...)'); else fail('Thiếu mục tra cứu: ' + r.n0);
+    if (/Trạng từ/.test(r.first)) ok('Gõ "trạng từ" → mục Trạng từ lên đầu'); else fail('Tìm trạng từ sai: ' + r.first);
+    if (r.sug.some((t) => /-ing hay to/.test(t))) ok('Gõ "suggest" → ra mục "Sau động từ: -ing hay to?"'); else fail('Tìm suggest sai: ' + JSON.stringify(r.sug));
+    if (!r.empties.length && ['adverb', 'preposition', 'ing-to'].every((k) => r.keys.includes(k))) ok('Mọi mục đều có nội dung và mở được'); else fail('Mục trống: ' + r.empties.join(','));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {

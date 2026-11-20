@@ -109,6 +109,10 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 ## Lưu hỏi đáp với AI vào Ghi chú (20/11/2026)
 - Dưới mỗi câu trả lời của AI trong khung hỏi đáp (nút "?" của `svBtn`, `qaRender`) và trong "Giải thích kỹ hơn" của bài Viết (`wrDeepHTML`) có nút đánh dấu `qaSaveBtn(hỏi, đáp)`; dùng chung bộ xử lý `[data-sv]`, lưu vào `S.notes` dạng `{k, r:"", why:<câu trả lời>, ask:<câu hỏi>}` (trường `ask` mới, tùy chọn). Tab Ghi chú của sổ tay hiện dòng "Hỏi: …" trên câu trả lời. Câu trả lời lỗi (mất mạng, hết lượt) không có nút lưu.
 
+## Tra cứu loại từ và khái niệm ngữ pháp (20/11/2026)
+- Sổ tay → tab Lý thuyết → thẻ **"Tra cứu nhanh"** (trên "Sách giáo khoa"): `REF` (mảng 14 mục, định nghĩa ngay sau `chBody`, dùng bộ `_s/_p/_t/_x/_m/_n/_l` như sách giáo khoa): tổng quan loại từ, danh từ, đại từ, động từ, tính từ, trạng từ, giới từ, liên từ, mạo từ & số lượng, "-ing hay to?", từ để hỏi, cụm động từ, bảng các thì, sở hữu cách & viết tắt. Mỗi mục `{k,t,s,kw,b}`; `html`/`txt` (văn bản để tìm kiếm) tự dựng. Ô tìm `#rf-q` tìm cả trong nội dung; mục có tên khớp lên đầu. Trạng thái `nbRef` (mục đang mở) / `rfQ`. Thêm mục mới = thêm 1 phần tử vào `REF` (+ I18N cho `t` và `s`).
+- Nội dung là tiếng Việt kèm ví dụ tiếng Anh trong công việc UI/UX; khi sửa nhớ giữ ví dụ đúng ngữ pháp. Phần thân bài không dịch sang tiếng Anh (giống sách giáo khoa), chỉ tên mục và mô tả ngắn có I18N.
+
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
 - [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).
