@@ -67,6 +67,12 @@ Chưa phủ: luồng chấm bài chi tiết, giọng nói thật, bố cục t�
 - Sửa kèm: dấu `}` thừa sau khối `@media(max-width:899px)` (làm mất quy tắc `.lang`); biến `--t-bg/--bad-bg` tự tham chiếu (lỗi của bản giao diện tối đầu tiên, đã sửa nóng trước đó).
 - Đã kiểm (Playwright, mock): `npm test` PASS; chụp 320/360/390px và 1280px, sáng + tối, tiếng Việt + English: không tràn ngang, tiêu đề màn học không bị cắt từ 320px. Chưa kiểm: điện thoại thật (độ mượt của `backdrop-filter` trên 3 lớp: thanh trên, thanh dưới, thanh nút).
 
+## 7e. Thay đổi 21/11/2026: làm lại luồng làm bài (UX)
+- Người dùng: "UI xong rồi, giờ đến UX: luồng, vị trí nút, gom nhóm, bước này sang bước kia, có nên gom cả vào 1 trang không… dựa vào tính năng hiện có, không thêm tính năng". Đã tham khảo cách Duolingo (Check/Continue cùng một chỗ ở đáy, thanh phản hồi xanh/đỏ, màn hoàn thành), Babbel/Brilliant (bài chia bước, giải thích ngay sau khi trả lời), Busuu/Memrise (học → luyện → ôn).
+- Đi thử từng buổi bằng ảnh chụp, ghi các điểm vướng (xem CLAUDE.md "Khung làm bài"), rồi sửa: thanh bước dùng chung, nút chính ở đáy cho mọi bài, thanh báo đúng/sai, thẻ hoàn thành phần, bảng chúc mừng xong buổi, chế độ tập trung. Không đổi dữ liệu `S` → không đổi `APP_BUILD`.
+- Sửa kèm: id trùng `fc-bar` (thanh tiến độ từ vựng) → thanh nút đáy đặt là `fc-act`; nền `body::before` gây vẽ sót → chuyển vào nền `body` (không lặp: `0 0/100% 440px no-repeat`).
+- Đã kiểm: `npm test` PASS; chụp từng bước Từ mới, Ngữ pháp (khởi động, dịch, hoàn thành phần), Nghe chép, Roleplay, Viết, Đặt câu, Kể chuyện, Sản phẩm (bảng chúc mừng), Ôn câu sai, Luyện đề; 320/360/390px không tràn, tiêu đề không cắt; sáng/tối; English. Chưa kiểm: điện thoại thật (bàn phím Android khi ô nhập Từ mới đã chuyển xuống thanh đáy), Gemini thật.
+
 ## 8. Việc còn treo
 Xem danh sách trong CLAUDE.md (nguồn chính). Ghi chú thêm:
 - Thêm ~550 từ: nên chia 4 đợt ~150 từ; mỗi đợt chạy `npm test`, đổi `APP_BUILD`, kiểm tra không từ nào trùng `w` với từ cũ, và `vIdx()` vẫn hợp lý (`VDAILY=6` từ/ngày → 174 từ đủ ~25 ngày, 724 từ ~4 tháng).
