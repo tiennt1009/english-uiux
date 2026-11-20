@@ -100,7 +100,8 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 ## Tăng khối lượng các phần học (20/11/2026, `APP_BUILD` 2026-11-20-a)
 - `S.vu8.v===2`: bản cũ (danh sách từ Đặt câu lưu từ trước, có thể chỉ 1 từ) bị đặt lại một lần để lấy 10 từ.
 - Roleplay `RP_N` 6 → 10 lượt (nhãn việc/tiến độ đều dùng `RP_N`). Nghe chép & nhại: AI soạn 8 câu, cần nhại đạt `shNeed()` = min(6, số câu có) (trước là 4); bản mẫu `SH_BASE` có 6 câu nên cần 6/6.
-- Chưa đổi (cần soạn thêm nội dung/đổi cấu trúc `S.wr`): bài Viết vẫn 3 tin nhắn + 2 UX writing + 4-5 câu bài chính; Ngữ pháp vẫn 4 + 8 câu bộ sẵn. Khối lượng của các buổi này được bù bằng `PXREQ`.
+- **Bài Viết (áp dụng cho bộ MỚI, dữ liệu đã học giữ nguyên)**: số câu lấy theo độ dài mảng đã lưu trong `S.wr` (`x.a.m.length` tin nhắn, `x.a.u.length` UX writing, `wrCMin(x)` = `x.cmin||4` câu bài chính). Bộ tạo mới (`wrPick()`: tuần mới hoặc bấm Đổi đề) dùng `WNM=5` tin (3 tin của tuần + 2 tin từ kho `WTOP` lưu ở `x.mx`), `WNU=3` UX writing, `WCMIN=5` câu. Ngưỡng đạt: tin đúng ≥ceil(2/3·số tin), UX đúng ≥ceil(0.75·số câu), bài chính ≥cmin câu và sai tối đa 1. Nhãn/tiến độ/việc đều lấy từ `wrStat()` (`aT, aNeed, uT, uNeed, cMin`), đừng gắn cứng số.
+- **Ngữ pháp**: khi bấm "Tạo bộ bài mới", AI soạn 18 câu (6 khởi động + 12 dịch) thay vì 12; bộ đã lưu (`S.ex`) giữ nguyên. Ngưỡng đạt tính theo số câu thực tế (`l2Stats`).
 
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.

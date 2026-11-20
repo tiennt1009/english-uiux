@@ -448,6 +448,29 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 13) Bài Viết: dữ liệu đã lưu giữ nguyên (3 tin / 2 UX / ≥4 câu); bộ mới tạo ra (tuần sau, Đổi đề) là 5 / 3 / 5
+  console.log('\n[13] Bài Viết: số câu theo dữ liệu đã lưu');
+  {
+    const old = { v: 3, vset: 2, start: '2026-11-09', weekStarts: { 1: '2026-11-09' }, act: {}, bm: [], notes: [], rv: [], sessions: {}, errors: {}, vocab: {}, history: [], rp: { scen: 'first', msgs: [] },
+      wr: { wk: 1, mi: [0, 1, 2], ci: 3, cw: 0, mw: true, ui: [0, 1], a: { m: ['a', 'b', 'c'], u: ['x', 'y'] }, rm: [null, null, null], ru: [null, null], cs: [], cdraft: '' }, upd: Date.now() };
+    const { context, page, errors } = await newPage({ 'eng-ux-state': JSON.stringify(old), 'eng-build': APP_BUILD });
+    await page.goto(BASE + '#s-1-4', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => {
+      const st0 = wrStat(), t0 = tasksBase(4).map((t) => t.l);
+      const nw = wrPick(), saved = S.wr; S.wr = nw;
+      const st1 = wrStat(), t1 = tasksBase(4).map((t) => t.l), m = [0, 1, 2, 3, 4].map((i) => wrMsg(nw, i).m);
+      S.wr = saved;
+      return { st0: [st0.aT, st0.uT, st0.cMin, st0.aNeed], st1: [st1.aT, st1.uT, st1.cMin, st1.aNeed], t0, t1, m };
+    });
+    if (JSON.stringify(r.st0) === '[3,2,4,2]') ok('Dữ liệu đã lưu giữ 3 tin / 2 UX / ≥4 câu'); else fail('Dữ liệu cũ bị đổi: ' + JSON.stringify(r.st0));
+    if (JSON.stringify(r.st1) === '[5,3,5,4]') ok('Bộ mới: 5 tin (đúng ≥4) / 3 UX / ≥5 câu'); else fail('Bộ mới sai: ' + JSON.stringify(r.st1));
+    if (r.m.every((x) => x && x.length > 3)) ok('Cả 5 tin nhắn của bộ mới đều có nội dung'); else fail('Thiếu tin nhắn: ' + JSON.stringify(r.m));
+    if (/Trả lời 5 tin/.test(r.t1[0]) && /Trả lời 3 tin/.test(r.t0[0])) ok('Nhãn việc theo số câu của từng bộ'); else fail('Nhãn việc sai: ' + r.t0[0] + ' / ' + r.t1[0]);
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
