@@ -247,7 +247,7 @@ try {
     const old = { v: 3, vset: 2, start: '2026-11-09', weekStarts: { 1: '2026-11-09' }, act: {}, bm: ['deploy'], notes: [], rv: [], sessions: { 'w1-1': 1, 'w1-2': 1 }, errors: { article: { count: 3, ex: [] } }, vocab, history: [], rp: { scen: 'first', msgs: [] }, vu: 5, upd: Date.now() - 1000 };
     const { context, page, errors } = await newPage({ 'eng-ux-state': JSON.stringify(old), 'eng-build': APP_BUILD, 'eng-gist-token': 'ghp_MOCK' });
     await page.clock.install({ time: new Date('2026-11-15T12:00:00') }); // Chủ nhật
-    await page.goto(BASE + '#settings', { waitUntil: 'load' });
+    await page.goto(BASE + '#settings/data', { waitUntil: 'load' });
     await page.waitForTimeout(1200);
     await page.click('#restart-btn');
     const armed = await page.evaluate(() => document.getElementById('restart-btn').textContent);
