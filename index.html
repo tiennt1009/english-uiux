@@ -957,7 +957,8 @@ body.deep #ai-banner{display:none!important}
 .st-v:empty{display:none}
 .st-c{flex:none;width:18px;height:18px;stroke:var(--faint);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 /* thẻ cùng kiểu nút "Xem lại": nền trắng, không viền, có gờ đáy tím nhạt (3D) */
-.card,.tcard,.pxt,.qp a,.daygoal,.vc,.vrows,.fc,.crit,.slist,.tiles>*,.px-lvc{box-shadow:inset 0 -4px 0 var(--edge),var(--sh1)}
+/* border:0 — nếu để viền trong suốt 1px thì nền trắng lộ ra 1px bên ngoài gờ đáy (gờ inset chỉ vẽ bên trong viền) */
+.card,.tcard,.pxt,.qp a,.daygoal,.vc,.vrows,.fc,.crit,.slist,.tiles>*,.px-lvc{border:0;box-shadow:inset 0 -4px 0 var(--edge),var(--sh1)}
 .card,.tcard,.pxt,.qp a,.daygoal,.slist,.tiles>*{padding-bottom:calc(var(--pb,18px) + 2px)}
 .tcard{--pb:14px}.pxt,.qp a{--pb:14px}.daygoal{--pb:14px}.tiles>*{--pb:12px}.slist{--pb:0px}
 
