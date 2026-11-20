@@ -860,29 +860,27 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
 .uprog .ubar i.gl:after{content:"";position:absolute;right:-3px;top:-4px;width:2px;height:16px;border-radius:1px;background:#fff}
 .uprog small{font-size:12px;font-weight:600;color:var(--deep-t);white-space:nowrap}
 .unote{font-size:13px;color:var(--muted);margin:10px 4px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.path{padding:26px 0 4px}
-.pnode{position:relative;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;margin-bottom:24px;padding-left:var(--x,0px)}
-.pn-c{position:relative;flex:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1;background:var(--card);border:2px solid var(--line);box-shadow:0 5px 0 var(--line);transition:transform .1s,box-shadow .1s;color:var(--pri-ink)}
-.pn-c svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-a.pnode:active .pn-c{transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
-.pnode.done .pn-c{background:var(--pri);border-color:var(--pri);box-shadow:0 5px 0 var(--pri-d);color:#fff}
-.pnode.cur .pn-c{background:var(--pri);border-color:var(--pri);box-shadow:0 5px 0 var(--pri-d),0 0 0 8px var(--pri-bg)}
-a.pnode.done:active .pn-c,a.pnode.cur:active .pn-c{box-shadow:0 2px 0 var(--pri-d)}
+/* lộ trình dạng dòng thời gian gọn: nút tròn nhỏ bên trái nối bằng vạch dọc, chữ bên phải, buổi nên học tiếp nổi lên thành thẻ */
+.path{padding:12px 0 4px}
+.pnode{position:relative;display:flex;align-items:flex-start;gap:12px;padding:8px 10px;margin:0 -10px 2px;border-radius:18px;text-decoration:none;color:inherit}
+.pnode:not(:last-child)::after{content:"";position:absolute;left:31px;top:57px;bottom:-9px;width:2px;border-radius:2px;background:var(--line)}
+.pnode.done:not(:last-child)::after{background:var(--pri-l)}
+.pn-c{position:relative;flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;background:var(--card);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--pri-ink)}
+.pn-c svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pnode.done .pn-c{background:var(--pri);border-color:var(--pri);box-shadow:0 3px 0 var(--pri-d);color:#fff}
+.pnode.cur{background:var(--card);box-shadow:0 0 0 1.5px var(--pri),var(--sh1)}
+.pnode.cur .pn-c{background:var(--pri);border-color:var(--pri);box-shadow:0 3px 0 var(--pri-d)}
 .pnode.part .pn-c{border-color:var(--pri-l)}
-.pnode.rest{margin-bottom:20px}
-.pnode.rest .pn-c{width:44px;height:44px;margin:0 10px;font-size:20px;background:var(--soft);border-color:transparent;box-shadow:0 4px 0 var(--line);color:var(--faint)}
-.pnode.lock .pn-c{background:var(--soft);border-color:var(--line);color:var(--faint)}
-.pnode.lock .pn-c svg{width:24px;height:24px;stroke-width:2.2}
-.pn-l{flex:1;min-width:0}
-.pn-l .pd{font-size:12px;font-weight:600;color:var(--muted)}
-.pn-l b{display:block;font-size:16px;font-weight:700;line-height:1.3}
-.pn-l .pp{font-size:12.5px;color:var(--muted);line-height:1.4}
-.pn-l .lst{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}.pn-l .lst:empty{display:none}
-.pnode.rest .pn-l b,.pnode.lock .pn-l b{color:var(--muted)}
-.pnode.cur{margin-top:42px}
-.pn-tip{position:absolute;left:calc(var(--x,0px) + 32px);top:-40px;transform:translateX(-50%);background:var(--card);color:var(--pri-ink);border:2px solid var(--pri);font-size:13px;font-weight:700;padding:3px 12px;border-radius:12px;white-space:nowrap;z-index:2;animation:pnb 1.6s ease-in-out infinite}
-.pn-tip:after{content:"";position:absolute;left:50%;bottom:-6px;width:9px;height:9px;background:var(--card);border-right:2px solid var(--pri);border-bottom:2px solid var(--pri);transform:translateX(-50%) rotate(45deg)}
-@keyframes pnb{50%{transform:translate(-50%,-4px)}}
+.pnode.rest .pn-c{background:var(--soft);border-color:transparent;box-shadow:none;font-size:18px}
+.pnode.lock .pn-c{background:var(--soft);border-color:transparent;box-shadow:none;color:var(--faint)}
+.pnode.lock .pn-c svg{width:18px;height:18px;stroke-width:2.2}
+.pn-l{flex:1;min-width:0;padding-top:2px}
+.pn-l b{display:block;font-size:15px;font-weight:700;line-height:1.35}
+.pn-l .pd{font-size:12.5px;color:var(--muted);line-height:1.4;margin-top:1px}
+.pnode.rest .pn-l b,.pnode.lock .pn-l b{color:var(--muted);font-weight:600}
+.pn-s{flex:none;align-self:center;display:flex;gap:6px;align-items:center}
+.pn-go{background:var(--pri);color:var(--on-pri);font-size:13px;font-weight:700;border-radius:12px;padding:7px 12px;box-shadow:inset 0 -2px 0 var(--pri-d);white-space:nowrap}
+a.pnode:active{background:var(--hov)}
 .udiv{display:flex;align-items:center;gap:12px;margin:10px 0 22px;color:var(--faint);font-size:13px;font-weight:700}
 .udiv:before,.udiv:after{content:"";flex:1;height:1.5px;background:var(--line)}
 /* ===== Luyện đề: lưới thẻ loại đề ===== */
@@ -897,7 +895,6 @@ a.pnode.done:active .pn-c,a.pnode.cur:active .pn-c{box-shadow:0 2px 0 var(--pri-
 .pxt .pm{font-size:12px;font-weight:600;color:var(--pri-ink);margin-top:auto;padding-top:8px}
 .pxt .px-ai{position:absolute;top:12px;right:12px;margin:0}
 @media(min-width:700px){.pxg{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(prefers-reduced-motion:reduce){.pn-tip{animation:none}}
 
 </style>
 </head>
@@ -3127,18 +3124,18 @@ function renderLessons(){
   document.getElementById("ls-prog").innerHTML=`<div class="uprog"><div class="ubar">${[0,1,2,3,4].map(k=>`<i class="${k<dnW?"on":""} ${k===NEED-1?"gl":""}"></i>`).join("")}</div><small>${dnW}/5 buổi</small></div>`;
   document.getElementById("ls-note").innerHTML=`<span>${cw<24?(dnW>=NEED?`Đủ để sang tuần ${cw+1}`:`Cần ${NEED}/5 buổi để sang tuần ${cw+1}`):""}${wk>1?` · nội dung tuần ${wk} chưa có, nhắn AI "mở tuần ${wk}"`:""}</span>${canOpenNext()?`<button class="btn pri small" id="ls-open" style="padding:6px 14px">Mở tuần ${cw+1}</button>`:""}`;
   const lo=document.getElementById("ls-open");if(lo)lo.onclick=openNextNow;
-  const OFF=[16,52,72,52,16,0,16],order=[1,2,3,4,5,6,0];
+  const order=[1,2,3,4,5,6,0];
   const todayS=wk===1&&SESS.some(x=>x.dow===dow)&&!S.sessions[`w1-${dow}`];
   const cur=wk>1?null:todayS?dow:([1,2,4,5,6].find(d=>SESS.some(x=>x.dow===d)&&!S.sessions[`w1-${d}`])??null);
-  document.getElementById("lesson-list").innerHTML=order.map((d,i)=>{
-    const x=SESS.find(s=>s.dow===d),isT=wk===1&&d===dow,date=`<span>${DOWN[d]}</span> · <span>${dm(calDate(d))}</span>`,X=OFF[i];
-    if(!x)return `<div class="pnode rest" style="--x:${X}px"><span class="pn-c">☕</span><div class="pn-l"><div class="pd">${date}</div><b>Nghỉ</b><div class="pp">Không bắt buộc: ôn thẻ từ vựng 5 phút nếu muốn</div><div class="lst">${isT?'<span class="st now">Hôm nay</span>':""}</div></div></div>`;
+  document.getElementById("lesson-list").innerHTML=order.map(d=>{
+    const x=SESS.find(s=>s.dow===d),isT=wk===1&&d===dow,date=`<span>${DOWN[d]}</span> · <span>${dm(calDate(d))}</span>`,now=isT?'<span class="st now">Hôm nay</span>':"";
+    if(!x)return `<div class="pnode rest"><span class="pn-c">☕</span><div class="pn-l"><b>Nghỉ</b><div class="pd">${date}</div></div><span class="pn-s">${now}</span></div>`;
     const done=S.sessions[`w1-${d}`],tk=tasksFor(d).filter(t=>!t.opt),dn=tk.filter(t=>t.d).length,part=!done&&tk.length>0&&(dn>0||tk.some(t=>!t.d&&t.bar>0));
     const cls=done?"done":d===cur?"cur":part?"part":"";
-    const chips=(isT?'<span class="st now">Hôm nay</span>':"")+(done?'<span class="st ok">✓ Đã xong</span>':part?`<span class="st part">Đang làm ${dn}/${tk.length} việc</span>`:"");
-    return `<a class="pnode ${cls}" href="#s-1-${d}" style="--x:${X}px">${d===cur?`<span class="pn-tip">${part?"Tiếp tục":"Bắt đầu"}</span>`:""}<span class="pn-c">${done?IC_CHECK:SESS_IC[d]||"📖"}</span><div class="pn-l"><div class="pd">${date}</div><b>${esc(x.name)}</b><div class="pp">${esc(x.desc)} · ${esc(x.min)}</div><div class="lst">${chips}</div></div></a>`}).join("");
+    const side=d===cur?`<span class="pn-go">${part?"Tiếp tục":"Bắt đầu"} ›</span>`:done?"":part?`<span class="st part">${dn}/${tk.length}</span>`:now;
+    return `<a class="pnode ${cls}" href="#s-1-${d}"><span class="pn-c">${done?IC_CHECK:SESS_IC[d]||"📖"}</span><div class="pn-l"><b>${esc(x.name)}</b><div class="pd">${date} · <span>${esc(x.min)}</span>${d===cur&&isT?" · <span>Hôm nay</span>":""}</div></div><span class="pn-s">${side}</span></a>`}).join("");
   const nx=[wk+1,wk+2,wk+3].filter(i=>i<=24);
-  document.getElementById("lesson-next").innerHTML=nx.length?`<div class="udiv">Các tuần sau</div>`+nx.map((i,j)=>`<div class="pnode lock" style="--x:${OFF[[1,3,5][j]]}px"><span class="pn-c">${IC_LOCK}</span><div class="pn-l"><div class="pd"><span>Tuần ${i}</span> · <span>dự kiến từ ${dm(projStart(i))}</span></div><b>${esc(WEEKS[i-1][0])}</b><div class="pp">${esc(WEEKS[i-1][1])}</div></div></div>`).join("")+`<p class="small muted" style="margin:-6px 4px 16px">Bài chi tiết được mở khi bạn học tới tuần đó. Xem toàn bộ lộ trình ở Dashboard.</p>`:"";
+  document.getElementById("lesson-next").innerHTML=nx.length?`<div class="udiv">Các tuần sau</div><div class="path" style="padding-top:0">`+nx.map(i=>`<div class="pnode lock"><span class="pn-c">${IC_LOCK}</span><div class="pn-l"><b>${esc(WEEKS[i-1][0])}</b><div class="pd"><span>Tuần ${i}</span> · <span>dự kiến từ ${dm(projStart(i))}</span></div></div></div>`).join("")+`</div><p class="small muted" style="margin:6px 2px 16px">Bài chi tiết được mở khi bạn học tới tuần đó. Xem toàn bộ lộ trình ở Dashboard.</p>`:"";
   document.getElementById("ls-place").innerHTML=`<div class="card"><div class="row" style="justify-content:space-between;flex-wrap:nowrap;gap:14px"><div><h2 style="margin:0 0 2px">${pl?`Bài xếp tuần: ${pl.score}/10 ${pl.passed?"· Đạt":"· Chưa đạt"}`:"Thấy tuần 1 quá dễ?"}</h2><p class="muted small" style="margin:0">${pl?(pl.passed?"Ngữ pháp tuần 1 đã tính xong. Nhắn AI \"mở tuần 2\" để học tiếp.":"Học tiếp tuần 1, làm lại khi thấy chắc hơn."):"Làm bài xếp tuần: 10 câu tự dịch, khoảng 10 phút. Đúng từ 8/10 thì ngữ pháp tuần 1 được tính xong và bạn học tiếp tuần 2 ngay."}</p></div><a class="btn ${pl?"":"pri"}" href="#placement" style="text-decoration:none;flex:none">${pl?"Xem / làm lại":"Làm bài"}</a></div></div>`;
 }
 function renderDashboard(){
