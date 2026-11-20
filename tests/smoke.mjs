@@ -400,6 +400,7 @@ try {
       const ex = () => tasksFor(2).filter((t) => t.link).map((t) => ({ k: t.go, d: t.d }));
       const before = ex(), sd = pxAttrib('listen');
       pxS().hist.unshift({ id: 1, d: today(), k: 'listen', lv: 1, n: 10, ok: 8, sd, wk: 1 });
+      pxS().hist.unshift({ id: 3, d: today(), k: 'listen', lv: 1, n: 10, ok: 7, sd: pxAttrib('listen'), wk: 1 }); // đề Nghe chép thứ 2
       pxS().hist.unshift({ id: 2, d: today(), k: 'talk', lv: 1, n: 10, ok: 3, sd: pxAttrib('talk'), wk: 1 }); // điểm thấp: không tính
       return { before, sd, after: ex() };
     });

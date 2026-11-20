@@ -833,6 +833,7 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
         <p class="muted small" style="margin:0 0 10px">Mỗi từ viết một câu. AI chấm nghĩa và ngữ pháp.</p>
         <div id="vu-box"></div>
       </div>
+      <div id="vu-nav"></div>
       <div class="card hidden" id="vu-card2">
         <h2>Kể chuyện hôm nay</h2>
         <p class="muted small" style="margin:0 0 8px" id="vs-intro">Viết 4-5 câu về hôm nay, dùng ít nhất 4 từ dưới đây.</p>
@@ -2522,6 +2523,7 @@ Object.assign(I18N,{"Đang làm #/# việc":"In progress #/# tasks"});
 Object.assign(I18N,{"Đã đạt #/# đề · mỗi đề đúng từ #% · khoảng # phút":"Passed #/# sets · each set at least #% correct · about # min"});
 Object.assign(I18N,{"Mức 2 · Nghe và gõ":"Level 2 · Listen and type","Nghe rồi gõ lại cả câu":"Listen, then type the whole sentence","Không nghe ra, xem đáp án":"I can't hear it, show the answer"});
 Object.assign(I18N,{"↻ Làm lại phần Đặt câu":"↻ Redo the Make-sentences part","↻ Làm lại phần Kể chuyện":"↻ Redo the Story part"});
+Object.assign(I18N,{"Sang phần 2 · Kể chuyện ›":"Go to part 2 · Story ›","Sang Luyện đề ›":"Go to Practice sets ›","Thử lại":"Try again"});
 Object.assign(I18N,{"Mục tiêu hôm nay":"Today's goal","Đủ rồi, làm tốt lắm!":"Done, well done!","#/# phút":"#/# min","Còn # phút. Làm bài bên dưới hoặc vào Luyện đề cho đủ.":"# min left. Do the lessons below, or open Practice sets to fill the time.","Làm thêm nếu bạn muốn, càng nhiều càng nhớ lâu.":"Do more if you like, the more you practice the longer you remember.","Luyện thêm cho đủ # phút":"Practice more to reach # minutes","Luyện đề":"Practice sets","Khoảng # phút":"About # min","Khoảng # phút · Gần nhất: #/#":"About # min · Latest: #/#","Khoảng # phút · Dễ":"About # min · Easy","Khoảng # phút · Vừa":"About # min · Medium","Khoảng # phút · Khó":"About # min · Hard"});
 Object.assign(I18N,{"Chọn độ khó":"Choose a level","Đề xuất":"Suggested","Cao nhất #/#":"Best #/#","Chưa làm":"Not done yet"});
 Object.assign(I18N,{"Luyện đề":"Practice sets","Làm thêm bài tập. Chọn loại bài, chọn độ khó, làm một đề. Xong thì tạo đề mới.":"Extra practice. Pick a type and a level, do one set. When you finish, make a new set.","Hôm nay: # đề · đúng #/# câu":"Today: # sets · # of # correct","Đang làm dở":"In progress","Dịch câu":"Translate","Nghe chép":"Dictation","Đọc hiểu":"Reading","Tình huống":"Situations","Chọn nghĩa, chọn từ, điền chỗ trống":"Pick the meaning, pick the word, fill the blank","Chọn đáp án đúng, chọn câu đúng":"Pick the right answer, pick the right sentence","Dịch từ tiếng Việt sang tiếng Anh":"Translate from Vietnamese to English","Nghe một câu rồi gõ lại":"Listen to a sentence and type it","Đọc đoạn ngắn rồi trả lời câu hỏi":"Read a short text and answer questions","Chọn câu trả lời hợp lý ở chỗ làm":"Pick a sensible reply at work","Gần nhất: #/#":"Latest: #/#","Loại có nhãn AI cần key Gemini (dán ở tab Cài đặt). Từ vựng và Nghe chép dùng được không cần key.":"Types marked AI need a Gemini key (paste it in Settings). Vocabulary and Dictation work without a key.","Độ khó":"Level","Nhìn từ tiếng Anh, chọn nghĩa. Mỗi câu # lựa chọn.":"See the English word, pick the meaning. # options each.","Chọn nghĩa, chọn từ, điền chỗ trống. Mỗi câu # lựa chọn, có gợi ý.":"Pick the meaning, pick the word, fill the blank. # options each, with hints.","Điền chỗ trống không gợi ý, rồi tự gõ từ. Có cả từ khó.":"Fill the blank without hints, then type the word yourself. Includes hard words.","Chỉ ngữ pháp đã học tới tuần hiện tại. Câu ngắn, # lựa chọn.":"Only grammar studied up to this week. Short sentences, # options.","Thêm ngữ pháp của tuần sau. Câu dài hơn, # lựa chọn.":"Adds next week's grammar. Longer sentences, # options.","Thêm ngữ pháp của # tuần sau. Câu dài, đáp án dễ nhầm.":"Adds grammar from the next # weeks. Long sentences, tricky options.","Câu ngắn, dùng ngữ pháp đã học.":"Short sentences, grammar you have studied.","Câu dài hơn, có phủ định và câu hỏi.":"Longer sentences, with negatives and questions.","Câu dài, ghép # ý, có ngữ pháp tuần sau.":"Long sentences joining # ideas, with next week's grammar.","Câu ngắn, tối đa # từ. Biết trước số từ.":"Short sentences, up to # words. You know the word count.","Câu vừa, # đến # từ. Không biết số từ.":"Medium sentences, # to # words. No word count.","Câu dài, từ # từ trở lên. Không biết số từ.":"Long sentences, # words or more. No word count.","Đoạn #-# câu, # câu hỏi dễ.":"Text of #-# sentences, # easy questions.","Đoạn #-# câu, # câu hỏi.":"Text of #-# sentences, # questions.","Đoạn #-# câu, # câu hỏi, có câu phải suy ra.":"Text of #-# sentences, # questions, some need inference.","Xã giao và việc quen thuộc. # lựa chọn.":"Small talk and familiar tasks. # options.","Họp, báo tiến độ, nhờ việc. # lựa chọn.":"Meetings, progress updates, asking for help. # options.","Từ chối, góp ý, phỏng vấn: chọn đúng sắc thái lịch sự. # lựa chọn.":"Declining, giving feedback, interviews: pick the right polite tone. # options.","Máy chưa có giọng đọc tiếng Anh nên chưa nghe chép được. Thử trên Chrome Android.":"This device has no English voice, so dictation is not available. Try Chrome on Android.","AI trả đề chưa đúng định dạng. Bấm Bắt đầu lại nhé.":"The AI returned the set in the wrong format. Tap Start to try again.","AI đang soạn đề, khoảng #-# giây...":"The AI is writing the set, about #-# seconds...","AI đang soạn đề mới, khoảng #-# giây...":"The AI is writing a new set, about #-# seconds...","Đang soạn đề...":"Preparing the set...","Chọn nghĩa đúng":"Pick the right meaning","Chọn từ tiếng Anh đúng":"Pick the right English word","Điền từ vào chỗ trống":"Fill in the blank","Gõ từ còn thiếu":"Type the missing word","Nghe và chép lại":"Listen and write it down","Chọn đáp án đúng":"Pick the right answer","Chọn câu đúng":"Pick the correct sentence","Dịch sang tiếng Anh":"Translate into English","Chọn câu trả lời phù hợp":"Pick the best reply","Trả lời theo đoạn văn":"Answer from the text","Câu nào đúng?":"Which sentence is correct?","Gợi ý nghĩa:":"Meaning hint:","Nghĩa:":"Meaning:","Không biết, xem đáp án":"I don't know, show the answer","# từ":"# words","Gõ từ":"Type the word","Đáp án mẫu":"Sample answer","Câu của bạn khác đáp án mẫu. AI sẽ chấm khi bạn xem kết quả.":"Your sentence differs from the sample. The AI will grade it when you see the results.","Lưu ý":"Note","Gần đúng, chú ý chính tả những từ được tô màu.":"Close, check the spelling of the highlighted words.","Từ khóa":"Keyword","Xem bản dịch tiếng Việt":"Show Vietnamese translation","Khá":"Fair","Cần luyện thêm":"Needs more practice","Đúng #/#. Thử mức khó hơn?":"# of # correct. Try a harder level?","Hơi khó? Thử mức dễ hơn cho chắc.":"A bit hard? Try an easier level to be sure.","Thử mức Dễ":"Try Easy","Thử mức Vừa":"Try Medium","Thử mức Khó":"Try Hard","AI đang chấm các câu còn lại...":"The AI is grading the remaining answers...","Còn # câu chưa được chấm.":"# answers are not graded yet.","Chấm bằng AI":"Grade with AI","Câu cần xem lại":"Questions to review","Không sai câu nào. Làm tốt lắm!":"No mistakes. Well done!","Chờ chấm":"Waiting to be graded","Câu đúng (#)":"Correct answers (#)","Chọn loại khác":"Choose another type","Đổi độ khó":"Change level","Đề mới":"New set"});
@@ -2727,7 +2729,7 @@ function pct(a,b){return Math.max(0,Math.min(100,Math.round(a/b*100)))}
 
 /* Luyện thêm theo buổi: mỗi buổi có thêm vài đề Luyện đề khớp trọng tâm của buổi, để đủ ~30 phút.
    Đề được tính cho buổi nào do pxAttrib() quyết định lúc làm xong (lưu sd/wk trong S.px.hist). */
-const PXREQ={1:[["grammar",2]],2:[["listen",1],["talk",1]],4:[["translate",1],["read",1]],5:[["vocab",2],["read",1]],6:[["listen",1],["talk",1]]},PX_PASS=60;
+const PXREQ={1:[["grammar",3]],2:[["listen",2],["talk",1]],4:[["translate",2],["read",1]],5:[["vocab",3],["read",1]],6:[["listen",2],["talk",1]]},PX_PASS=60;
 function pxSessCount(dow,k){const wk=W().n;return pxS().hist.filter(x=>x.sd===dow&&x.wk===wk&&x.k===k&&x.n&&x.ok*100/x.n>=PX_PASS).length}
 function pxTasks(dow){return (PXREQ[dow]||[]).map(([k,n])=>{const T=PX_T[k],c=Math.min(n,pxSessCount(dow,k));
   return {l:`Luyện đề · ${T.t}`,p:`Đã đạt ${c}/${n} đề · mỗi đề đúng từ ${PX_PASS}% · khoảng ${T.m*n} phút`,d:c>=n,bar:pct(c,n),go:"practice/"+k,link:true}})}
@@ -4282,9 +4284,18 @@ function vMore(){const n=Math.min(VDAILY,vLeft());if(!n)return;const got=vOpenN(
 function vDailyInfo(){const dc=dueCards(),nw=dc.filter(c=>!S.vocab[c.w]).length;return {nw,rv:dc.length-nw,all:dc.length}}
 function vDailyDone(){return !!(S.vd&&S.vd.d===today()&&S.vd.n>0&&dueCards().length===0)}
 /* từ của tuần: những từ đã học trong tuần (ưu tiên từ còn yếu); chốt khi đã bắt đầu làm */
-function weekWords(){const m=mon(),ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.vocab[c.w]&&c.cat!=="talk"&&!vEasy(c));
+function weekWords(){return vuPad(weekWords0(),10)}
+function weekWords0(){const m=mon(),ent=VOCAB.map((c,i)=>[c,i]).filter(([c])=>S.vocab[c.w]&&c.cat!=="talk"&&!vEasy(c));
   const th=ent.filter(([c])=>(S.vocab[c.w].first||m)>=m),pl=th.length>=6?th:ent;
-  return pl.slice().sort((a,b)=>(S.vocab[a[0].w].box||0)-(S.vocab[b[0].w].box||0)||a[1]-b[1]).slice(0,8).map(([c])=>c.w)}
+  return pl.slice().sort((a,b)=>(S.vocab[a[0].w].box||0)-(S.vocab[b[0].w].box||0)||a[1]-b[1]).slice(0,10).map(([c])=>c.w)}
+/* đủ n từ cho bài tập: thiếu thì lấy thêm từ đơn đã học khác, rồi từ đã mở nhưng chưa học, rồi từ của chủ đề đang/sắp học (thẻ bài luôn hiện nghĩa, ví dụ) */
+function vuPad(base,n){
+  const out=[...base];if(out.length>=n)return out;
+  const add=l=>{for(const c of l){if(out.length>=n)break;if(c.cat!=="talk"&&!vEasy(c)&&!out.includes(c.w))out.push(c.w)}},T=VTOP.length,st=S.vtp>=0?S.vtp:0,ord=c=>c.tp<0?99:(c.tp-st+T)%T;
+  add(VOCAB.filter(c=>S.vocab[c.w]).sort((a,b)=>(S.vocab[a.w].box||0)-(S.vocab[b.w].box||0)));
+  add(vPool().filter(c=>!S.vocab[c.w]));
+  add(VOCAB.filter(c=>!S.vocab[c.w]).sort((a,b)=>ord(a)-ord(b)||(a.lv||1)-(b.lv||1)));
+  return out}
 function vu8Get(){if(!S.vu8||S.vu8.ws!==mon())S.vu8={ws:mon(),words:[],res:{}};if(!Object.keys(S.vu8.res).length)S.vu8.words=weekWords();return S.vu8}
 function usedWords(text,words){const t=" "+norm(text)+" ";return words.filter(w=>{const b=norm(w),st=b.length>4?b.slice(0,-1):b;try{return new RegExp("\\b"+st.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\w{0,3}\\b").test(t)}catch(e){return false}})}
 /* từ của tuần dùng cho mọi phần: ngữ pháp, nghe & nói, viết, sản phẩm tuần */
@@ -4730,7 +4741,7 @@ function renderVuse(){
   const wire=()=>{const r=document.getElementById("vu-redo");if(r)r.onclick=()=>{v8.res={};vuSt="ask";vuLast=null;save();after();renderVuse()}};
   if(!sample){box.innerHTML=hd+`<div class="err-inline" style="margin-top:8px">${aiErrMsg({code:"no_sample"})}</div>`;wire();return}
   const cur=vuSt==="result"&&vuLast?vuLast.w:n&&v8.words.find(w=>!v8.res[w]);
-  if(!cur){box.innerHTML=hd+`<div class="note" style="margin-top:8px">Xong: đúng ${ok}/${n}.${ok>=Math.ceil(n*0.75)?" Đạt.":" Cần "+Math.ceil(n*0.75)+"/"+n+". Bấm Làm lại để thử lần nữa."}</div>`;wire();return}
+  if(!cur){const pass=ok>=Math.ceil(n*0.75);box.innerHTML=hd+`<div class="note" style="margin-top:8px">Xong: đúng ${ok}/${n}.${pass?" Đạt.":" Cần "+Math.ceil(n*0.75)+"/"+n+". Thử lại để làm tốt hơn."}</div>${pass?"":`<div class="abar"><button class="btn pri" id="vu-retry">Thử lại</button></div>`}`;wire();const rt=document.getElementById("vu-retry");if(rt)rt.onclick=()=>document.getElementById("vu-redo").click();return}
   const c=VOCAB.find(x=>x.w===cur),r=v8.res[cur];
   let body;
   if(vuSt==="grading")body=loadingHTML("AI đang xem câu của bạn...");
@@ -4760,14 +4771,20 @@ async function vuCheck(c,ans){
   }catch(e){vuSt="ask";renderVuse();document.getElementById("vu-in").insertAdjacentHTML("afterend",`<div class="err-inline">${aiErrMsg(e)}</div>`)}
 }
 /* từ gợi ý cho Kể chuyện: tất cả từ đơn đã học (nhiều hơn danh sách Đặt câu); cần dùng tối đa 4, ít hơn nếu mới học ít từ */
-function storyWords(){return wkWords().slice(0,12)}
+function storyWords(){return vuPad(wkWords().slice(0,12),8)}
 function storyNeed(){return Math.min(4,storyWords().length)}
 let vuTab="sent";
 function vuTabs(){
   const b=tasksBase(5),sl=b[0],sy=b[1],v8=vu8Get(),n=v8.words.length,dn=Object.keys(v8.res).length,st=vstoryStat(),nd=storyNeed();
   document.getElementById("vu-steps").innerHTML=[["sent","1 · Đặt câu",sl.d,n?`${dn}/${n} từ`:"Chưa có từ"],["story","2 · Kể chuyện",sy.d,st?`${st.n} câu`:"Chưa viết"]].map(([k,t,d,sub])=>`<div class="wrstep ${d?"dn":""} ${vuTab===k?"sel":""}" data-vt="${k}"><b>${d?"✓ ":""}${t}</b>${sub}</div>`).join("");
   document.querySelectorAll("[data-vt]").forEach(e=>e.onclick=()=>{vuTab=e.dataset.vt;vuTabs()});
-  document.getElementById("vu-card1").classList.toggle("hidden",vuTab!=="sent");document.getElementById("vu-card2").classList.toggle("hidden",vuTab!=="story")}
+  document.getElementById("vu-card1").classList.toggle("hidden",vuTab!=="sent");document.getElementById("vu-card2").classList.toggle("hidden",vuTab!=="story");vuNext(sl.d,sy.d)}
+/* sau khi xong một phần: nút hành động ở thanh đáy (sang phần kể chuyện, rồi sang đề Luyện đề còn thiếu, rồi về Hôm nay) */
+function vuNext(slDone,syDone){
+  const nav=document.getElementById("vu-nav");let h="";
+  if(vuTab==="sent"&&slDone&&vuSt!=="result")h=`<div class="abar"><button class="btn pri" id="vu-go2">Sang phần 2 · Kể chuyện ›</button></div>`;
+  else if(vuTab==="story"&&syDone){const t=pxTasks(5).find(x=>!x.d);h=t?`<div class="abar"><a class="btn pri" href="#${t.go}" style="text-decoration:none;text-align:center">Sang Luyện đề ›</a></div>`:`<div class="abar"><a class="btn pri" href="#today" style="text-decoration:none;text-align:center">Về Hôm nay</a></div>`}
+  nav.innerHTML=h;const g=document.getElementById("vu-go2");if(g)g.onclick=()=>{vuTab="story";vuTabs();window.scrollTo(0,0)}}
 function renderStory(){
   const ws=storyWords(),nd=storyNeed(),t=document.getElementById("vs-text");
   const st=S.vstory&&S.vstory.ws===mon()?S.vstory:null;
@@ -4785,7 +4802,7 @@ document.getElementById("vs-check").onclick=async()=>{
   if(used.length<nd){er.textContent=`Mới dùng ${used.length} từ của tuần. Dùng thêm ${nd-used.length} từ nữa nhé.`;return}
   er.textContent="";const ss=t.split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(Boolean).slice(0,10),b=document.getElementById("vs-check");b.disabled=true;
   const v=await grade({sentences:ss,task:`The learner writes a short story about their day or week and tries to use these vocabulary words: ${ws.join(", ")}. Grade each sentence for grammar and for natural, correct use of the words.`,target:"vs-result",store:"vstory"});
-  if(v){S.vstory.ws=mon();S.vstory.text=t;S.vstory.used=used;log("vocab",`Kể chuyện với từ của tuần: ${ss.length} câu, dùng ${used.length} từ`);xp(5);after()}
+  if(v){S.vstory.ws=mon();S.vstory.text=t;S.vstory.used=used;log("vocab",`Kể chuyện với từ của tuần: ${ss.length} câu, dùng ${used.length} từ`);xp(5);after();vuTabs()}
   b.disabled=false;
 };
 document.getElementById("vs-redo").onclick=()=>{const t=document.getElementById("vs-text");t.value="";document.getElementById("vs-err").textContent="";document.getElementById("vs-result").innerHTML="";renderStory()};
