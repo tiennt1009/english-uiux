@@ -4542,7 +4542,10 @@ function vuPad(base,n){
   add(vPool().filter(c=>!S.vocab[c.w]));
   add(VOCAB.filter(c=>!S.vocab[c.w]).sort((a,b)=>ord(a)-ord(b)||(a.lv||1)-(b.lv||1)));
   return out}
-function vu8Get(){if(!S.vu8||S.vu8.ws!==mon()||S.vu8.v!==2)S.vu8={v:2,ws:mon(),words:[],res:{}};if(!Object.keys(S.vu8.res).length)S.vu8.words=weekWords();return S.vu8}
+function vu8Get(){
+  /* bản cũ (v chưa là 2) cùng tuần: GIỮ kết quả các câu đã làm, chỉ bổ sung từ cho đủ 10 */
+  if(S.vu8&&S.vu8.ws===mon()&&S.vu8.v!==2){const o=S.vu8,res=o.res||{},ws=[...(o.words||[])];Object.keys(res).forEach(w=>{if(!ws.includes(w))ws.push(w)});S.vu8={v:2,ws:mon(),words:vuPad(ws,10),res}}
+  if(!S.vu8||S.vu8.ws!==mon()||S.vu8.v!==2)S.vu8={v:2,ws:mon(),words:[],res:{}};if(!Object.keys(S.vu8.res).length)S.vu8.words=weekWords();return S.vu8}
 function usedWords(text,words){const t=" "+norm(text)+" ";return words.filter(w=>{const b=norm(w),st=b.length>4?b.slice(0,-1):b;try{return new RegExp("\\b"+st.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\w{0,3}\\b").test(t)}catch(e){return false}})}
 /* từ của tuần dùng cho mọi phần: ngữ pháp, nghe & nói, viết, sản phẩm tuần */
 /* toàn bộ từ đã học tính tới hôm nay trong tuần (T2 6 từ, T3 12 từ...), ưu tiên từ mới học và từ còn yếu.
