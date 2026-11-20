@@ -4123,13 +4123,16 @@ function pxRun(box){
   if(!s){box.innerHTML="";return}
   if(s.done)return pxResult(box);
   const n=s.qs.length,i=s.i,q=s.qs[i],a=s.ans[i];
-  const bars=`<div class="exbar"><div class="bars">${s.qs.map((_,j)=>{const x=s.ans[j];return `<i class="${x?(x.ok===true?"ok":x.ok===false?"no":"half"):""} ${j===i?"cur":""}"></i>`}).join("")}</div><span class="n">Câu ${i+1}/${n}</span></div>`;
+  const bars=`<div class="exbar"><div class="bars">${s.qs.map((_,j)=>{const x=s.ans[j];return `<i data-pj="${j}" class="${x?(x.ok===true?"ok":x.ok===false?"no":"half"):""} ${j===i?"cur":""}"></i>`}).join("")}</div><span class="n">Câu ${i+1}/${n}</span></div>`;
   const psg=s.psg?`<div class="px-psg"><b class="raw">${esc(s.psg.title)}</b><span class="raw">${esc(s.psg.text).replace(/\n/g,"<br>")}</span>${s.psg.tr?`<details><summary>Xem bản dịch tiếng Việt</summary>${esc(s.psg.tr).replace(/\n/g,"<br>")}</details>`:""}</div>`:"";
   let bar="";
   if(a)bar=`<div class="exnav"><span></span><button class="btn pri" id="px-next">${i+1<n?"Tiếp ›":"Xem kết quả ›"}</button></div>`;
   else if(q.f!=="mcq")bar=`<div class="abar kbin shin"><textarea class="tin" rows="1" id="px-in" placeholder="${q.f==="dict"?"Chép lại câu":q.ai?"Viết câu tiếng Anh":"Gõ từ"}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea><button class="btn pri" id="px-chk">Kiểm tra</button></div>`;
   box.innerHTML=bars+psg+`<div class="card">${pxQHTML(s,q,a)}</div>`+bar;
   box.querySelectorAll("[data-oi]").forEach(b=>b.onclick=()=>pxAns(q.opts[+b.dataset.oi]));
+  /* bấm ô số đã làm (hoặc câu đang làm) để xem lại */
+  const first=s.qs.findIndex((_,j)=>!s.ans[j]),lim=first<0?n-1:first;
+  box.querySelectorAll("[data-pj]").forEach(e=>e.onclick=()=>{const j=+e.dataset.pj;if(j<=lim&&j!==s.i){s.i=j;renderPractice();window.scrollTo(0,0)}});
   const nx=document.getElementById("px-next");if(nx){nx.onclick=pxNext;nx.focus({preventScroll:true})}
   const sk=document.getElementById("px-skip");if(sk)sk.onclick=()=>pxAns("",true);
   const inp=document.getElementById("px-in"),chk=document.getElementById("px-chk");
@@ -4740,8 +4743,10 @@ function renderVuse(){
   renderStory();
   if(!n){box.innerHTML=`<div class="note">Bạn chưa học từ nào trong tuần. Làm mục "Từ mới hôm nay" trước, rồi quay lại đây.</div><a class="btn pri" href="#vocab" style="display:inline-block;text-decoration:none;margin-top:8px">Học từ mới hôm nay</a>`;return}
   const curW=vuSt==="result"&&vuLast?vuLast.w:v8.words.find(w=>!v8.res[w]);
-  const hd=`<div class="exbar"><div class="bars">${v8.words.map(w=>`<i class="${v8.res[w]?(v8.res[w].ok?"ok":"no"):""} ${w===curW?"cur":""}"></i>`).join("")}</div></div>`;
-  const wire=()=>{const r=document.getElementById("vu-redo");if(r)r.onclick=()=>{v8.res={};vuSt="ask";vuLast=null;save();after();renderVuse()}};
+  const hd=`<div class="exbar"><div class="bars">${v8.words.map(w=>`<i data-vw="${esc(w)}" class="${v8.res[w]?(v8.res[w].ok?"ok":"no"):""} ${w===curW?"cur":""}"></i>`).join("")}</div></div>`;
+  const wire=()=>{/* bấm ô đã làm: xem lại câu và kết quả của từ đó; bấm ô chưa làm: quay về từ đang làm */
+    box.querySelectorAll("[data-vw]").forEach(i=>i.onclick=()=>{const w=i.dataset.vw;if(v8.res[w]){vuSt="result";vuLast={w}}else{vuSt="ask";vuLast=null}renderVuse()});
+    const r=document.getElementById("vu-redo");if(r)r.onclick=()=>{v8.res={};vuSt="ask";vuLast=null;save();after();renderVuse()}};
   if(!sample){box.innerHTML=hd+`<div class="err-inline" style="margin-top:8px">${aiErrMsg({code:"no_sample"})}</div>`;wire();return}
   const cur=vuSt==="result"&&vuLast?vuLast.w:n&&v8.words.find(w=>!v8.res[w]);
   if(!cur){const pass=ok>=Math.ceil(n*0.75);box.innerHTML=hd+`<div class="note" style="margin-top:8px">Xong: đúng ${ok}/${n}.${pass?" Đạt.":" Cần "+Math.ceil(n*0.75)+"/"+n+". Thử lại để làm tốt hơn."}</div>${pass?"":`<div class="abar"><button class="btn pri" id="vu-retry">Thử lại</button></div>`}`;wire();const rt=document.getElementById("vu-retry");if(rt)rt.onclick=()=>document.getElementById("vu-redo").click();return}

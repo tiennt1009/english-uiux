@@ -496,6 +496,35 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 15) Ô số tiến độ bấm được để xem lại câu đã làm (Đặt câu, Luyện đề)
+  console.log('\n[15] Xem lại câu đã làm');
+  {
+    const { context, page, errors } = await newPage();
+    await page.goto(BASE + '#s-1-5', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => {
+      const v = vu8Get(); v.res[v.words[0]] = { ok: true, ans: 'a', right: 'a', why: '' }; v.res[v.words[1]] = { ok: false, ans: 'bad', right: 'good one', why: 'x' }; vuSt = 'ask'; renderVuse();
+      const cur = document.querySelector('#vu-box .fc-wrow span').textContent;
+      document.querySelector('[data-vw]:nth-child(2)').click();
+      const rev = document.getElementById('vu-box').innerText.includes('good one');
+      document.getElementById('vu-next').click();
+      return { rev, back: document.querySelector('#vu-box .fc-wrow span').textContent === cur };
+    });
+    if (r.rev) ok('Đặt câu: bấm ô đã làm → xem lại câu và đáp án'); else fail('Không xem lại được câu đã làm');
+    if (r.back) ok('Đặt câu: sau khi xem lại quay về từ đang làm'); else fail('Không quay về từ đang làm');
+    await page.evaluate(() => { location.hash = '#practice/vocab'; });
+    await page.waitForTimeout(200);
+    await page.click('#px-go'); await page.waitForTimeout(300);
+    for (let i = 0; i < 3; i++) { await page.click('[data-oi="0"]'); await page.click('#px-next'); }
+    await page.click('[data-pj="1"]'); await page.waitForTimeout(150);
+    const p2 = await page.evaluate(() => ({ i: px.set.i, fb: !!document.querySelector('#px-box .result') }));
+    await page.click('[data-pj="8"]'); await page.waitForTimeout(100);
+    const p3 = await page.evaluate(() => px.set.i);
+    if (p2.i === 1 && p2.fb && p3 === 1) ok('Luyện đề: xem lại câu đã làm, ô chưa tới không bấm được'); else fail('Luyện đề xem lại sai: ' + JSON.stringify([p2, p3]));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
