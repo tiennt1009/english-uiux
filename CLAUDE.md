@@ -97,6 +97,11 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - `#b-vuse` có thanh tab `#vu-steps` (`vuTabs()`, biến `vuTab`): "1 · Đặt câu" (thẻ `#vu-card1`, từ = `weekWords()`, tối đa 8) và "2 · Kể chuyện" (thẻ `#vu-card2`). Mỗi lúc chỉ hiện 1 thẻ.
 - Kể chuyện dùng `storyWords()` = `wkWords()` (tối đa 12 từ đơn đã học trong tuần, hiện bằng `wordChips`), số từ cần dùng `storyNeed()` = min(4, số từ có). Lý do: các chủ đề đầu (Xã giao, Hỏi lại...) toàn là cụm câu (`ph:1`) nên bị loại khỏi danh sách từ đơn; trước đây chỉ hiện 1 từ mà vẫn đòi 4.
 
+## Tăng khối lượng các phần học (20/11/2026, `APP_BUILD` 2026-11-20-a)
+- `S.vu8.v===2`: bản cũ (danh sách từ Đặt câu lưu từ trước, có thể chỉ 1 từ) bị đặt lại một lần để lấy 10 từ.
+- Roleplay `RP_N` 6 → 10 lượt (nhãn việc/tiến độ đều dùng `RP_N`). Nghe chép & nhại: AI soạn 8 câu, cần nhại đạt `shNeed()` = min(6, số câu có) (trước là 4); bản mẫu `SH_BASE` có 6 câu nên cần 6/6.
+- Chưa đổi (cần soạn thêm nội dung/đổi cấu trúc `S.wr`): bài Viết vẫn 3 tin nhắn + 2 UX writing + 4-5 câu bài chính; Ngữ pháp vẫn 4 + 8 câu bộ sẵn. Khối lượng của các buổi này được bù bằng `PXREQ`.
+
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
 - [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).

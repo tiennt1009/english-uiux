@@ -2245,7 +2245,7 @@ let S=JSON.parse(JSON.stringify(DEF));
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 try{const l=ls("eng-ux-state");if(l)S=Object.assign(JSON.parse(JSON.stringify(DEF)),JSON.parse(l))}catch(e){}
 /* ---- sao lưu tự động trong trình duyệt: lỡ cập nhật app, đồng bộ hay nhập dữ liệu làm mất tiến độ thì khôi phục được ---- */
-const BK="eng-bak-",APP_BUILD="2026-11-19-b";
+const BK="eng-bak-",APP_BUILD="2026-11-20-a";
 function prog(o){o=o||{};return Object.keys(o.sessions||{}).length*5+Object.keys(o.vocab||{}).length+(o.history||[]).length+(o.bm||[]).length+(o.notes||[]).length+Object.keys(o.errors||{}).length}
 function bakList(){try{return Object.keys(localStorage).filter(k=>k.startsWith(BK)).sort()}catch(e){return[]}}
 function bakSave(tag,o){o=o||S;if(prog(o)<5)return;
@@ -2754,8 +2754,8 @@ function tasksBase(dow){
     return [{l:`Học ${i.nw} từ mới và ôn ${i.rv} thẻ`,p:dn?`Đã xong hôm nay · ${S.vd.n} lượt`:`Còn ${i.all} thẻ · đã làm ${S.vd&&S.vd.d===today()?S.vd.n:0} lượt`,d:dn,go:"vocab"}];
   }
   if(dow===2){
-    return [{l:"Nghe chép và nhại đạt ít nhất 4 câu",p:w.story?"Xong":(()=>{const x=S.sh&&S.sh.k===shKey()?S.sh:null;return x?`Nhại đạt ${Object.values(x.p).filter(v=>v>=60).length}/4`:"Chưa làm"})(),d:w.story,bar:w.story?100:(()=>{const x=S.sh&&S.sh.k===shKey()?S.sh:null;return x?pct(Object.values(x.p).filter(v=>v>=60).length,4):0})(),go},
-            {l:"Roleplay: trả lời ít nhất 6 câu",p:`${w.rpTurns}/6 câu`,d:w.rpTurns>=6,bar:pct(w.rpTurns,6),go}];
+    return [{l:`Nghe chép và nhại đạt ít nhất ${shNeed()} câu`,p:w.story?"Xong":(()=>{const x=S.sh&&S.sh.k===shKey()?S.sh:null;return x?`Nhại đạt ${Object.values(x.p).filter(v=>v>=60).length}/${shNeed()}`:"Chưa làm"})(),d:w.story,bar:w.story?100:(()=>{const x=S.sh&&S.sh.k===shKey()?S.sh:null;return x?pct(Object.values(x.p).filter(v=>v>=60).length,shNeed()):0})(),go},
+            {l:`Roleplay: trả lời ít nhất ${RP_N} câu`,p:`${w.rpTurns}/${RP_N} câu`,d:w.rpTurns>=RP_N,bar:pct(w.rpTurns,RP_N),go}];
   }
   if(dow===4){
     const st=wrStat();
@@ -4296,7 +4296,7 @@ function vuPad(base,n){
   add(vPool().filter(c=>!S.vocab[c.w]));
   add(VOCAB.filter(c=>!S.vocab[c.w]).sort((a,b)=>ord(a)-ord(b)||(a.lv||1)-(b.lv||1)));
   return out}
-function vu8Get(){if(!S.vu8||S.vu8.ws!==mon())S.vu8={ws:mon(),words:[],res:{}};if(!Object.keys(S.vu8.res).length)S.vu8.words=weekWords();return S.vu8}
+function vu8Get(){if(!S.vu8||S.vu8.ws!==mon()||S.vu8.v!==2)S.vu8={v:2,ws:mon(),words:[],res:{}};if(!Object.keys(S.vu8.res).length)S.vu8.words=weekWords();return S.vu8}
 function usedWords(text,words){const t=" "+norm(text)+" ";return words.filter(w=>{const b=norm(w),st=b.length>4?b.slice(0,-1):b;try{return new RegExp("\\b"+st.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\w{0,3}\\b").test(t)}catch(e){return false}})}
 /* từ của tuần dùng cho mọi phần: ngữ pháp, nghe & nói, viết, sản phẩm tuần */
 /* toàn bộ từ đã học tính tới hôm nay trong tuần (T2 6 từ, T3 12 từ...), ưu tiên từ mới học và từ còn yếu.
@@ -4638,6 +4638,7 @@ const SH_BASE=[
 function shKey(){return W().n+"-"+S.rp.scen}
 function shGet(){if(!S.sh||S.sh.k!==shKey())S.sh={k:shKey(),lines:null,d:{},p:{}};return S.sh}
 const shLines=()=>shGet().lines||SH_BASE;
+const shNeed=()=>Math.min(6,shLines().length);
 let shBusy=false;
 async function shGen(force){
   const x=shGet(),grew=x.lines&&!Object.keys(x.d).length&&!Object.keys(x.p).length&&wkWords().length-(x.nw||0)>=4;
@@ -4646,7 +4647,7 @@ async function shGen(force){
   const sc=SCEN.find(s=>s.k===S.rp.scen),wk=WEEKS[Math.min(W().n,WEEKS.length)-1]||WEEKS[0];
   try{
     const v=await askJSON(`${learnerCtx()}
-Write a short spoken dialogue (6 lines) for listening and shadowing practice.
+Write a short spoken dialogue (8 lines) for listening and shadowing practice.
 Situation: ${sc.setup}
 This week's grammar: ${wk[0]}. Topic: ${wk[1]}.
 ${vocabCtx("The dialogue must stay on the situation's topic. Use up to 2-3 target words ONLY where they fit that topic naturally (some in the learner's (Bạn) lines); skip any word that does not fit, and never change the subject to use a word.")}The learner is a Vietnamese UI/UX designer and speaks every second line (the "Bạn" lines); the colleague speaks the others. Lines must be natural spoken American English, short (4-12 words), at the learner's level, and useful to reuse in the roleplay afterwards.
@@ -4663,7 +4664,7 @@ function spOne(){
   const w=W(),x=shGet(),L=shLines(),np=Object.values(x.p).filter(v=>v>=60).length;
   if(!spPart)spPart=w.story?2:1;
   const el=document.getElementById("sp-steps");if(!el)return;
-  const steps=[[1,"Nghe chép & nhại",w.story,`Nhại đạt ${np}/${L.length}`],[2,"Roleplay",w.rpTurns>=6,`${Math.min(w.rpTurns,6)}/6 câu`]];
+  const steps=[[1,"Nghe chép & nhại",w.story,`Nhại đạt ${np}/${L.length}`],[2,"Roleplay",w.rpTurns>=RP_N,`${Math.min(w.rpTurns,RP_N)}/${RP_N} câu`]];
   el.innerHTML=steps.map(([k,n,d,t])=>`<div class="wrstep ${d?"dn":""} ${k===spPart?"sel":""}" data-sp="${k}"><b>${d?"✓ ":""}${k} · ${n}</b>${t}</div>`).join("");
   el.querySelectorAll("[data-sp]").forEach(e=>e.onclick=()=>{spGo(+e.dataset.sp)});
   document.getElementById("sh-card").classList.toggle("hidden",spPart!==1);
@@ -4682,10 +4683,10 @@ function renderShadow(autoplay){
   document.getElementById("sh-new").classList.toggle("hidden",!sample);
   if(sum){
     const left=L.map((_,k)=>k).filter(k=>(x.p[k]||0)<60);
-    box.innerHTML=bar+`<div class="shsum"><div style="font-size:18px;font-weight:600;margin:4px 0">${np>=4?`<span class="bdg ok">Đạt</span> phần nghe chép và nhại`:"Gần xong rồi"}</div>
-      <p class="small muted" style="margin:0 0 10px">Nhại đạt ${np}/${n} câu${np>=4?"":` · cần ít nhất 4 câu để tính xong`}.</p>
+    box.innerHTML=bar+`<div class="shsum"><div style="font-size:18px;font-weight:600;margin:4px 0">${np>=shNeed()?`<span class="bdg ok">Đạt</span> phần nghe chép và nhại`:"Gần xong rồi"}</div>
+      <p class="small muted" style="margin:0 0 10px">Nhại đạt ${np}/${n} câu${np>=shNeed()?"":` · cần ít nhất ${shNeed()} câu để tính xong`}.</p>
       ${L.map((l,k)=>`<div class="shl ${(x.p[k]||0)>=60?"done":""}"><div class="who"><span>${k+1} · ${esc(l.who)}</span><span>${x.p[k]!=null?x.p[k]+"%":"chưa nhại"} ${speakBtn(l.en,1)}</span></div><div class="en raw">${esc(l.en)}</div></div>`).join("")}
-      <div class="shnav">${left.length?`<button class="btn ${np>=4?"ghost":"pri"}" id="sh-redo">Luyện lại ${left.length} câu chưa đạt</button>`:"<span></span>"}${np>=4?`<button class="btn pri" id="sh-torp">Sang Roleplay ›</button>`:""}</div></div>`;
+      <div class="shnav">${left.length?`<button class="btn ${np>=shNeed()?"ghost":"pri"}" id="sh-redo">Luyện lại ${left.length} câu chưa đạt</button>`:"<span></span>"}${np>=shNeed()?`<button class="btn pri" id="sh-torp">Sang Roleplay ›</button>`:""}</div></div>`;
     const r=document.getElementById("sh-redo");if(r)r.onclick=()=>{x.cur=left[0];save();renderShadow(true)};
     const tr=document.getElementById("sh-torp");if(tr)tr.onclick=()=>spGo(2);
   }else{
@@ -4720,7 +4721,7 @@ function renderShadow(autoplay){
   if(autoplay)document.getElementById("sh-card").scrollIntoView({behavior:"smooth",block:"start"});
   spOne();
 }
-function shDone(){const x=shGet();const np=Object.values(x.p).filter(v=>v>=60).length;if(np>=4&&!W().story){W().story=true;xp(3);after()}}
+function shDone(){const x=shGet();const np=Object.values(x.p).filter(v=>v>=60).length;if(np>=shNeed()&&!W().story){W().story=true;xp(3);after()}}
 document.getElementById("sh-new").onclick=()=>confirmSheet({title:"Đổi đề nghe chép?",text:W().story?CF_DONE:"AI sẽ soạn một đoạn hội thoại mới. Phần đang làm dở của đoạn hiện tại sẽ bị xóa.",run:()=>shGen(true)});
 document.getElementById("sh-all").onclick=()=>{
   const L=shLines().map(l=>l.en);
@@ -4847,7 +4848,7 @@ function renderChat(){setTimeout(spOne,0);
   box.scrollTop=box.scrollHeight;
 }
 const rpShown=new Set(),rpHintShown=new Set();
-const RP_N=6;
+const RP_N=10;
 /* thanh đáy Roleplay: chế độ nói (1 nút) hoặc chế độ nhập (‹ ô nhập ↵ Nói) */
 let rpTyping=false;
 function rpBarUI(fin){
