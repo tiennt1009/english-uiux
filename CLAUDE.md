@@ -92,6 +92,10 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 ## Nghĩa của cụm câu (19/11/2026, `APP_BUILD` 2026-11-19-b)
 - 127 cụm câu (`cat:"talk"`, `ph:1`) dùng làm bài "nhớ lại" (xem nghĩa Việt, gõ cả câu tiếng Anh). Nghĩa tiếng Việt phải **sát cấu trúc câu tiếng Anh** để người học suy ra được (vd "Do you mind if I sit here?" = "Bạn có phiền không nếu tôi ngồi đây?", không phải "Tôi ngồi đây được không?") và **không trùng nhau** giữa các cụm. 39 cụm đã viết lại; câu đồng nghĩa được chấp nhận đáp án của nhau qua trường `alt` (cột 7 của hàng `VMORE`). Khi thêm cụm mới: viết nghĩa sát nghĩa, kiểm tra không trùng `vi` với cụm khác.
 
+## Buổi Dùng từ vựng (T6) — 2 tab (20/11/2026)
+- `#b-vuse` có thanh tab `#vu-steps` (`vuTabs()`, biến `vuTab`): "1 · Đặt câu" (thẻ `#vu-card1`, từ = `weekWords()`, tối đa 8) và "2 · Kể chuyện" (thẻ `#vu-card2`). Mỗi lúc chỉ hiện 1 thẻ.
+- Kể chuyện dùng `storyWords()` = `wkWords()` (tối đa 12 từ đơn đã học trong tuần, hiện bằng `wordChips`), số từ cần dùng `storyNeed()` = min(4, số từ có). Lý do: các chủ đề đầu (Xã giao, Hỏi lại...) toàn là cụm câu (`ph:1`) nên bị loại khỏi danh sách từ đơn; trước đây chỉ hiện 1 từ mà vẫn đòi 4.
+
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
 - [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).

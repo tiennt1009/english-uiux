@@ -427,6 +427,26 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 12) Dùng từ vựng: 2 tab (Đặt câu / Kể chuyện); số từ cần dùng không vượt số từ có sẵn
+  console.log('\n[12] Dùng từ vựng: 2 tab');
+  {
+    const { context, page, errors } = await newPage();
+    await page.goto(BASE + '#s-1-5', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => {
+      S.vocab.deploy = { box: 1, due: '2030-01-01', first: today() }; S.vocab.backlog = { box: 1, due: '2030-01-01', first: today() };
+      vuTab = 'sent'; renderVuse();
+      const a = { c1: !document.getElementById('vu-card1').classList.contains('hidden'), c2: !document.getElementById('vu-card2').classList.contains('hidden') };
+      document.querySelector('[data-vt="story"]').click();
+      const b = { c1: !document.getElementById('vu-card1').classList.contains('hidden'), c2: !document.getElementById('vu-card2').classList.contains('hidden') };
+      return { a, b, tabs: document.querySelectorAll('[data-vt]').length, need: storyNeed(), words: storyWords().length };
+    });
+    if (r.tabs === 2 && r.a.c1 && !r.a.c2 && !r.b.c1 && r.b.c2) ok('2 tab: mỗi lúc chỉ hiện 1 bài (Đặt câu / Kể chuyện)'); else fail('Tab sai: ' + JSON.stringify(r));
+    if (r.need === Math.min(4, r.words) && r.need <= r.words) ok('Số từ cần dùng (' + r.need + ') không vượt số từ gợi ý (' + r.words + ')'); else fail('Cần ' + r.need + ' từ nhưng chỉ có ' + r.words);
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {

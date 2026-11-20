@@ -826,15 +826,16 @@ body.crit-open .crit-sheet,body.info-open .info-sheet,body.cf-open #cf-sheet,bod
     </div>
 
     <div id="b-vuse" class="sbody hidden">
-      <div class="card">
+      <div class="shtop" id="vu-steps"></div>
+      <div class="card" id="vu-card1">
         <h2>Đặt câu với từ của tuần</h2>
         <p class="muted small" style="margin:0 0 10px">Mỗi từ viết một câu. AI chấm nghĩa và ngữ pháp.</p>
         <div id="vu-box"></div>
       </div>
-      <div class="card">
+      <div class="card hidden" id="vu-card2">
         <h2>Kể chuyện hôm nay</h2>
-        <p class="muted small" style="margin:0 0 8px">Viết 4-5 câu về hôm nay, dùng ít nhất 4 từ dưới đây.</p>
-        <div class="chips" id="vs-words" style="margin-bottom:10px"></div>
+        <p class="muted small" style="margin:0 0 8px" id="vs-intro">Viết 4-5 câu về hôm nay, dùng ít nhất 4 từ dưới đây.</p>
+        <div id="vs-words" style="margin-bottom:10px"></div>
         <textarea id="vs-text" rows="5" placeholder="Today I had a long meeting with the client..."></textarea>
         <div class="small muted" id="vs-count" style="margin-top:4px"></div>
         <div class="err-inline" id="vs-err"></div>
@@ -2760,7 +2761,7 @@ function tasksBase(dow){
   if(dow===5){
     const v8=vu8Get(),n=v8.words.length,dn=Object.keys(v8.res).length,ok=Object.values(v8.res).filter(x=>x.ok).length,need=Math.ceil(n*0.75),st=vstoryStat();
     return [{l:n?`Đặt câu với ${n} từ của tuần: đúng ít nhất ${need}/${n}`:"Đặt câu với các từ của tuần",p:!n?"Học từ mới hằng ngày trước, rồi quay lại":dn?`Đã làm ${dn}/${n}, đúng ${ok}`:"Chưa làm",d:n>0&&dn===n&&ok>=need,bar:n?pct(dn,n):0,go},
-            {l:"Kể chuyện hôm nay: dùng ít nhất 4 từ của tuần, đúng ít nhất 3 câu",p:st?`${st.n} câu, đúng ${st.ok}, dùng ${st.used} từ`+(st.n>=4&&st.ok>=3&&st.used>=4?"":". Sửa rồi chấm lại"):"Chưa viết",d:!!(st&&st.n>=4&&st.ok>=3&&st.used>=4),bar:st?pct(st.n,4):0,go}];
+            {l:`Kể chuyện hôm nay: dùng ít nhất ${storyNeed()} từ của tuần, đúng ít nhất 3 câu`,p:st?`${st.n} câu, đúng ${st.ok}, dùng ${st.used} từ`+(st.n>=4&&st.ok>=3&&st.used>=storyNeed()?"":". Sửa rồi chấm lại"):"Chưa viết",d:!!(st&&st.n>=4&&st.ok>=3&&st.used>=storyNeed()),bar:st?pct(st.n,4):0,go}];
   }
   if(dow===6){
     const p=S.product&&S.product.wk===wk&&S.product.v,sc=p?+S.product.v.score||0:0;
@@ -4755,20 +4756,30 @@ async function vuCheck(c,ans){
     vuDone(c,{ok:!!r.ok,ans,right:r.right||"",why:r.explain_vi||""});
   }catch(e){vuSt="ask";renderVuse();document.getElementById("vu-in").insertAdjacentHTML("afterend",`<div class="err-inline">${aiErrMsg(e)}</div>`)}
 }
+/* từ gợi ý cho Kể chuyện: tất cả từ đơn đã học (nhiều hơn danh sách Đặt câu); cần dùng tối đa 4, ít hơn nếu mới học ít từ */
+function storyWords(){return wkWords().slice(0,12)}
+function storyNeed(){return Math.min(4,storyWords().length)}
+let vuTab="sent";
+function vuTabs(){
+  const b=tasksBase(5),sl=b[0],sy=b[1],v8=vu8Get(),n=v8.words.length,dn=Object.keys(v8.res).length,st=vstoryStat(),nd=storyNeed();
+  document.getElementById("vu-steps").innerHTML=[["sent","1 · Đặt câu",sl.d,n?`${dn}/${n} từ`:"Chưa có từ"],["story","2 · Kể chuyện",sy.d,st?`${st.n} câu`:"Chưa viết"]].map(([k,t,d,sub])=>`<div class="wrstep ${d?"dn":""} ${vuTab===k?"sel":""}" data-vt="${k}"><b>${d?"✓ ":""}${t}</b>${sub}</div>`).join("");
+  document.querySelectorAll("[data-vt]").forEach(e=>e.onclick=()=>{vuTab=e.dataset.vt;vuTabs()});
+  document.getElementById("vu-card1").classList.toggle("hidden",vuTab!=="sent");document.getElementById("vu-card2").classList.toggle("hidden",vuTab!=="story")}
 function renderStory(){
-  const v8=vu8Get(),ws=v8.words,t=document.getElementById("vs-text");
+  const ws=storyWords(),nd=storyNeed(),t=document.getElementById("vs-text");
   const st=S.vstory&&S.vstory.ws===mon()?S.vstory:null;
   if(st&&st.text&&!t.value)t.value=st.text;
-  const used=usedWords(t.value,ws);
-  document.getElementById("vs-words").innerHTML=ws.length?ws.map(w=>`<span class="chip ${used.includes(w)?"on":""}">${esc(w)}</span>`).join(""):`<span class="small muted">Chưa có từ nào trong tuần.</span>`;
-  document.getElementById("vs-count").textContent=ws.length?`Đã dùng ${used.length}/4 từ cần thiết`:"";
+  document.getElementById("vs-intro").textContent=`Viết 4-5 câu về hôm nay, dùng ít nhất ${nd} từ dưới đây.`;
+  document.getElementById("vs-words").innerHTML=ws.length?wordChips(t.value,"Từ của tuần",ws):`<span class="small muted">Chưa có từ nào trong tuần.</span>`;
+  document.getElementById("vs-count").textContent="";
+  vuTabs();
   if(st&&st.v&&!document.getElementById("vs-result").innerHTML)renderGrade("vs-result",st.v,st.sentences);
 }
 document.getElementById("vs-text").addEventListener("input",()=>{document.getElementById("vs-err").textContent="";renderStory()});
 document.getElementById("vs-check").onclick=async()=>{
-  const t=document.getElementById("vs-text").value.trim(),er=document.getElementById("vs-err"),ws=vu8Get().words,used=usedWords(t,ws);
+  const t=document.getElementById("vs-text").value.trim(),er=document.getElementById("vs-err"),ws=storyWords(),nd=storyNeed(),used=usedWords(t,ws);
   if(t.split(/\s+/).length<8){er.textContent="Viết dài hơn một chút, khoảng 4-5 câu.";return}
-  if(used.length<4){er.textContent=`Mới dùng ${used.length} từ của tuần. Dùng thêm ${4-used.length} từ nữa nhé.`;return}
+  if(used.length<nd){er.textContent=`Mới dùng ${used.length} từ của tuần. Dùng thêm ${nd-used.length} từ nữa nhé.`;return}
   er.textContent="";const ss=t.split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(Boolean).slice(0,10),b=document.getElementById("vs-check");b.disabled=true;
   const v=await grade({sentences:ss,task:`The learner writes a short story about their day or week and tries to use these vocabulary words: ${ws.join(", ")}. Grade each sentence for grammar and for natural, correct use of the words.`,target:"vs-result",store:"vstory"});
   if(v){S.vstory.ws=mon();S.vstory.text=t;S.vstory.used=used;log("vocab",`Kể chuyện với từ của tuần: ${ss.length} câu, dùng ${used.length} từ`);xp(5);after()}
