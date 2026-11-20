@@ -103,6 +103,9 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 - **Bài Viết (áp dụng cho bộ MỚI, dữ liệu đã học giữ nguyên)**: số câu lấy theo độ dài mảng đã lưu trong `S.wr` (`x.a.m.length` tin nhắn, `x.a.u.length` UX writing, `wrCMin(x)` = `x.cmin||4` câu bài chính). Bộ tạo mới (`wrPick()`: tuần mới hoặc bấm Đổi đề) dùng `WNM=5` tin (3 tin của tuần + 2 tin từ kho `WTOP` lưu ở `x.mx`), `WNU=3` UX writing, `WCMIN=5` câu. Ngưỡng đạt: tin đúng ≥ceil(2/3·số tin), UX đúng ≥ceil(0.75·số câu), bài chính ≥cmin câu và sai tối đa 1. Nhãn/tiến độ/việc đều lấy từ `wrStat()` (`aT, aNeed, uT, uNeed, cMin`), đừng gắn cứng số.
 - **Ngữ pháp**: khi bấm "Tạo bộ bài mới", AI soạn 18 câu (6 khởi động + 12 dịch) thay vì 12; bộ đã lưu (`S.ex`) giữ nguyên. Ngưỡng đạt tính theo số câu thực tế (`l2Stats`).
 
+## Sổ tay: tab Từ vựng (20/11/2026)
+- Tab đầu của sổ tay (`#nb-vocab`, `renderNbVocab()`/`nbvList()`, trạng thái `nbvQ/nbvF/nbvN`): toàn bộ `VOCAB` (cả từ chưa học, cả mức Dễ và cụm câu), ô tìm theo từ hoặc nghĩa, lọc Tất cả/Đã học/Chưa học, hiện 80 dòng mỗi lần + "Xem thêm". Bấm dòng để xem ví dụ; từ đã học hiện độ nhớ, từ chưa học hiện "Chưa học". Chỉ đọc, không đổi `S`.
+
 ## Việc còn treo
 - [ ] Luyện đề: chưa thử trên điện thoại thật và với Gemini thật (chỉ test mock): chất lượng/độ đúng đáp án do AI soạn cần người dùng soát vài đề đầu; nếu thấy đáp án sai thì thêm nút "Báo AI chấm sai" (`flagBtn`) cho màn kết quả.
 - [ ] Luyện đề: chưa có "Ôn lại câu sai của đề" riêng và chưa lưu đề dở khi tải lại trang (cố ý, để đơn giản).

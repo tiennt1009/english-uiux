@@ -471,6 +471,31 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+
+  // 14) Sổ tay có tab Từ vựng: toàn bộ kho từ (đã học + chưa học), tìm kiếm, lọc
+  console.log('\n[14] Sổ tay: tab Từ vựng');
+  {
+    const { context, page, errors } = await newPage();
+    await page.goto(BASE + '#notebook', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    await page.click('#nb-seg [data-t="vocab"]');
+    await page.waitForTimeout(300);
+    const r = await page.evaluate(() => {
+      S.vocab.deploy = { box: 2, due: '2030-01-01', first: today() }; renderNbVocab();
+      const chips = [...document.querySelectorAll('#nb-vocab .chip')].map((x) => x.textContent), n0 = document.querySelectorAll('#nbv-list .vr').length;
+      const q = document.getElementById('nbv-q'); q.value = 'deploy'; q.dispatchEvent(new Event('input'));
+      const found = [...document.querySelectorAll('#nbv-list .vr b')].map((x) => x.textContent);
+      q.value = ''; q.dispatchEvent(new Event('input')); document.querySelector('[data-f="learned"]').click();
+      const learned = [...document.querySelectorAll('#nbv-list .vr b')].map((x) => x.textContent);
+      return { chips, n0, found, learned, total: VOCAB.length };
+    });
+    if (r.chips[0] === 'Tất cả ' + r.total && r.total >= 720) ok('Tab Từ vựng liệt kê toàn bộ ' + r.total + ' từ (đã học lẫn chưa học)'); else fail('Số từ sai: ' + JSON.stringify(r.chips));
+    if (r.n0 === 80) ok('Hiện 80 từ đầu, có nút Xem thêm'); else fail('Số dòng đầu: ' + r.n0);
+    if (r.found.includes('deploy') && r.found.length <= 3) ok('Tìm kiếm theo từ tiếng Anh'); else fail('Tìm kiếm sai: ' + JSON.stringify(r.found));
+    if (r.learned.length === 1 && r.learned[0] === 'deploy') ok('Lọc "Đã học" chỉ còn từ đã học'); else fail('Lọc đã học sai: ' + JSON.stringify(r.learned));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
