@@ -4738,7 +4738,7 @@ function renderVuse(){
   renderStory();
   if(!n){box.innerHTML=`<div class="note">Bạn chưa học từ nào trong tuần. Làm mục "Từ mới hôm nay" trước, rồi quay lại đây.</div><a class="btn pri" href="#vocab" style="display:inline-block;text-decoration:none;margin-top:8px">Học từ mới hôm nay</a>`;return}
   const curW=vuSt==="result"&&vuLast?vuLast.w:v8.words.find(w=>!v8.res[w]);
-  const hd=`<div class="exbar"><div class="bars">${v8.words.map(w=>`<i class="${v8.res[w]?(v8.res[w].ok?"ok":"no"):""} ${w===curW?"cur":""}"></i>`).join("")}</div><span class="n">${curW?`Từ ${v8.words.indexOf(curW)+1}/${n}`:"Xong"} · đúng ${ok}</span></div>`;
+  const hd=`<div class="exbar"><div class="bars">${v8.words.map(w=>`<i class="${v8.res[w]?(v8.res[w].ok?"ok":"no"):""} ${w===curW?"cur":""}"></i>`).join("")}</div></div>`;
   const wire=()=>{const r=document.getElementById("vu-redo");if(r)r.onclick=()=>{v8.res={};vuSt="ask";vuLast=null;save();after();renderVuse()}};
   if(!sample){box.innerHTML=hd+`<div class="err-inline" style="margin-top:8px">${aiErrMsg({code:"no_sample"})}</div>`;wire();return}
   const cur=vuSt==="result"&&vuLast?vuLast.w:n&&v8.words.find(w=>!v8.res[w]);
