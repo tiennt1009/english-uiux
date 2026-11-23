@@ -701,6 +701,37 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+  // 22) Ngữ pháp - Khởi động: chạm là chấm; sai thì giấu đáp án đúng, nút chính "Vì sao?"; đúng thì nút chính "Tiếp"
+  console.log('\n[22] Khởi động kiểu chạm là chấm');
+  {
+    const { context, page, errors } = await newPage();
+    await page.clock.install({ time: new Date('2026-11-16T09:00:00') });
+    await page.goto(BASE + '#s-1-1', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    await page.evaluate(() => { closeDrawer(true); showLv(1); });
+    await page.waitForTimeout(300);
+    const st = () => page.evaluate(() => { const nav = document.querySelector('#ex-list .exnav.qa'); return {
+      cls: [...document.querySelectorAll('#ex-list .qopt')].map((b) => b.className.replace(/opt qopt ?/, '').trim()),
+      nav: nav ? nav.className : '', pri: nav && nav.querySelector('.btn.pri') ? nav.querySelector('.btn.pri').textContent : '', lnk: nav && nav.querySelector('.lnk') ? nav.querySelector('.lnk').textContent : '',
+      fb: !!document.querySelector('#ex-list .fb'), vd: nav && nav.querySelector('.vd-t') ? nav.querySelector('.vd-t').textContent : '' }; });
+    const q0 = await page.evaluate(() => { const it = S.ex.items[0]; return { ans: it.answer, opts: it.options }; });
+    const wrongO = q0.opts.find((o) => o !== q0.ans);
+    const before = await st();
+    if (before.cls.length === 3 && !before.nav) ok('Câu chọn: 3 thẻ đáp án, chưa có thanh đáy (không cần nút Kiểm tra)'); else fail('Trước khi chọn sai: ' + JSON.stringify(before));
+    await page.click(`#ex-list .qopt[data-o="${wrongO}"]`);
+    const a = await st();
+    if (a.cls.filter((c) => c === 'wrong').length === 1 && !a.cls.includes('right') && /vno/.test(a.nav) && /Vì sao/.test(a.pri) && /Tiếp/.test(a.lnk) && !a.fb && /Chưa đúng/.test(a.vd)) ok('Chọn sai: tô đỏ đáp án đã chọn, chưa lộ đáp án đúng, nút chính "Vì sao?"'); else fail('Chọn sai sai: ' + JSON.stringify(a));
+    await page.click('#ex-why');
+    const b = await st();
+    if (b.cls.includes('right') && b.fb && /Tiếp|kết quả/.test(b.pri) && !b.lnk) ok('Bấm "Vì sao?": hiện đáp án đúng + giải thích, nút chính thành "Tiếp"'); else fail('Sau Vì sao sai: ' + JSON.stringify(b));
+    await page.click('#ex-next');
+    const q1 = await page.evaluate(() => S.ex.items[1].answer);
+    await page.click(`#ex-list .qopt[data-o="${q1}"]`);
+    const c = await st();
+    if (c.cls.filter((x) => x === 'right').length === 1 && /vok/.test(c.nav) && /Tiếp/.test(c.pri) && /Giải thích/.test(c.lnk) && !c.fb) ok('Chọn đúng: tô xanh, nút chính "Tiếp" + link "Giải thích"'); else fail('Chọn đúng sai: ' + JSON.stringify(c));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {
