@@ -623,6 +623,38 @@ try {
     if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
+  // 20) Tuần 2: tuần 1 xong 4/5 (bỏ Thứ 7) → Thứ 2 tự sang tuần 2, có buổi Ngữ pháp tuần 2, bộ bài tuần 1 được cất lại
+  console.log('\n[20] Sang tuần 2');
+  {
+    const st = { v: 3, vset: 2, start: '2026-11-16', weekStarts: { 1: '2026-11-16' }, act: { '2026-11-16': 20 }, bm: [], notes: [], rv: [], vocab: {}, history: [], errors: {},
+      sessions: { 'w1-1': '2026-11-16', 'w1-2': '2026-11-17', 'w1-4': '2026-11-19', 'w1-5': '2026-11-20' }, rp: { scen: 'first', msgs: [] },
+      ex: { v: 4, src: 'static', items: [{ level: 1, type: 'mcq', q: 'I ___ a UI/UX designer.', options: ['am', 'is', 'are'], answer: 'am', explain: '', tag: 'to-be-agreement' }], answers: { 0: { ok: true, a: 'am' } } }, upd: Date.now() - 1000 };
+    const { context, page, errors } = await newPage({ 'eng-ux-state': JSON.stringify(st), 'eng-build': APP_BUILD, 'eng-gemini-key': 'AIzaMOCK' });
+    await page.clock.install({ time: new Date('2026-11-23T09:00:00') }); // Thứ 2 tuần sau
+    await page.goto(BASE + '#today', { waitUntil: 'load' });
+    await page.waitForTimeout(600);
+    const t = await page.evaluate(() => { const h = document.querySelector('#t-cards .hcard'); return { wk: curWeek(), href: h && h.getAttribute('href'), txt: h && h.textContent, bmc: [...document.querySelectorAll('.nb-link .bmc')].map((x) => x.textContent).join(''), ctx: learnerCtx() }; });
+    if (t.wk === 2) ok('Đủ 4/5 buổi: Thứ 2 tự sang tuần 2'); else fail('Tuần hiện tại sai: ' + t.wk);
+    if (t.href === '#d-1' && /What\/Where\/Who/.test(t.txt)) ok('Thẻ chính là buổi Ngữ pháp tuần 2'); else fail('Thẻ chính sai: ' + JSON.stringify([t.href, t.txt]));
+    if (/Current week: 2/.test(t.ctx) && /Wh- questions/.test(t.ctx)) ok('Lời nhắc AI theo tuần 2'); else fail('learnerCtx chưa theo tuần 2');
+    if (t.bmc === '') ok('Icon sổ tay không còn số đếm'); else fail('Icon sổ tay còn số: ' + t.bmc);
+    await page.click('#t-cards .hcard');
+    await page.waitForTimeout(500);
+    const g = await page.evaluate(() => ({ v: !document.getElementById('v-session').classList.contains('hidden'), exwk: S.ex.wk, q0: S.ex.items[0].q, old: S.exh && S.exh[1] && S.exh[1].answers[0] && S.exh[1].answers[0].a, done: !!S.sessions['w2-1'] }));
+    if (g.v && g.exwk === 2 && /manager/.test(g.q0)) ok('Mở buổi: bộ bài ngữ pháp tuần 2'); else fail('Buổi ngữ pháp tuần 2 sai: ' + JSON.stringify(g));
+    if (g.old === 'am') ok('Bộ bài tuần 1 được cất ở S.exh[1], không mất'); else fail('Mất bộ bài tuần 1');
+    if (!g.done) ok('Buổi tuần 2 chưa bị tính xong sẵn'); else fail('Buổi tuần 2 bị tính xong sẵn');
+    await page.goto(BASE + '#lessons', { waitUntil: 'load' });
+    await page.waitForTimeout(400);
+    const l = await page.evaluate(() => ({ k: document.getElementById('ls-k').textContent, a: [...document.querySelectorAll('#lesson-list a.pnode')].map((x) => x.getAttribute('href')), place: document.getElementById('ls-place').innerHTML }));
+    if (l.k === 'Tuần 2/24' && l.a.includes('#s-2-1') && l.a.includes('#s-2-6') && !l.place) ok('Bài học: lộ trình tuần 2, ẩn bài xếp tuần'); else fail('Bài học tuần 2 sai: ' + JSON.stringify(l));
+    await page.goto(BASE + '#s-2-6', { waitUntil: 'load' });
+    await page.waitForTimeout(400);
+    const p = await page.evaluate(() => ({ v: !document.getElementById('b-product').classList.contains('hidden'), h: document.getElementById('p-h').textContent }));
+    if (p.v && /công việc và team/.test(p.h)) ok('Sản phẩm tuần 2: giới thiệu công việc và team'); else fail('Sản phẩm tuần 2 sai: ' + JSON.stringify(p));
+    if (errors.length) fail('Lỗi JS tuần 2: ' + errors.join(' || '));
+    await context.close();
+  }
 } catch (e) {
   fail('Test bị dừng giữa chừng: ' + (e && e.stack || e));
 } finally {

@@ -136,6 +136,13 @@ KHÔNG kiểm: giọng nói thật, Gemini thật, GitHub thật, bố cục chi
 ## Sổ tay mở rộng (20/11/2026)
 - Nút mở rộng `#nb-expand` cạnh nút đóng trong đầu sổ tay: bật `#nb-drawer.full` (phủ kín màn hình, vẫn là drawer đè lên, không phải màn mới; điện thoại: `height:100dvh`, bo góc 0; máy tính: `width:100vw`). Lưu lựa chọn ở localStorage `eng-nbfull`.
 
+## Nội dung theo tuần (23/11/2026, `APP_BUILD` 2026-11-23-a)
+- Trước đây cả app chỉ có bài tuần 1 (kiểm `wk===1` khắp nơi); qua tuần 2 thì thẻ chính rơi xuống "Từ mới hôm nay" và không còn buổi học. Giờ dùng `WKC` (ngay sau `BURST_STATIC`): mỗi tuần đã soạn có `g/topic/lim` (cho `learnerCtx()`), `ex/burst/quick` (phạm vi cho lời nhắc AI soạn bài), `ex0` (bộ bài ngữ pháp có sẵn), `burst0`, `sh0` (đoạn nghe nhại mẫu), `prod` (đề Sản phẩm tuần), `desc` (mô tả buổi đè lên `SESS.desc`). `hasWk(n)` = tuần n có nội dung; `wkC()` = nội dung tuần hiện tại; `sDesc(s,wk)`.
+- Đang có tuần 1 và 2. **Thêm tuần mới = thêm `WKC[n]`** (Viết đã có sẵn 24 tuần trong `WKT`, lý thuyết có sẵn `CH[n]`, Nghe & nói/Roleplay do AI soạn theo `WEEKS`). Tuần chưa có trong `WKC` thì Hôm nay vẫn hiện "Nội dung tuần N chưa có".
+- Hash buổi học: `#s-<tuần>-<thứ>` (chỉ tuần hiện tại; `#s-1-<thứ>` vẫn dùng được như bí danh), `#d-<thứ>` từ Hôm nay. Khóa buổi `S.sessions["w<tuần>-<thứ>"]`.
+- `S.ex` có thêm `wk`; sang tuần mới bộ bài cũ được cất vào `S.exh[tuần]` (không xóa). `S.product` chỉ hiện nếu `wk` trùng tuần hiện tại. Bài xếp tuần chỉ hiện ở tuần 1.
+- Icon sổ tay không còn số đếm câu sai (`renderBmCount` để trống, theo yêu cầu 23/11). Test [20] kiểm tình huống tuần 1 xong 4/5 → Thứ 2 sang tuần 2.
+
 ## Bản màu đã lưu (chưa dùng)
 - **Chế độ tối tương phản cao** (21/11/2026): đã thử, người dùng thấy chưa ổn nên **trả về màu cũ**. Chỉ dùng lại khi người dùng bảo.
   Nền (`--bg`, `--bg-top`) giữ nguyên; thẻ sáng hơn nền, lớp con sáng hơn thẻ (theo ảnh mẫu tối kiểu "nền gần đen → thẻ xám tím → ô con nhạt hơn").
