@@ -640,9 +640,9 @@ try {
     if (t.bmc === '') ok('Icon sổ tay không còn số đếm'); else fail('Icon sổ tay còn số: ' + t.bmc);
     await page.click('#t-cards .hcard');
     await page.waitForTimeout(500);
-    const g = await page.evaluate(() => ({ v: !document.getElementById('v-session').classList.contains('hidden'), exwk: S.ex.wk, q0: S.ex.items[0].q, old: S.exh && S.exh[1] && S.exh[1].answers[0] && S.exh[1].answers[0].a, done: !!S.sessions['w2-1'] }));
+    const g = await page.evaluate(() => ({ v: !document.getElementById('v-session').classList.contains('hidden'), exwk: S.ex.wk, q0: S.ex.items[0].q, old: S.wkh && S.wkh[1] && S.wkh[1].ex && S.wkh[1].ex.answers[0] && S.wkh[1].ex.answers[0].a, done: !!S.sessions['w2-1'] }));
     if (g.v && g.exwk === 2 && /manager/.test(g.q0)) ok('Mở buổi: bộ bài ngữ pháp tuần 2'); else fail('Buổi ngữ pháp tuần 2 sai: ' + JSON.stringify(g));
-    if (g.old === 'am') ok('Bộ bài tuần 1 được cất ở S.exh[1], không mất'); else fail('Mất bộ bài tuần 1');
+    if (g.old === 'am') ok('Bộ bài tuần 1 được cất ở S.wkh[1], không mất'); else fail('Mất bộ bài tuần 1');
     if (!g.done) ok('Buổi tuần 2 chưa bị tính xong sẵn'); else fail('Buổi tuần 2 bị tính xong sẵn');
     await page.goto(BASE + '#lessons', { waitUntil: 'load' });
     await page.waitForTimeout(400);
@@ -653,6 +653,52 @@ try {
     const p = await page.evaluate(() => ({ v: !document.getElementById('b-product').classList.contains('hidden'), h: document.getElementById('p-h').textContent }));
     if (p.v && /công việc và team/.test(p.h)) ok('Sản phẩm tuần 2: giới thiệu công việc và team'); else fail('Sản phẩm tuần 2 sai: ' + JSON.stringify(p));
     if (errors.length) fail('Lỗi JS tuần 2: ' + errors.join(' || '));
+    await context.close();
+  }
+  // 21) Giữ dữ liệu tuần 1 khi sang tuần 2: cất vào S.wkh[1], lấy lại phần bị bản cũ thay mất từ sao lưu, mở lại buổi tuần 1 làm tiếp
+  console.log('\n[21] Giữ và mở lại dữ liệu tuần 1');
+  {
+    const ex1 = { v: 4, src: 'static', items: [{ level: 1, type: 'mcq', q: 'I ___ a UI/UX designer.', options: ['am', 'is', 'are'], answer: 'am', explain: '', tag: 'to-be-agreement' }, { level: 2, type: 'translate', q: 'Dịch: Tôi là designer.', answer: 'I am a designer.', accept: [], explain: '', tag: 'article' }], answers: { 0: { ok: true, a: 'am' } } };
+    const wr1 = { wk: 1, mi: [0, 1, 2], ci: 0, a: { m: ['Hi Ben, yes I am.', '', ''], u: ['', '', ''] }, rm: [null, null, null], ru: [null, null, null], cs: [], cdraft: 'My team is small.' };
+    // trạng thái hiện tại: bản cũ của app đã thay S.w và S.wr bằng bộ tuần 2 (mất dữ liệu tuần 1), chỉ còn trong bản sao lưu
+    const st = { v: 3, vset: 2, start: '2026-11-16', weekStarts: { 1: '2026-11-16', 2: '2026-11-23' }, act: { '2026-11-16': 20 }, bm: [], notes: [], rv: [], vocab: {}, history: [], errors: {},
+      sessions: { 'w1-1': '2026-11-16', 'w1-2': '2026-11-17', 'w1-4': '2026-11-19', 'w1-5': '2026-11-20' },
+      w: { n: 2, vocabRated: 0, vocabCleared: false, rpTurns: 0, story: false, grammarSeen: false, burstStreak: 0, burstBest: 0, quickBest: 0 },
+      ex: ex1, rp: { scen: 'first', msgs: [{ r: 'ai', t: 'Hi! Are you the new designer?' }, { r: 'me', t: 'Yes I am' }] },
+      product: { text: 'Hi, I am Nam. I am a designer from Hue.', wk: 1, v: { score: 7, polished: 'Hi, I\'m Nam.', comments_vi: [] } },
+      wr: { wk: 2, mi: [0, 1, 2], ci: 0, a: { m: ['', '', ''], u: ['', '', ''] }, rm: [null, null, null], ru: [null, null, null], cs: [] }, upd: Date.now() - 1000 };
+    const bak = { ...st, w: { n: 1, vocabRated: 0, vocabCleared: false, rpTurns: 4, story: true, grammarSeen: true, burstStreak: 0, burstBest: 5, quickBest: 4 }, wr: wr1, weekStarts: { 1: '2026-11-16' } };
+    const { context, page, errors } = await newPage({ 'eng-ux-state': JSON.stringify(st), 'eng-build': APP_BUILD, 'eng-bak-1763700000000-day': JSON.stringify(bak) });
+    await page.clock.install({ time: new Date('2026-11-23T10:00:00') });
+    await page.goto(BASE + '#today', { waitUntil: 'load' });
+    await page.waitForTimeout(600);
+    const a = await page.evaluate(() => { const h = S.wkh[1] || {}; return { wk: curWeek(), hw: h.w && h.w.burstBest, hwr: h.wr && h.wr.a.m[0], hex: h.ex && h.ex.answers[0] && h.ex.answers[0].a, hrp: h.rp && h.rp.msgs.length, hp: h.product && h.product.text, live: { w: S.w && S.w.n, rp: S.rp.msgs.length, p: S.product, wr: S.wr && S.wr.wk } }; });
+    if (a.wk === 2 && a.hex === 'am' && a.hrp === 2 && /Nam/.test(a.hp)) ok('Bài ngữ pháp, roleplay, sản phẩm tuần 1 được cất ở S.wkh[1]'); else fail('Cất tuần 1 sai: ' + JSON.stringify(a));
+    if (a.hw === 5 && a.hwr === 'Hi Ben, yes I am.') ok('Lấy lại tiến độ + bài Viết tuần 1 từ bản sao lưu'); else fail('Không lấy lại được từ sao lưu: ' + JSON.stringify(a));
+    if (a.live.rp === 0 && !a.live.p && (a.live.wr === 2 || a.live.wr == null)) ok('Tuần 2 bắt đầu sạch, không lẫn bài tuần 1'); else fail('Tuần 2 lẫn dữ liệu tuần 1: ' + JSON.stringify(a.live));
+    await page.goto(BASE + '#lessons', { waitUntil: 'load' });
+    await page.waitForTimeout(400);
+    const l = await page.evaluate(() => [...document.querySelectorAll('#ls-past a.lrow')].map((x) => x.getAttribute('href')));
+    if (l.includes('#s-1-6') && l.includes('#s-1-1')) ok('Bài học: "Tuần đã học" có link mở lại từng buổi tuần 1'); else fail('Thiếu link buổi tuần 1: ' + JSON.stringify(l));
+    await page.goto(BASE + '#s-1-6', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const p = await page.evaluate(() => ({ wk: curWeek(), t: document.getElementById('p-text').value, h: document.getElementById('p-h').textContent, res: document.getElementById('p-result').textContent }));
+    if (p.wk === 1 && /Nam/.test(p.t) && /tự giới thiệu/.test(p.h) && /7\/10/.test(p.res)) ok('Mở lại Sản phẩm tuần 1: còn bài đã viết và điểm'); else fail('Mở lại Sản phẩm tuần 1 sai: ' + JSON.stringify(p));
+    await page.goto(BASE + '#s-1-1', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const g = await page.evaluate(() => ({ wk: curWeek(), q: S.ex.items[0].q, a: S.ex.answers[0] && S.ex.answers[0].a, seen: W().grammarSeen, bb: W().burstBest }));
+    if (g.wk === 1 && /designer/.test(g.q) && g.a === 'am' && g.seen && g.bb === 5) ok('Mở lại Ngữ pháp tuần 1: còn đáp án và tiến độ'); else fail('Mở lại Ngữ pháp tuần 1 sai: ' + JSON.stringify(g));
+    await page.goto(BASE + '#s-1-4', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const w = await page.evaluate(() => ({ wk: S.wr && S.wr.wk, m: S.wr && S.wr.a.m[0], d: S.wr && S.wr.cdraft }));
+    if (w.wk === 1 && w.m === 'Hi Ben, yes I am.' && w.d === 'My team is small.') ok('Mở lại Viết tuần 1: còn câu đã viết và bản nháp'); else fail('Mở lại Viết tuần 1 sai: ' + JSON.stringify(w));
+    await page.reload({ waitUntil: 'load' }); // tải lại giữa chừng khi đang xem tuần cũ
+    await page.waitForTimeout(500);
+    await page.goto(BASE + '#today', { waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    const b2 = await page.evaluate(() => ({ wk: curWeek(), w: W().n, ex: S.ex && S.ex.wk, h1ex: S.wkh[1].ex && S.wkh[1].ex.answers[0].a, h1wr: S.wkh[1].wr && S.wkh[1].wr.a.m[0], h1p: S.wkh[1].product && S.wkh[1].product.text, hero: document.querySelector('#t-cards .hcard').getAttribute('href'), saved: JSON.parse(localStorage.getItem('eng-ux-state')).wkh[1] ? 1 : 0 }));
+    if (b2.wk === 2 && b2.w === 2 && b2.h1ex === 'am' && b2.h1wr === 'Hi Ben, yes I am.' && /Nam/.test(b2.h1p) && b2.hero === '#d-1' && b2.saved) ok('Về Hôm nay: lại là tuần 2, dữ liệu tuần 1 vẫn cất đủ (kể cả sau khi tải lại trang)'); else fail('Quay về tuần 2 sai: ' + JSON.stringify(b2));
+    if (errors.length) fail('Lỗi JS: ' + errors.join(' || '));
     await context.close();
   }
 } catch (e) {
